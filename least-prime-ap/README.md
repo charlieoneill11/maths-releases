@@ -46,7 +46,7 @@ A clean CI build took 27 minutes. [lean/REPORT.md](lean/REPORT.md) gives the tim
 
 ## Citing
 
-BibTeX (also in [CITATION.bib](CITATION.bib) and on the [paper's page](https://charlieoneill11.github.io/maths-releases/least-prime-ap/)):
+BibTeX (also in [CITATION.bib](CITATION.bib) and on the [paper's page](https://charlesponeill.com/maths-releases/least-prime-ap/)):
 
 ```bibtex
 @misc{least-prime-ap-2026,
@@ -54,7 +54,7 @@ BibTeX (also in [CITATION.bib](CITATION.bib) and on the [paper's page](https://c
   title        = {Primes below {$n^{2-\delta}$} in every residue class, for a majority of moduli},
   year         = {2026},
   month        = nov,
-  howpublished = {\url{https://charlieoneill11.github.io/maths-releases/least-prime-ap/}},
+  howpublished = {\url{https://charlesponeill.com/maths-releases/least-prime-ap/}},
   note         = {Preprint. Programs and data: \url{https://github.com/charlieoneill11/maths-releases/tree/main/least-prime-ap}},
 }
 ```

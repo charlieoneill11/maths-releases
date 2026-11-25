@@ -91,7 +91,7 @@ The recorded run, compiled with `-march=native` added, took about 25 minutes on 
 
 ## Citing
 
-BibTeX (also in [CITATION.bib](CITATION.bib) and on the [paper's page](https://charlieoneill11.github.io/maths-releases/seven-cycle-five/)):
+BibTeX (also in [CITATION.bib](CITATION.bib) and on the [paper's page](https://charlesponeill.com/maths-releases/seven-cycle-five/)):
 
 ```bibtex
 @misc{seven-cycle-five-2026,
@@ -99,7 +99,7 @@ BibTeX (also in [CITATION.bib](CITATION.bib) and on the [paper's page](https://c
   title        = {The fourth strong power of the seven-cycle has independence number at most {$112$}},
   year         = {2026},
   month        = nov,
-  howpublished = {\url{https://charlieoneill11.github.io/maths-releases/seven-cycle-five/}},
+  howpublished = {\url{https://charlesponeill.com/maths-releases/seven-cycle-five/}},
   note         = {Preprint. Programs and data: \url{https://github.com/charlieoneill11/maths-releases/tree/main/seven-cycle-five}},
 }
 ```

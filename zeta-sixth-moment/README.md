@@ -58,7 +58,7 @@ A clean CI build took about six minutes. [lean/REPORT.md](lean/REPORT.md) gives 
 
 ## Citing
 
-BibTeX (also in [CITATION.bib](CITATION.bib) and on the [paper's page](https://charlieoneill11.github.io/maths-releases/zeta-sixth-moment/)):
+BibTeX (also in [CITATION.bib](CITATION.bib) and on the [paper's page](https://charlesponeill.com/maths-releases/zeta-sixth-moment/)):
 
 ```bibtex
 @misc{zeta-sixth-moment-2026,
@@ -66,7 +66,7 @@ BibTeX (also in [CITATION.bib](CITATION.bib) and on the [paper's page](https://c
   title        = {An improved lower bound for the sixth moment of the {R}iemann zeta function},
   year         = {2026},
   month        = nov,
-  howpublished = {\url{https://charlieoneill11.github.io/maths-releases/zeta-sixth-moment/}},
+  howpublished = {\url{https://charlesponeill.com/maths-releases/zeta-sixth-moment/}},
   note         = {Preprint. Programs and data: \url{https://github.com/charlieoneill11/maths-releases/tree/main/zeta-sixth-moment}},
 }
 ```

@@ -65,7 +65,7 @@ A clean CI build took 23 minutes. [lean/REPORT.md](lean/REPORT.md) gives the tim
 
 ## Citing
 
-BibTeX (also in [CITATION.bib](CITATION.bib) and on the [paper's page](https://charlieoneill11.github.io/maths-releases/chowla-nonvanishing/)):
+BibTeX (also in [CITATION.bib](CITATION.bib) and on the [paper's page](https://charlesponeill.com/maths-releases/chowla-nonvanishing/)):
 
 ```bibtex
 @misc{chowla-nonvanishing-2026,
@@ -73,7 +73,7 @@ BibTeX (also in [CITATION.bib](CITATION.bib) and on the [paper's page](https://c
   title        = {Central nonvanishing of quadratic {D}irichlet {$L$}-functions: beyond the one-level density bound, uniformly in local conditions},
   year         = {2026},
   month        = nov,
-  howpublished = {\url{https://charlieoneill11.github.io/maths-releases/chowla-nonvanishing/}},
+  howpublished = {\url{https://charlesponeill.com/maths-releases/chowla-nonvanishing/}},
   note         = {Preprint. Programs and data: \url{https://github.com/charlieoneill11/maths-releases/tree/main/chowla-nonvanishing}},
 }
 ```

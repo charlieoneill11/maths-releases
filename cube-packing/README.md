@@ -59,7 +59,7 @@ These programs were copied from `cube-packing/` on branch `codex/cube-packing-pr
   title        = {Packing side-two cubes in the three-dimensional torus of side {$N\equiv5\pmod 8$}},
   year         = {2026},
   month        = nov,
-  howpublished = {\url{https://charlieoneill11.github.io/maths-releases/cube-packing/}},
+  howpublished = {\url{https://charlesponeill.com/maths-releases/cube-packing/}},
   note         = {Preprint. Programs and data: \url{https://github.com/charlieoneill11/maths-releases/tree/main/cube-packing}},
 }
 ```

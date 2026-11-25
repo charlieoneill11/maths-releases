@@ -51,7 +51,7 @@ The development was copied from `shumyatsky-17125/` at merge commit b182c696 of 
   title        = {Conjugate pairs with the full prime spectrum in finite groups},
   year         = {2026},
   month        = nov,
-  howpublished = {\url{https://charlieoneill11.github.io/maths-releases/conjugate-generation/}},
+  howpublished = {\url{https://charlesponeill.com/maths-releases/conjugate-generation/}},
   note         = {Preprint. Programs and data: \url{https://github.com/charlieoneill11/maths-releases/tree/main/conjugate-generation}},
 }
 ```

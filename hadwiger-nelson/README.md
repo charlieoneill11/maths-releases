@@ -53,7 +53,7 @@ A clean build with cached Mathlib artifacts took about 14 minutes. [lean/REPORT.
 
 ## Citing
 
-BibTeX (also in [CITATION.bib](CITATION.bib) and on the [paper's page](https://charlieoneill11.github.io/maths-releases/hadwiger-nelson/)):
+BibTeX (also in [CITATION.bib](CITATION.bib) and on the [paper's page](https://charlesponeill.com/maths-releases/hadwiger-nelson/)):
 
 ```bibtex
 @misc{hadwiger-nelson-2026,
@@ -61,7 +61,7 @@ BibTeX (also in [CITATION.bib](CITATION.bib) and on the [paper's page](https://c
   title        = {Six colours suffice for every unit-distance graph with at most 10{,}689 vertices or 245{,}510 edges},
   year         = {2026},
   month        = nov,
-  howpublished = {\url{https://charlieoneill11.github.io/maths-releases/hadwiger-nelson/}},
+  howpublished = {\url{https://charlesponeill.com/maths-releases/hadwiger-nelson/}},
   note         = {Preprint. Programs and data: \url{https://github.com/charlieoneill11/maths-releases/tree/main/hadwiger-nelson}},
 }
 ```

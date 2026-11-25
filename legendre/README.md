@@ -65,7 +65,7 @@ A clean CI build took 11 minutes. [lean/REPORT.md](lean/REPORT.md) gives the tim
 
 ## Citing
 
-BibTeX (also in [CITATION.bib](CITATION.bib) and on the [paper's page](https://charlieoneill11.github.io/maths-releases/legendre/)):
+BibTeX (also in [CITATION.bib](CITATION.bib) and on the [paper's page](https://charlesponeill.com/maths-releases/legendre/)):
 
 ```bibtex
 @misc{legendre-2026,
@@ -73,7 +73,7 @@ BibTeX (also in [CITATION.bib](CITATION.bib) and on the [paper's page](https://c
   title        = {A prime between every two consecutive {$\tfrac{11}{5}$}-th powers},
   year         = {2026},
   month        = nov,
-  howpublished = {\url{https://charlieoneill11.github.io/maths-releases/legendre/}},
+  howpublished = {\url{https://charlesponeill.com/maths-releases/legendre/}},
   note         = {Preprint. Programs and data: \url{https://github.com/charlieoneill11/maths-releases/tree/main/legendre}},
 }
 ```

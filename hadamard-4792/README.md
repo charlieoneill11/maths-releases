@@ -40,7 +40,7 @@ The functions were found by a computer search on ordinary CPUs, in a family of s
   title        = {A {H}adamard matrix of order 4792},
   year         = {2026},
   month        = nov,
-  howpublished = {\url{https://charlieoneill11.github.io/maths-releases/hadamard-4792/}},
+  howpublished = {\url{https://charlesponeill.com/maths-releases/hadamard-4792/}},
   note         = {Preprint. Programs and data: \url{https://github.com/charlieoneill11/maths-releases/tree/main/hadamard-4792}},
 }
 ```

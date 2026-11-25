@@ -63,7 +63,7 @@ The notes [code/strip.md](code/strip.md) and [code/palette.md](code/palette.md) 
   title        = {The optimal constant for four-colour quadratic van der {W}aerden numbers},
   year         = {2026},
   month        = nov,
-  howpublished = {\url{https://charlieoneill11.github.io/maths-releases/quadratic-differences/}},
+  howpublished = {\url{https://charlesponeill.com/maths-releases/quadratic-differences/}},
   note         = {Preprint. Programs and data: \url{https://github.com/charlieoneill11/maths-releases/tree/main/quadratic-differences}},
 }
 ```
