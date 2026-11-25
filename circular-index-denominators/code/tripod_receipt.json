@@ -1,0 +1,61 @@
+{
+  "checked_utc": "2026-11-25",
+  "core_sha256": "9068b9edfdc1828794ef6c8eb34747dfb409ebdb5c4631d01cb251d0221e9f9f",
+  "half_grid": {
+    "grid": [
+      19,
+      2
+    ],
+    "raw_gap_triples": 21,
+    "drat_verified_unsat": 19,
+    "feasible_sorted_gaps": [
+      [
+        5,
+        7,
+        7
+      ],
+      [
+        6,
+        6,
+        7
+      ]
+    ],
+    "independent_enumeration": "21 terminal gap triples independently checked"
+  },
+  "fifth_grid": {
+    "grid": [
+      48,
+      5
+    ],
+    "class_size_schedules": 154,
+    "schedule_file_sha256": "b20fccb297f501979097a8401fa432ce926e21bd34f8ecc1ada2d75c454585cc",
+    "canonical_one_worker_case_file_sha256": "478751878fdc7ac88c8a0cdd9bf084668286089a43485417b9d67564e398563c",
+    "labelled_placements": 221975,
+    "successful_bad_placements": 0,
+    "independent_case_lists_equal": true,
+    "explicit_880_palette_check": true,
+    "explicit_domain_checker": {
+      "source": "tripod_48.cpp",
+      "cases": 221975,
+      "completed_palette_assignments": 0
+    },
+    "bitset_checker": {
+      "source": "tripod_48_bitsets.cpp",
+      "cases": 221975,
+      "completed_palette_assignments": 0
+    },
+    "positive_control": {
+      "terminals": [
+        0,
+        15,
+        30
+      ],
+      "both_recovered_edge_colouring": true
+    }
+  },
+  "degree_six_exceptions": [
+    "27/4",
+    "41/6",
+    "67/10"
+  ]
+}

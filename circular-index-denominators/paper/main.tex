@@ -1,0 +1,449 @@
+\documentclass[11pt,colorlinks]{charlie}
+\input{preamble}
+\usepackage{amssymb}
+
+\newcommand{\cind}{\chi'_c}
+\newcommand{\dir}[2]{[#2-#1]}
+\renewcommand{\aiusestatement}{The constructions, the proofs and the programs in this paper were developed and run by Astra (GPT-6.2 Astra, OpenAI) from Charles O'Neill's instructions. The manuscript was prepared from the project's research records with Claude (Anthropic). The programs and certificates are available at \coderepo.}
+
+\title{Every denominator occurs in the upper half for the circular chromatic index}
+\author{Charles O'Neill, Max Kirkby and Astra}
+\date{25 November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Mazák and Zrubák asked whether for every integer $q>2$ there is a graph or multigraph $G$ whose circular chromatic index is a fraction with reduced denominator $q$ lying strictly between $\Delta(G)+\frac12$ and $\Delta(G)+1$. We show that the answer is yes, and that $G$ can be taken to be a connected regular simple graph of degree six or nine. For multigraphs a multiple of an odd cycle already works: $(q-1)C_{2q+1}$ has circular chromatic index $\Delta+1-\frac1q$, which also follows from a theorem of Gao and Zhu. For simple graphs we prove that every rational number in $[\frac{19}{2},\frac{29}{3}]$ is the circular chromatic index of a connected $9$-regular simple graph. The graphs are obtained from cubic graphs: replacing every vertex by a hub carrying two copies of a fixed $13$-vertex graph multiplies the circular chromatic index by three in this range, and Lukoťka and Mazák constructed cubic graphs with every rational circular chromatic index between $3$ and $\frac{10}{3}$. The interval contains fractions with every denominator $q>2$ except $4$, $6$ and $10$, and for these three we give $6$-regular graphs with circular chromatic indices $\frac{27}{4}$, $\frac{41}{6}$ and $\frac{67}{10}$. The proofs are computer-assisted. The main finite step, about the $13$-vertex graph, is an exhaustive search over $221\,975$ cases, carried out by two independently written programs.
+\end{abstract}
+\mscandkeywords{05C15; 05C70, 68V05}{circular chromatic index, circular edge-colouring, matchings, computer-assisted proof}
+
+\section*{AI use and author contributions}
+\aiusestatement
+
+Charles O'Neill chose the problem and directed the work. \responsibilitystatement
+
+\section{Introduction}
+
+A \emph{circular $r$-edge-colouring} of a loopless multigraph $G$ assigns to every edge a point of the circle $\R/r\Z$ of circumference $r$ so that the colours of any two distinct edges sharing a vertex are at circular distance at least $1$. The \emph{circular chromatic index} $\cind(G)$ is the least $r$ for which such a colouring exists. It is a rational number, and $\chi'(G)-1<\cind(G)\le\chi'(G)$, where $\chi'(G)$ is the chromatic index \cite{Zhu01}. By Vizing's theorem \cite{Vizing}, a simple graph of maximum degree $\Delta$ has $\Delta\le\cind(G)\le\Delta+1$.
+
+Mazák and Zrubák \cite{MZ} recently computed the circular chromatic index of all small graphs and multigraphs, and studied which values occur in the interval $[\Delta,\Delta+1]$. They asked which denominators are possible in its upper half, as follows.
+
+\begin{quote}
+\textbf{Problem 7} \cite[Section~8]{MZ}. Does there for every integer $q>2$ exist an integer $p$ and a (multi)graph $G$ with $\cind(G)=p/q\in(\Delta(G)+\frac12,\Delta(G)+1)$?
+\end{quote}
+
+Here $p/q$ is in lowest terms. We answer the question for multigraphs and, in a stronger form, for simple graphs.
+
+\begin{theorem}\label{thm:main}
+For every integer $q>2$ there is a finite connected regular simple graph $G$, of degree $6$ or $9$, whose circular chromatic index is a fraction with reduced denominator $q$ and lies in the open interval $(\Delta(G)+\frac12,\Delta(G)+1)$.
+\end{theorem}
+
+For multigraphs the question has a short answer, which we give in \Cref{sec:multi}: the multigraph $(q-1)C_{2q+1}$, with $q-1$ parallel copies of every edge of the cycle of length $2q+1$, has $\Delta=2q-2$ and circular chromatic index $\Delta+1-\frac1q$ (\Cref{thm:multi}). This value also follows from a theorem of Gao and Zhu on lexicographic products \cite{GZ}. Since Problem~7 allows multigraphs, this already answers it as stated; the content of \Cref{thm:main} is that simple graphs suffice.
+
+For simple graphs the main step is the following theorem.
+
+\begin{theorem}\label{thm:interval}
+Every rational number in the closed interval $[\frac{19}{2},\frac{29}{3}]$ is the circular chromatic index of a connected $9$-regular simple graph.
+\end{theorem}
+
+Write such a number as $9+a/q$ in lowest terms. The following fractional parts lie in $(\frac12,\frac23]$ and are in lowest terms (\Cref{cor:denominators}):
+\begin{itemize}
+\item $a/q$ with $a=(q+1)/2$, for odd $q\ge3$;
+\item $a/q$ with $a=q/2+1$, for $q\equiv0\pmod4$ and $q\ge8$;
+\item $a/q$ with $a=q/2+2$, for $q\equiv2\pmod4$ and $q\ge14$.
+\end{itemize}
+Every denominator $q>2$ except $4$, $6$ and $10$ is therefore realised at degree nine. For example, the cases $q=14$ and $q=18$ give $\frac{135}{14}$ and $\frac{173}{18}$. The interval contains no fraction in lowest terms with denominator $4$, $6$ or $10$, so these three need another construction. In \Cref{sec:six} we build connected $6$-regular simple graphs with circular chromatic indices $\frac{27}{4}$, $\frac{41}{6}$ and $\frac{67}{10}$ (\Cref{thm:rings}). Together these prove \Cref{thm:main}.
+
+\paragraph{The construction at degree nine.}
+Let $Q$ be the simple graph on $13$ vertices with $57$ edges given in \Cref{tab:core}, and let $r_1,r_2,r_3$ be three of its vertices, the \emph{roots}, which have degree $8$ in $Q$. All other vertices of $Q$ have degree $9$. Given a simple cubic graph $H$, replace every vertex $v$ of $H$ by a \emph{hub} $v$ together with two disjoint copies of $Q$, and join $v$ to the three roots of each copy. The edges of $H$ are kept between the hubs. The resulting graph $\Phi(H)$ is simple and $9$-regular, it has $27|V(H)|$ vertices, and it is connected if $H$ is.
+
+\begin{theorem}\label{thm:transfer-intro}
+If $H$ is a simple cubic graph with $\frac{19}{6}\le\cind(H)\le\frac{29}{9}$, then $\cind(\Phi(H))=3\,\cind(H)$.
+\end{theorem}
+
+Lukoťka and Mazák \cite{LM} proved that every rational number strictly between $3$ and $\frac{10}{3}$ is the circular chromatic index of a cubic graph, so \Cref{thm:transfer-intro} gives \Cref{thm:interval}.
+
+The upper bound in \Cref{thm:transfer-intro} comes from the fact that $Q$, with its three roots joined to a common vertex, can be coloured whenever the three edges at the roots receive colours with gaps at least $3$ (\Cref{lem:extend}). The lower bound comes from a rigidity property: if $\frac{19}{2}\le T<\frac{29}{3}$, then in every circular $T$-edge-colouring the three edges joining a copy of $Q$ to its hub occupy every third position in the cyclic order of the nine colours at the hub (\Cref{prop:third}). The two copies of $Q$ then take two of the three residue classes of positions, and the edges of $H$ are left with the third, so their colours are at least $3$ apart. We reduce \Cref{prop:third} to two finite statements about colourings with colours on a grid, one with circumference $\frac{19}{2}$ and one with circumference $\frac{48}{5}$, and prove them by computer.
+
+\paragraph{Earlier work.}
+The table of small simple graphs with $\Delta=6$ in \cite{MZ} contains a graph on $11$ vertices with circular chromatic index $\frac{27}{4}$. Mazák and Zrubák also observed that for $\Delta\ge8$ it was not known whether any graph of maximum degree $\Delta$ has circular chromatic index in $(\Delta+\frac12,\Delta+1)$. Contributors to a public repository of solved problems \cite{SC} answered this second question in November 2026: they gave, among other families, simple graphs with circular chromatic index $4g+\frac23$ for every $g\ge2$, the values $\frac{75}{4}$ and $\frac{93}{5}$ at degree $18$, and witnesses for the remaining maximum degrees, with a formal check of the bounds. Those constructions realise the reduced denominators $3$, $4$ and $5$. We are not aware of an earlier proof that every denominator $q>2$ occurs for simple graphs.
+
+\paragraph{Organisation.}
+\Cref{sec:prelim} collects facts about circular edge-colourings that we use throughout. \Cref{sec:multi} treats multigraphs. \Cref{sec:core} studies the graph $Q$, \Cref{sec:transfer} proves \Cref{thm:transfer-intro} and \Cref{thm:interval}, and \Cref{sec:six} gives the three graphs of degree six. \Cref{sec:computations} describes the computations.
+
+\section{Preliminaries}\label{sec:prelim}
+
+Multigraphs are finite and loopless. For a multigraph $G$ we write $E(G)$ for its edge set, $\Delta(G)$ for its maximum degree and $\nu(G)$ for its matching number. Two distinct edges are \emph{incident} if they share a vertex; parallel edges are incident.
+
+For $r>0$ and $\alpha,\beta\in\R/r\Z$ we write $\dir\alpha\beta_r\in[0,r)$ for the \emph{directed difference} from $\alpha$ to $\beta$, that is, the length of the arc from $\alpha$ to $\beta$ in the positive direction, and $|\alpha-\beta|_r=\min(\dir\alpha\beta_r,\dir\beta\alpha_r)$ for the circular distance. A circular $r$-edge-colouring is a map $c\colon E(G)\to\R/r\Z$ with $|c(e)-c(f)|_r\ge1$ for all incident $e,f$. Reflecting the circle, $c\mapsto-c$, gives another circular $r$-edge-colouring.
+
+For coprime positive integers $p,q$, an \emph{integral $(p,q)$-colouring} is a map $\gamma\colon E(G)\to\Z/p\Z$ with $|\gamma(e)-\gamma(f)|_p\ge q$ for all incident $e,f$. Dividing by $q$ turns it into a circular $\frac pq$-edge-colouring whose colours lie on the grid $\frac1q\Z/\frac pq\Z$, and conversely. We call the elements of $\Z/p\Z$ \emph{slots}.
+
+\paragraph{Inserting an empty arc.}
+Let $c$ be a circular $r$-edge-colouring, let $\theta\in\R/r\Z$ be a point that is not a colour of $c$, and let $\ell>0$. Cutting the circle at $\theta$ and inserting an arc of length $\ell$ there gives a circular $(r+\ell)$-edge-colouring $c'$. Every directed difference between two colours either stays the same or increases by $\ell$, according as the arc between them avoids or contains $\theta$. In particular $G$ has a circular $r'$-edge-colouring for every $r'\ge\cind(G)$.
+
+\begin{lemma}[Matching bound]\label{lem:matching}
+If $G$ has a circular $r$-edge-colouring, then $|E(G)|\le r\,\nu(G)$. Hence $\cind(G)\ge|E(G)|/\nu(G)$.
+\end{lemma}
+
+\begin{proof}
+For $x\in\R/r\Z$ let $A_x$ be the set of edges whose colour lies in the half-open arc of length $1$ starting at $x$. Two colours in such an arc are at circular distance less than $1$, so $A_x$ is a matching and $|A_x|\le\nu(G)$. Each edge lies in $A_x$ for $x$ in an arc of length exactly $1$, so $|E(G)|=\int_0^r|A_x|\dd x\le r\,\nu(G)$.
+\end{proof}
+
+\subsection{Order systems}
+
+The following device turns a colouring at one circumference into colourings at other circumferences with the same cyclic orders. Let $c$ be a circular $T$-edge-colouring of $G$ and choose representatives $x_e\in[0,T)$ of the colours $c(e)$. Let $D_c$ be the directed graph on $E(G)$ with two arcs for every pair of incident edges $e,f$ with $x_e<x_f$: an arc $e\to f$ of weight $1$ and an arc $f\to e$ of weight $1-S$, where $S$ is a real parameter. In \Cref{sec:six} we also fix two edges $a,b$ with $x_a\le x_b$ and add an arc $a\to b$ of weight $0$ and an arc $b\to a$ of weight $-S$; we call these the \emph{terminal arcs}. The \emph{order system} $\Sigma_c(S)$ is the set of inequalities
+\[
+y_g\ge y_h+w\qquad\text{for every arc }h\to g\text{ of weight }w,
+\]
+in the unknowns $y\in\R^{E(G)}$. For incident $e,f$ with $x_e<x_f$ it says $1\le y_f-y_e\le S-1$, and the terminal arcs say $0\le y_b-y_a\le S$.
+
+The weight of a directed cycle $Z$ of $D_c$ has the form $L(Z)-K(Z)S$, where $L(Z)$ is the number of arcs of weight $1$ or $1-S$ on $Z$ and $K(Z)$ is the number of arcs whose weight contains $-S$. If $Z$ is a simple cycle, then $L(Z)\le|E(G)|$.
+
+\begin{lemma}\label{lem:order}
+Let $c$ be a circular $T$-edge-colouring of $G$ with order system $\Sigma_c$.
+\begin{enumerate}
+\item\label{it:sol} The representatives $x$ solve $\Sigma_c(T)$.
+\item\label{it:colour} If $S>0$ and $y$ solves $\Sigma_c(S)$, then $e\mapsto y_e+S\Z$ is a circular $S$-edge-colouring of $G$. At every vertex the colours of the edges at that vertex occur in the same cyclic order as under $c$. With terminal arcs, the directed difference from the colour of $a$ to the colour of $b$ is $y_b-y_a$ when $y_b-y_a<S$, and $0$ when $y_b-y_a=S$.
+\item\label{it:threshold} Every simple directed cycle $Z$ of $D_c$ with $L(Z)>0$ has $K(Z)>0$. Let $S^*$ be the largest of the ratios $L(Z)/K(Z)$ over simple directed cycles with $K(Z)>0$, or $0$ if there are none. Then $\Sigma_c(S)$ is solvable exactly when $S\ge S^*$. In particular $S^*\le T$.
+\item\label{it:potential} Suppose that $D_c$ is strongly connected, that $S\ge S^*$ and that $a$ is an edge. For each edge $g$ let $y_g$ be the largest weight of a directed walk from $a$ to $g$. Then $y$ solves $\Sigma_c(S)$, its values lie in $\Z+S\Z$, and $y_b-y_a=y_b$ is the least value of $y_b-y_a$ over all solutions of $\Sigma_c(S)$. This least value is the weight of a simple directed path from $a$ to $b$.
+\item\label{it:grid} If $S=m/k$ with $m,k$ coprime positive integers and $S\ge S^*$, then $G$ has an integral $(m,k)$-colouring with the same cyclic order at every vertex as $c$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+\ref{it:sol} Colours of incident edges are at circular distance at least $1$, so $1\le x_f-x_e\le T-1$ when $x_e<x_f$; and $0\le x_b-x_a<T$.
+
+\ref{it:colour} If $e,f$ are incident with $x_e<x_f$, then $1\le y_f-y_e\le S-1$, so the colours of $e$ and $f$ are at circular distance at least $1$. At a vertex $v$, order the edges at $v$ by their representatives $x$. Their values $y$ are strictly increasing in this order, and the largest exceeds the smallest by at most $S-1<S$. Hence the colours $y_e+S\Z$ of the edges at $v$ are distinct and occur in the same cyclic order. The last statement holds because $0\le y_b-y_a\le S$.
+
+\ref{it:threshold} Along an arc of weight $1$ the representatives increase by at least $1$, and along a terminal arc of weight $0$ they do not decrease. A cycle with $K(Z)=0$ and $L(Z)>0$ would therefore give $x_e>x_e$ for its edges. Summing the inequalities of $\Sigma_c(S)$ around a cycle shows that solvability requires every cycle to have weight at most $0$, which for simple cycles means $S\ge L(Z)/K(Z)$; every closed walk splits into simple cycles, so the condition for simple cycles suffices for all cycles. Conversely, if no cycle has positive weight, the largest weights of walks into each vertex from an added source, joined to every vertex by an arc of weight $0$, are finite and solve the system (the Bellman--Ford principle). Since $x$ solves $\Sigma_c(T)$, $S^*\le T$.
+
+\ref{it:potential} As there are no cycles of positive weight and $a$ reaches every vertex, the walk weights $y_g$ are finite, attained by simple paths, and satisfy $y_g\ge y_h+w$ for every arc $h\to g$. Every weight lies in $\Z+S\Z$, and so do the $y_g$. Every solution $y'$ satisfies $y'_b-y'_a\ge w(P)$ for every directed path $P$ from $a$ to $b$, by summing along $P$, while $y_b-y_a=y_b$ is the weight of one such path.
+
+\ref{it:grid} Take $y$ as in \ref{it:potential} (if $D_c$ is not strongly connected, use an added source instead of $a$). Its values lie in $\Z+\frac mk\Z\subseteq\frac1k\Z$. By \ref{it:colour}, $e\mapsto ky_e+m\Z$ is an integral $(m,k)$-colouring with the same cyclic orders.
+\end{proof}
+
+\begin{lemma}[Tight thresholds]\label{lem:tight}
+In the setting of \Cref{lem:order}, suppose that $S^*=m/k$, where $m,k$ are coprime and some simple cycle $Z$ has $L(Z)=m$ and $K(Z)=k$. Then the integral $(m,k)$-colouring of \Cref{lem:order}\ref{it:grid} uses all $m$ slots.
+\end{lemma}
+
+\begin{proof}
+Let $y$ solve $\Sigma_c(S^*)$. Summing the slacks $y_g-y_h-w\ge0$ around $Z$ gives minus the weight of $Z$, which is $0$, so every arc of $Z$ is tight. Hence, modulo $S^*$, the value $y$ increases by exactly $1$ along each of the $m$ arcs of $Z$ of weight $1$ or $1-S^*$, and does not change along the terminal arcs. Starting from an edge $e_0$ of $Z$, the edges of $Z$ therefore carry the colours $y_{e_0}+j$ modulo $S^*$ for every $j=0,1,\dots,m-1$. These $m$ colours are distinct: $j-j'\in\frac mk\Z$ with $0<|j-j'|<m$ would give $m\mid k(j-j')$, which is impossible as $\gcd(m,k)=1$. After multiplication by $k$ they are $m$ distinct slots, that is, all of them.
+\end{proof}
+
+\begin{lemma}[Projection]\label{lem:projection}
+Let $p,q,c,d$ be positive integers with $pd-cq=1$, and let $\gamma$ be an integral $(p,q)$-colouring of $G$ that does not use the slot $z$. For $e\in E(G)$ let $x_e\in\{1,\dots,p-1\}$ represent $\gamma(e)-z$, and put $\gamma'(e)=\lfloor cx_e/p\rfloor+c\Z$. Then $\gamma'$ is an integral $(c,d)$-colouring of $G$. If $\dir{\gamma(e)}{\gamma(f)}_p=h$, then $\dir{\gamma'(e)}{\gamma'(f)}_c$ is congruent modulo $c$ to $\lfloor ch/p\rfloor$ or $\lceil ch/p\rceil$.
+\end{lemma}
+
+\begin{proof}
+Put $\phi(x)=\lfloor cx/p\rfloor$ for integers $x$; it is nondecreasing and $\phi(x+p)=\phi(x)+c$. Since $cq/p=d-1/p$, we have $\phi(x+q)-\phi(x)\ge d$ unless $cx\equiv0\pmod p$, that is, unless $p\mid x$, because $\gcd(c,p)=1$. Let $e,f$ be incident with $x_e<x_f$. Then $x_f-x_e\ge q$ and $x_e+p-x_f\ge q$. Since $p\nmid x_e$ and $p\nmid x_f$, monotonicity gives $\phi(x_f)-\phi(x_e)\ge\phi(x_e+q)-\phi(x_e)\ge d$ and $\phi(x_e+p)-\phi(x_f)\ge\phi(x_f+q)-\phi(x_f)\ge d$. These are the two directed differences between $\gamma'(e)$ and $\gamma'(f)$, so their circular distance is at least $d$. For the last claim, the directed difference from $\gamma'(e)$ to $\gamma'(f)$ is congruent modulo $c$ to $\phi(x_e+h)-\phi(x_e)$, because $x_e+h\equiv x_f\pmod p$ and $\phi(x+p)=\phi(x)+c$; and $\lfloor u\rfloor-\lfloor v\rfloor\in\{\lfloor u-v\rfloor,\lceil u-v\rceil\}$.
+\end{proof}
+
+\section{Multigraphs}\label{sec:multi}
+
+For $t\ge1$ and $n\ge3$ let $tC_n$ be the multigraph on $\Z/n\Z$ with $t$ parallel copies of each edge $e_i=\{i,i+1\}$. It is $2t$-regular.
+
+\begin{theorem}\label{thm:multi}
+For all integers $q\ge2$ and $t\ge1$, $\cind(tC_{2q+1})=t(2q+1)/q$. In particular, for $q>2$ the multigraph $M=(q-1)C_{2q+1}$ has $\Delta(M)=2q-2$ and
+\[
+\cind(M)=\frac{(2q+1)(q-1)}{q}=\Delta(M)+1-\frac1q\in\Bigl(\Delta(M)+\tfrac12,\ \Delta(M)+1\Bigr),
+\]
+and the numerator $(2q+1)(q-1)\equiv-1\pmod q$ is coprime to $q$.
+\end{theorem}
+
+\begin{proof}
+Put $n=2q+1$ and $p=tn$. The multigraph has $p$ edges and matching number $q$, since $n$ is odd, so \Cref{lem:matching} gives $\cind\ge p/q$.
+
+For the upper bound, list the edges in $p$ slots: slot $j\in\{0,\dots,p-1\}$ holds copy $\lfloor j/n\rfloor$ of the edge $e_{2j\bmod n}$. As $2$ is invertible modulo $n$, every copy of every edge appears in exactly one slot. Give the edge in slot $j$ the colour $j/q$ on the circle of circumference $p/q$. Consider $q$ consecutive slots $j,j+1,\dots,j+q-1$, taken modulo $p$. Their edges are $e_{2j},e_{2j+2},\dots,e_{2j+2q-2}$ (indices modulo $n$; this is consistent across the wrap from $p-1$ to $0$ because $n\mid p$), and their endpoints $2j,2j+1,\dots,2j+2q-1$ are $2q<n$ distinct vertices. So any two slots at cyclic distance less than $q$ hold disjoint edges, and the colours of incident edges are at circular distance at least $1$. This is a circular $\frac pq$-edge-colouring.
+
+For $t=q-1$ the multigraph is $(2q-2)$-regular and $p=(2q+1)(q-1)=2q^2-q-1\equiv-1\pmod q$, which gives the remaining claims since $\frac1q<\frac12$ for $q>2$.
+\end{proof}
+
+Since the line graph of $tC_n$ is the lexicographic product $C_n[K_t]$, the value $\cind(tC_{2q+1})$ also follows from the theorem of Gao and Zhu \cite{GZ} that $\chi_c(G[K_t])=t\chi_c(G)$ whenever the circular and fractional chromatic numbers of $G$ agree, as they do for odd cycles. The cyclic order of the edges of a single odd cycle used above also appears in the work of Brualdi, Kiernan, Meyer and Schroeder on cyclic matching sequencibility \cite{BKMS}.
+
+\section{The thirteen-vertex graph}\label{sec:core}
+
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{@{}r l @{\qquad} r l@{}}
+\toprule
+slot & edges & slot & edges \\
+\midrule
+0 & $\{0,6\},\{2,8\},\{4,10\}$ & 10 & $\{1,10\},\{3,12\},\{5,8\}$ \\
+1 & $\{1,9\},\{3,11\},\{5,7\}$ & 11 & $\{0,4\},\{2,11\},\{6,9\}$ \\
+2 & $\{2,12\},\{4,8\},\{6,10\}$ & 12 & $\{1,7\},\{3,10\},\{5,12\}$ \\
+3 & $\{0,3\},\{5,11\},\{7,9\}$ & 13 & $\{0,2\},\{4,9\},\{6,11\}$ \\
+4 & $\{1,4\},\{6,12\},\{8,10\}$ & 14 & $\{1,12\},\{3,5\},\{7,10\}$ \\
+5 & $\{0,9\},\{2,5\},\{7,11\}$ & 15 & $\{0,8\},\{2,6\},\{4,11\}$ \\
+6 & $\{1,6\},\{3,8\},\{4,12\}$ & 16 & $\{1,5\},\{3,9\},\{7,12\}$ \\
+7 & $\{0,5\},\{2,7\},\{9,11\}$ & 17 & $\{0,10\},\{2,4\},\{6,8\}$ \\
+8 & $\{1,8\},\{3,6\},\{10,12\}$ & 18 & $\{1,11\},\{3,7\},\{5,9\}$ \\
+9 & $\{0,11\},\{2,9\},\{4,7\}$ & & \\
+\bottomrule
+\end{tabular}
+\caption{The graph $Q$ on the vertices $0,\dots,12$: its $57$ edges, arranged in the $19$ colour classes of the integral $(19,2)$-colouring $\gamma_0$. The roots are $r_1=12$, $r_2=10$, $r_3=8$, and $\gamma_0$ gives the pendant edges $a_1,a_2,a_3$ at the roots the slots $0$, $6$, $12$.}
+\label{tab:core}
+\end{table}
+
+Let $Q$ be the graph of \Cref{tab:core}. It is simple. The roots $r_1,r_2,r_3$ have degree $8$, and the other ten vertices have degree $9$. Equivalently, $Q$ is the complement in $K_{13}$ of a graph with $21$ edges in which the roots have degree $4$ and the other vertices degree $3$. Let $Q^+$ be $Q$ with three pendant edges $a_j=r_j\ell_j$ added, where $\ell_1,\ell_2,\ell_3$ are new vertices; we call $a_1,a_2,a_3$ the \emph{terminal edges}. Let $Y$ be the graph obtained from $Q^+$ by identifying $\ell_1,\ell_2,\ell_3$ into one vertex $z$, the \emph{hub}, and adding six further pendant edges at $z$. Then $Y$ is simple, has $66$ edges, and its hub has degree $9$.
+
+Since $Q$ has $57$ edges on $13$ vertices, $\nu(Q)\le6$ and $\cind(Q)\ge\frac{57}{6}=\frac{19}{2}$ by \Cref{lem:matching}. \Cref{tab:core} gives an integral $(19,2)$-colouring $\gamma_0$ of $Q^+$, and hence a circular $\frac{19}2$-edge-colouring of it.
+
+\subsection{Extending colourings}
+
+\begin{lemma}\label{lem:extend}
+Let $T\ge\frac{19}{2}$, and let $\tau_1,\tau_2,\tau_3\in\R/T\Z$ be such that the three directed differences $\dir{\tau_1}{\tau_2}_T$, $\dir{\tau_2}{\tau_3}_T$, $\dir{\tau_3}{\tau_1}_T$ are each at least $3$ and sum to $T$. Then $Q^+$ has a circular $T$-edge-colouring $c$ with $c(a_j)=\tau_j$ for $j=1,2,3$. The same holds if the three directed differences $\dir{\tau_1}{\tau_3}_T$, $\dir{\tau_3}{\tau_2}_T$, $\dir{\tau_2}{\tau_1}_T$ are each at least $3$ and sum to $T$.
+\end{lemma}
+
+The first condition says that $\tau_1,\tau_2,\tau_3$ occur in this order in the positive direction with gaps at least $3$; the second is its reflection.
+
+\begin{proof}
+The second statement follows from the first by reflecting the circle, so we prove the first.
+
+Suppose first that $T=\frac{19}{2}$. We work on the circle $\R/19\Z$ with required separation $2$, where $\gamma_0$ is an integral colouring, and divide by $2$ at the end. Let $F$ be the directed graph on $E(Q^+)$ with an arc $e\to f$ whenever $e$ and $f$ are incident and $\gamma_0(f)=\gamma_0(e)+2$. Let $U$ be the set of edges reachable in $F$ from $a_3$, and $V$ the set of edges reachable from $a_2$ or $a_3$; both are closed under arcs of $F$, and $U\subseteq V$. A direct computation (\Cref{sec:computations}) shows that $a_1\notin V$ and $a_2\notin U$. For real $u,v\ge0$ with $u+v\le1$ define
+\[
+\gamma(e)=\gamma_0(e)+u\,[e\in U]+v\,[e\in V]\in\R/19\Z .
+\]
+The shift $\sigma(e)=u[e\in U]+v[e\in V]$ takes values in $[0,1]$ and satisfies $\sigma(f)\ge\sigma(e)$ for every arc $e\to f$ of $F$. Let $e,f$ be incident, and let $\delta=\dir{\gamma_0(e)}{\gamma_0(f)}_{19}$, an integer in $[2,17]$. The new directed difference is $\delta+\sigma(f)-\sigma(e)$. If $\delta=2$, then $e\to f$ is an arc and this is at least $2$. If $\delta=17$, then $f\to e$ is an arc and it is at most $17$. Otherwise $3\le\delta\le16$ and $|\sigma(f)-\sigma(e)|\le1$. In all cases the new directed difference lies in $[2,17]$, so $\gamma$ is a circular colouring with separation $2$ on $\R/19\Z$. Its terminal colours are $0$, $6+v$ and $12+u+v$, with directed gaps $6+v$, $6+u$ and $7-u-v$. Given gaps $g_1,g_2,g_3\ge6$ with $g_1+g_2+g_3=19$, take $v=g_1-6$ and $u=g_2-6$; then $u,v\ge0$ and $u+v=7-g_3\le1$. Halving and rotating gives the required colouring for $T=\frac{19}{2}$.
+
+Now let $T>\frac{19}{2}$ and write the three gaps as $3+\varepsilon_1,3+\varepsilon_2,3+\varepsilon_3$, with $\varepsilon_j\ge0$ and $\sum_j\varepsilon_j=T-9\ge\frac12$. Choose $0\le\varepsilon'_j\le\varepsilon_j$ with $\sum_j\varepsilon'_j=\frac12$, take a colouring for $T=\frac{19}{2}$ with gaps $3+\varepsilon'_j$, and insert an empty arc of length $\varepsilon_j-\varepsilon'_j$ at a point of the open arc from the $j$th terminal colour to the next that carries no colour. The terminal gaps become $3+\varepsilon_j$, and we rotate.
+\end{proof}
+
+\subsection{Two finite lemmas}
+
+\begin{lemma}\label{lem:half}
+Let $\gamma$ be an integral $(19,2)$-colouring of $Q^+$. Then the three directed gaps between consecutive terminal colours $\gamma(a_1),\gamma(a_2),\gamma(a_3)$, in increasing order, are $(5,7,7)$ or $(6,6,7)$.
+\end{lemma}
+
+\begin{proof}
+For a slot $i$ let $w_i$ be the number of edges of $Q$ in slots $i$ and $i+1$. These edges form a matching, so $w_i\le6$. Since $\sum_iw_i=2\cdot57=19\cdot6$, every $w_i$ equals $6$, and the edges of $Q$ in slots $i,i+1$ cover all but one vertex of $Q$. If a terminal edge $a_j$ lies in slot $i$ or $i+1$, no edge of $Q$ at $r_j$ does, so $r_j$ is that uncovered vertex. Hence no two terminal edges lie in a common pair of consecutive slots, and every terminal gap is at least $2$. This leaves $21$ possibilities for the sorted gaps. For each of them a computation (\Cref{sec:computations}) decides whether $Q^+$ has such a colouring. Exactly $(5,7,7)$ and $(6,6,7)$ occur.
+\end{proof}
+
+\begin{lemma}\label{lem:fifth}
+In every integral $(48,5)$-colouring of $Y$ that uses all $48$ slots, the terminal edges $a_1,a_2,a_3$ occupy every third position in the cyclic order of the nine edges at the hub.
+\end{lemma}
+
+The proof is a computation, described in \Cref{sec:computations}.
+
+\subsection{Rigidity at the hub}
+
+\begin{proposition}\label{prop:third}
+Let $\frac{19}{2}\le T<\frac{29}{3}$ and let $c$ be a circular $T$-edge-colouring of $Y$. Then the terminal edges $a_1,a_2,a_3$ occupy every third position in the cyclic order of the nine colours at the hub.
+\end{proposition}
+
+\begin{proof}
+Apply \Cref{lem:order} to $c$, without terminal arcs. The threshold $S^*$ is a ratio $L/K$ with $L\le|E(Y)|=66$, and $S^*\le T<\frac{29}{3}$.
+
+Suppose first that $S^*\le\frac{19}{2}$. By \Cref{lem:order}\ref{it:grid}, $Y$ has an integral $(19,2)$-colouring $\gamma$ with the same cyclic order at the hub. The nine slots at the hub have consecutive gaps at least $2$ summing to $19$, so eight gaps are $2$ and one is $3$. Each terminal gap is a sum of consecutive hub gaps, so exactly one of the three terminal gaps is odd. By \Cref{lem:half} applied to the restriction of $\gamma$ to $Q^+$, the terminal gaps are $(6,6,7)$ in some order. A gap of $6$ consists of exactly three hub gaps, since two hub gaps sum to at most $5$ and four to at least $8$, and a gap of $7$ consists of exactly three hub gaps as well. So the terminal edges are every third edge at the hub.
+
+Otherwise $\frac{19}{2}<S^*<\frac{29}{3}$. A ratio $L/K$ in this interval with $L\le66$ has $K\le6$, and checking $K=1,\dots,6$ shows that the only such ratio is $\frac{48}{5}$, attained only with $L=48$ and $K=5$. By \Cref{lem:order}\ref{it:grid} and \Cref{lem:tight}, $Y$ has an integral $(48,5)$-colouring using all $48$ slots with the same cyclic order at the hub, and \Cref{lem:fifth} applies.
+\end{proof}
+
+\section{The transfer and degree nine}\label{sec:transfer}
+
+Recall the graph $\Phi(H)$ from the introduction: each vertex $v$ of the simple cubic graph $H$ becomes a hub $v$ joined to the three roots of each of two copies $Q_v^1,Q_v^2$ of $Q$, and the edges of $H$ join the hubs. At each hub, each copy $Q_v^i$ together with the nine edges at $v$ forms a copy of $Y$, with the edges at $v$ outside $Q_v^i$ as the six pendant edges.
+
+\begin{theorem}\label{thm:transfer}
+Let $H$ be a simple cubic graph and $G=\Phi(H)$.
+\begin{enumerate}
+\item\label{it:up} If $3\,\cind(H)\ge\frac{19}{2}$, then $\cind(G)\le3\,\cind(H)$.
+\item\label{it:down} If $\frac{19}{2}\le T<\frac{29}{3}$ and $G$ has a circular $T$-edge-colouring, then $H$ has a circular $\frac T3$-edge-colouring.
+\end{enumerate}
+Consequently, if $\frac{19}{6}\le\cind(H)\le\frac{29}{9}$, then $\cind(G)=3\,\cind(H)$.
+\end{theorem}
+
+\begin{proof}
+\ref{it:up} Let $T=3\,\cind(H)$ and let $c_H$ be a circular $\cind(H)$-edge-colouring of $H$; multiplying by $3$ gives colours $3c_H(e)\in\R/T\Z$ for the edges of $H$, with incident edges at circular distance at least $3$. At a hub $v$ let $\beta_1,\beta_2,\beta_3$ be the colours of the three edges of $H$ at $v$, in positive cyclic order; their gaps are at least $3$. Colour the three edges from $v$ to the roots of $Q_v^1$ with $\beta_1+1,\beta_2+1,\beta_3+1$ and those to the roots of $Q_v^2$ with $\beta_1+2,\beta_2+2,\beta_3+2$, assigning these colours to the roots so that \Cref{lem:extend} applies to each copy. The nine colours at $v$ are then separated by gaps $1,1,\dots$, the gap from $\beta_i+2$ to the next $\beta_{i+1}$ being at least $3-2=1$. Each triple $\beta_i+1$ (or $\beta_i+2$) has gaps at least $3$, so \Cref{lem:extend} extends the colouring to each copy of $Q$. Since $T\ge\frac{19}{2}$, this gives a circular $T$-edge-colouring of $G$.
+
+\ref{it:down} Let $c$ be a circular $T$-edge-colouring of $G$ and $v$ a hub. Applying \Cref{prop:third} to the two copies of $Y$ at $v$, the three edges from $v$ to $Q_v^1$ occupy one residue class modulo $3$ of the nine positions at $v$, and the three edges to $Q_v^2$ occupy another. The three edges of $H$ at $v$ occupy the remaining class. So any two of them are separated, on either side, by at least three gaps between consecutive colours at $v$, each at least $1$, and their colours are at circular distance at least $3$. Dividing by $3$ gives a circular $\frac T3$-edge-colouring of $H$.
+
+For the last statement, \ref{it:up} gives $\cind(G)\le3\,\cind(H)\le\frac{29}{3}$, and $\cind(G)\ge\cind(Q)\ge\frac{19}{2}$. If $\cind(G)<3\,\cind(H)$, choose $T$ with $\cind(G)\le T<3\,\cind(H)$; then $\frac{19}{2}\le T<\frac{29}{3}$, $G$ has a circular $T$-edge-colouring, and \ref{it:down} gives $\cind(H)\le T/3<\cind(H)$, a contradiction.
+\end{proof}
+
+\begin{corollary}\label{cor:interval}
+For every rational number $R\in[\frac{19}{2},\frac{29}{3}]$ there is a connected $9$-regular simple graph $G$ with $\cind(G)=R$.
+\end{corollary}
+
+\begin{proof}
+By the theorem of Lukoťka and Mazák \cite{LM}, every rational number strictly between $3$ and $\frac{10}{3}$, in particular $R/3\in[\frac{19}{6},\frac{29}{9}]$, is the circular chromatic index of a simple cubic graph. The circular chromatic index of a graph is the largest of those of its components, so some connected component $H$ has $\cind(H)=R/3$. By \Cref{thm:transfer}, $\Phi(H)$ is a connected $9$-regular simple graph with $\cind(\Phi(H))=R$.
+\end{proof}
+
+This proves \Cref{thm:interval}.
+
+\begin{corollary}\label{cor:denominators}
+For every integer $q>2$ other than $4$, $6$ and $10$ there is a connected $9$-regular simple graph whose circular chromatic index is $9+a/q$, with $\gcd(a,q)=1$ and $\frac12<\frac aq\le\frac23$. One can take
+\[
+a=\begin{cases}(q+1)/2,& q\text{ odd},\\ q/2+1,& q\equiv0\pmod4,\ q\ge8,\\ q/2+2,& q\equiv2\pmod4,\ q\ge14.\end{cases}
+\]
+\end{corollary}
+
+\begin{proof}
+For odd $q$, $2a-q=1$, so $\gcd(a,q)=1$, and $\frac aq=\frac12+\frac1{2q}\le\frac23$ because $q\ge3$. For $q\equiv0\pmod4$, $a$ is odd and $\gcd(a,q/2)=\gcd(1,q/2)=1$, so $\gcd(a,q)=1$, and $\frac aq=\frac12+\frac1q\le\frac23$ because $q\ge8$. For $q\equiv2\pmod4$, both $q/2$ and $a$ are odd and $\gcd(a,q/2)=\gcd(2,q/2)=1$, so $\gcd(a,q)=1$, and $\frac aq=\frac12+\frac2q\le\frac23$ because $q\ge14$. Apply \Cref{cor:interval}.
+\end{proof}
+
+For $q=4,6,10$ there is no $a$ coprime to $q$ with $\frac12<\frac aq\le\frac23$. For example $q=14$ and $q=18$ give $\frac{135}{14}$ and $\frac{173}{18}$, from cubic graphs with circular chromatic indices $\frac{45}{14}$ and $\frac{173}{54}$.
+
+\section{Three graphs of degree six}\label{sec:six}
+
+\subsection{Blocks}
+For $t\in\{1,2,3\}$ let $B_t$ be the graph obtained from the complete graph on $\{0,\dots,8\}$ by deleting the edges of the following subgraphs, and then adding a pendant edge $a$ at $0$ and a pendant edge $b$ at $1$:
+\begin{itemize}
+\item $t=1$: the edge $01$ and the paths $0\,2\,3\,1$ and $0\,4\,5\,6\,7\,8\,1$;
+\item $t=2$: the edge $01$ and the paths $0\,2\,1$ and $0\,3\,4\,5\,6\,7\,8\,1$;
+\item $t=3$: the triangle $0\,3\,4$, the $5$-cycle $1\,5\,6\,7\,8$ and the path $0\,2\,1$.
+\end{itemize}
+In each case the nine vertices $0,\dots,8$ have degree $6$ in $B_t$, and $B_t$ has $26$ edges among them. We call $a$ and $b$ the terminal edges. As $26$ edges on nine vertices contain no matching of size $5$, every graph containing $B_t-\{a,b\}$ has circular chromatic index at least $\frac{26}{4}=\frac{13}{2}$. Put
+\[
+s_1(R)=9-R,\qquad s_2(R)=16-2R,\qquad s_3(R)=3,
+\]
+and let $I_1=[\frac{20}{3},7)$ and $I_2=I_3=[\frac{13}{2},7)$.
+
+\begin{proposition}\label{prop:blocks}
+Let $t\in\{1,2,3\}$ and $R\in I_t$.
+\begin{enumerate}
+\item\label{it:blow} In every circular $R$-edge-colouring of $B_t$, both directed differences between the colours of $a$ and $b$ are at least $s_t(R)$.
+\item\label{it:bup} $B_t$ has a circular $R$-edge-colouring in which the directed difference from the colour of $a$ to that of $b$ is exactly $s_t(R)$.
+\end{enumerate}
+\end{proposition}
+
+The proof uses the following finite facts, established by exhaustive computation (\Cref{sec:computations}). Here the \emph{unsigned difference} of two slots is their circular distance.
+\begin{enumerate}
+\item[(F1)] For $t=1,2,3$, in integral $(20,3)$-colourings of $B_t$ the unsigned difference of the slots of $a$ and $b$ takes exactly the values $h$ with $6+t\le h\le10$.
+\item[(F2)] For $t=1,2,3$, no integral $(27,4)$-colouring of $B_t$ uses all $27$ slots.
+\item[(F3)] In integral $(13,2)$-colourings of $B_2$ the unsigned difference of the slots of $a$ and $b$ is always $6$.
+\item[(F4)] No integral $(27,4)$-colouring of $B_3$ has unsigned difference $11$ between the slots of $a$ and $b$.
+\end{enumerate}
+\Cref{tab:blocks} gives explicit colourings by real lifts: for $t=1,2$, integer vectors $u^{(t)}$ and $v^{(t)}$ such that $u^{(t)}/3$ and $v^{(t)}$ are lifts of circular edge-colourings of $B_t$ at circumferences $\frac{20}{3}$ and $7$ respectively, and for $t=2,3$ an integer vector $h^{(t)}$ such that $h^{(t)}/2$ is a lift of a circular edge-colouring at $\frac{13}{2}$. For every pair of incident edges $e,f$ of $B_t$ the differences $u_f-u_e$, $v_f-v_e$ and, for $t=2$, $h_f-h_e$ have the same sign, and
+\[
+3\le|u_f-u_e|\le17,\qquad 1\le|v_f-v_e|\le6,\qquad 2\le|h_f-h_e|\le11 .
+\]
+The terminal values are $u_a=v_a=h_a=0$, $u_b=6+t$, $v_b=2$ and $h_b=6$. A program checks these properties.
+
+\begin{proof}[Proof of \Cref{prop:blocks}]
+\ref{it:bup} For $t\in\{1,2\}$ and $R\in[\frac{20}{3},7]$ write $R=\lambda\frac{20}{3}+(1-\lambda)7$ and put $y=\lambda u^{(t)}/3+(1-\lambda)v^{(t)}$. For incident $e,f$ the difference $y_f-y_e$ is a convex combination of two numbers of the same sign whose absolute values lie in $[1,\frac{20}3-1]$ and $[1,6]$ respectively, so $1\le|y_f-y_e|\le R-1$ and $y$ defines a circular $R$-edge-colouring. Its terminal difference is $\lambda\frac{6+t}{3}+2(1-\lambda)=s_t(R)$. For $t=2$ and $R\in[\frac{13}{2},\frac{20}{3}]$ interpolate in the same way between $h^{(2)}/2$ at $\frac{13}{2}$ and $v^{(2)}$ at $7$; the terminal difference is $3\lambda+2(1-\lambda)=16-2R$. For $t=3$, the colouring $h^{(3)}/2$ at $\frac{13}{2}$ has terminal difference $3$; for larger $R$ insert an empty arc of length $R-\frac{13}{2}$ outside the arc from the colour of $a$ to that of $b$.
+
+\ref{it:blow} By reflection it suffices to bound the directed difference from the colour of $a$ to that of $b$. Let $c$ be a circular $R$-edge-colouring of $B_t$, and apply \Cref{lem:order} to $c$ with terminal arcs for $a,b$, choosing the representative of $c(b)$ so that $x_a\le x_b<x_a+R$; then $x_b-x_a$ is the directed difference. The digraph $D_c$ has $28$ vertices and is strongly connected, so every simple cycle has $L\le28$ and every simple path has at most $27$ arcs.
+
+\emph{The case $t\in\{1,2\}$ and $R\ge\frac{20}{3}$.} The only fraction $L/K$ with $L\le28$ in $(\frac{20}{3},7)$ is $\frac{27}{4}$. If $S^*>\frac{20}{3}$, then $S^*=\frac{27}{4}$ with $L=27$ and $K=4$, and \Cref{lem:tight} gives an integral $(27,4)$-colouring of $B_t$ using all slots, contrary to (F2). So $S^*\le\frac{20}{3}$. By \Cref{lem:order}\ref{it:potential} at $S=\frac{20}{3}$ there is a simple path $P$ from $a$ to $b$, of weight $L_P-K_PS$, such that $L_P-\frac{20}{3}K_P$ is the least terminal difference of a solution of $\Sigma_c(\frac{20}{3})$, and that solution is an integral $(20,3)$-colouring after multiplication by $3$. By (F1) its terminal difference is at least $\frac{6+t}{3}\ge\frac73$. As $L_P\le27$, this forces $K_P\le3$, and then $L_P-7K_P\ge\frac73-\frac{K_P}3\ge\frac43$, so the integer $L_P-7K_P$ is at least $2$. The function $S\mapsto L_P-K_PS$ is affine and is at least $s_t$ at $S=\frac{20}{3}$ and at $S=7$, so it is at least $s_t(S)$ on $[\frac{20}{3},7]$. Since $x$ solves $\Sigma_c(R)$, summing along $P$ gives $x_b-x_a\ge L_P-K_PR\ge s_t(R)$.
+
+\emph{The case $t=2$ and $R<\frac{20}{3}$.} There is no fraction $L/K$ with $L\le28$ in $(\frac{13}{2},\frac{20}{3})$, so $S^*\le\frac{13}{2}$. The same argument at $S=\frac{13}{2}$, with (F3) in place of (F1), gives a path with $L_P-\frac{13}{2}K_P\ge3$, hence $K_P\le3$, hence $L_P-7K_P\ge\frac32$ and so $L_P-7K_P\ge2$. Interpolating between $3$ at $\frac{13}{2}$ and $2$ at $7$ gives $x_b-x_a\ge16-2R$.
+
+\emph{The case $t=3$ and $R\ge\frac{27}{4}$.} There is no fraction $L/K$ with $L\le28$ in $(\frac{27}{4},7)$, so $S^*\le\frac{27}{4}$, and \Cref{lem:order} at $S=\frac{27}{4}$ gives an integral $(27,4)$-colouring $\gamma$ of $B_3$ and a path $P$ as before. We claim that the unsigned difference of $\gamma(a),\gamma(b)$ is at least $12$. If $\gamma$ uses all slots, this contradicts (F2). Otherwise apply \Cref{lem:projection} with $(p,q,c,d)=(27,4,20,3)$: an unsigned difference $h\le10$ would become one of at most $\lceil200/27\rceil=8$ in an integral $(20,3)$-colouring of $B_3$, contrary to (F1), and $h=11$ is excluded by (F4). Hence $L_P-\frac{27}{4}K_P\ge3$, so $K_P\le3$ and $L_P-7K_P\ge3-\frac34$, so the integer $L_P-7K_P$ is at least $3$. Thus $x_b-x_a\ge L_P-K_PR\ge3$.
+
+\emph{The case $t=3$ and $R<\frac{27}{4}$.} If the directed difference were less than $3$, inserting an empty arc of length $\frac{27}{4}-R$ in the arc from the colour of $b$ to that of $a$ would give a circular $\frac{27}{4}$-edge-colouring with the same directed difference, contrary to the previous case.
+\end{proof}
+
+\begin{table}[ht]
+\centering\footnotesize
+\setlength{\tabcolsep}{1.8pt}
+\begin{tabular}{@{}l *{14}{c}@{}}
+\toprule
+\multicolumn{15}{@{}l}{$B_1$: edges, then $u^{(1)}$ and $v^{(1)}$}\\
+& 03&05&06&07&08&12&14&15&16&17&24&25&26&27\\
+$u$ & 6&9&16&12&3&1&18&12&4&15&4&15&7&18\\
+$v$ & 2&3&5&4&1&0&6&4&1&5&1&5&2&6\\
+& 28&34&35&36&37&38&46&47&48&57&58&68&$a$&$b$\\
+$u$ & 10&13&3&0&9&16&10&1&7&6&0&13&0&7\\
+$v$ & 3&4&1&0&3&5&3&0&2&2&0&4&0&2\\
+\midrule
+\multicolumn{15}{@{}l}{$B_2$: edges, then $u^{(2)}$, $v^{(2)}$ and $h^{(2)}$}\\
+& 04&05&06&07&08&13&14&15&16&17&23&24&25&26\\
+$u$ & 13&3&10&16&7&5&16&$-1$&13&2&15&4&12&18\\
+$v$ & 4&1&3&5&2&1&5&$-1$&4&0&5&1&4&6\\
+$h$ & 9&2&7&11&5&4&11&0&9&2&10&3&8&12\\
+& 27&28&35&36&37&38&46&47&48&57&58&68&$a$&$b$\\
+$u$ & 9&1&9&1&12&18&7&$-1$&10&6&15&4&0&8\\
+$v$ & 3&0&3&0&4&6&2&$-1$&3&2&5&1&0&2\\
+$h$ & 6&1&6&1&8&12&5&0&7&4&10&3&0&6\\
+\midrule
+\multicolumn{15}{@{}l}{$B_3$: edges, then $h^{(3)}$}\\
+& 01&05&06&07&08&13&14&16&17&23&24&25&26&27\\
+$h$ & 4&11&6&2&8&2&10&8&0&9&3&5&1&7\\
+& 28&35&36&37&38&45&46&47&48&57&58&68&$a$&$b$\\
+$h$ & 12&0&4&11&6&7&12&5&1&9&3&10&0&6\\
+\bottomrule
+\end{tabular}
+\caption{Lifts of colourings of the blocks. An entry $ij$ denotes the edge $\{i,j\}$. The vector $u^{(t)}/3$ is a colouring at circumference $\frac{20}{3}$, $v^{(t)}$ one at $7$ and $h^{(t)}/2$ one at $\frac{13}{2}$, in each case with the colour of $a$ at $0$.}
+\label{tab:blocks}
+\end{table}
+
+\subsection{Rings}
+Let $m=2k+1\ge3$ and $t_0,\dots,t_{m-1}\in\{1,2,3\}$. Take disjoint copies of $B_{t_0},\dots,B_{t_{m-1}}$ without their pendant edges, and for each $i$ join vertex $1$ of copy $i$ to vertex $0$ of copy $i+1$, indices modulo $m$. The joining edge plays the role of $b$ in copy $i$ and of $a$ in copy $i+1$. The resulting graph $W(t_0,\dots,t_{m-1})$ is simple, connected and $6$-regular, with $9m$ vertices.
+
+\begin{theorem}\label{thm:rings}
+\[
+\cind\bigl(W(1,1,1)\bigr)=\frac{27}{4},\qquad\cind\bigl(W(1,2,2)\bigr)=\frac{41}{6},\qquad\cind\bigl(W(2,2,2,2,3)\bigr)=\frac{67}{10}.
+\]
+All three values lie in $(6+\frac12,7)$, with reduced denominators $4$, $6$ and $10$.
+\end{theorem}
+
+\begin{proof}
+Let $W=W(t_0,\dots,t_{m-1})$ be one of the three graphs, $k=(m-1)/2$, $R_*$ the claimed value and $R_0$ the left end of $\bigcap_iI_{t_i}$, so $R_0=\frac{20}{3}$ in the first two cases and $R_0=\frac{13}{2}$ in the third. Put $\Sigma(R)=\sum_is_{t_i}(R)$. Then $\Sigma(R)=27-3R$, $41-5R$ and $67-8R$ in the three cases, so $\Sigma(R_*)=kR_*$ and $\Sigma(R)>kR$ for $R<R_*$; and $R_0\le R_*<7$.
+
+\emph{Upper bound.} By \Cref{prop:blocks}\ref{it:bup}, colour copy $i$ at circumference $R_*$ so that the directed difference from its terminal $a$ to its terminal $b$ is $s_{t_i}(R_*)$, and rotate it so that the colour of $a$ is $\sigma_i=\sum_{j<i}s_{t_j}(R_*)$. Then the two colourings of each joining edge agree, the last one because $\sigma_m=kR_*\equiv0$. Every pair of incident edges of $W$ lies in one copy, so this is a circular $R_*$-edge-colouring of $W$.
+
+\emph{Lower bound.} Suppose $W$ has a circular $R$-edge-colouring with $R<R_*$; by inserting an empty arc we may assume $R_0\le R<R_*$. Let $d_i$ be the directed difference from the colour of the joining edge entering copy $i$ to that of the edge leaving it. By \Cref{prop:blocks}\ref{it:blow} applied to copy $i$, $s_{t_i}(R)\le d_i\le R-s_{t_i}(R)$. Going once around the ring, $\sum_id_i$ is a multiple of $R$. But $\Sigma(R)\le\sum_id_i\le mR-\Sigma(R)$, and $\Sigma(R)>kR$ gives $kR<\sum_id_i<(k+1)R$, a contradiction.
+\end{proof}
+
+\Cref{thm:rings} and \Cref{cor:denominators} prove \Cref{thm:main}.
+
+The same blocks give more. Three blocks of types $1$ and $2$ give circular chromatic index $7-\frac1q$ with $q=1+t_0+t_1+t_2\in\{4,5,6,7\}$; the value $\frac{48}{7}$ from $W(2,2,2)$ is the largest. Longer rings of blocks of types $2$ and $3$ realise, at degree six, every reduced denominator from $3$ to $13$ and also $15,16,17,19,20,21,23,25,27$. We do not need these cases and omit the details.
+
+\section{Computations}\label{sec:computations}
+
+All programs and data are available at \coderepo. The certificates in \Cref{tab:core,tab:blocks} are checked directly by short programs that test every pair of incident edges. These programs also check the closure condition in the proof of \Cref{lem:extend}, the explicit colourings of the three rings of \Cref{thm:rings} at their target circumferences, and the colouring of \Cref{thm:multi} for $3\le q\le64$. A further program lifts any integral colouring of a cubic graph to $\Phi(H)$ as in \Cref{thm:transfer}\ref{it:up} and checks the result; we ran it on a cubic test graph at the grids $(19,2)$, $(29,3)$, $(48,5)$, $(135,14)$ and $(173,18)$.
+
+\paragraph{\Cref{lem:half}.}
+Let $\gamma$ be an integral $(19,2)$-colouring of $Q^+$. At every vertex $v$ of $Q$ the nine edges of $Q^+$ at $v$ use nine slots with cyclic gaps eight times $2$ and once $3$, so exactly one pair $\{\ell_v,\ell_v+1\}$ of consecutive slots contains no slot used at $v$, and $v$ uses exactly the slots $\ell_v+2,\ell_v+4,\dots,\ell_v+18$. By the proof of \Cref{lem:half}, the edges of $Q$ in a pair of consecutive slots miss exactly one vertex of $Q$. If the pair contains no terminal slot, that vertex $u$ has $\ell_u$ equal to the first slot of the pair; if it contains the slot of $a_j$, the missed vertex is $r_j$, which uses that slot. So $v\mapsto\ell_v$ is a bijection from the vertices of $Q$ to the $13$ pairs that contain no terminal slot. For each of the $21$ sorted gap triples we encoded the existence of such a labelling together with an assignment of slots to edges, with each terminal slot used once and the slots at every vertex distinct, as a satisfiability problem. Glucose \cite{Glucose}, run through PySAT \cite{PySAT}, finds the formulas for $(5,7,7)$ and $(6,6,7)$ satisfiable and the other nineteen unsatisfiable; in the original run each refutation was checked by DRAT-trim \cite{DRATtrim}. A separately written exhaustive search in C++ assigns the labels recursively, tries every assignment of terminals to roots, and then searches for edge slots within the intersections of palettes. It finds the same two feasible triples. Each method takes a few seconds.
+
+\paragraph{\Cref{lem:fifth}.}
+Let $\gamma$ be an integral $(48,5)$-colouring of $Y$ using all $48$ slots, and let $s_i$ be the number of edges of $Q$ in slot $i$. Five consecutive slots hold a matching of $Q$, so $w_i=s_i+\dots+s_{i+4}\le6$, and $\sum_i(6-w_i)=48\cdot6-5\cdot57=3$. Given the three deficient windows, counted with multiplicity, the recurrence $s_{i+5}=s_i+w_{i+1}-w_i$ and $\sum_is_i=57$ determine all $s_i$, since $\gcd(5,48)=1$. Up to rotation this gives finitely many \emph{schedules}; we discard those with a negative or non-integral entry. Every slot with $s_i=0$ is used by an edge at the hub, so the slots with $s_i=0$ must extend to the nine slots of the hub, whose gaps are all at least $5$. This leaves $154$ schedules.
+
+The conclusion of \Cref{lem:fifth} fails exactly when some forward arc between consecutive terminal slots contains at least four hub gaps, which forces a terminal gap of at least $20$. We enumerate all placements of the three terminal slots with such a gap that are compatible with a hub containing all slots with $s_i=0$. If some slot $z$ is used neither by $Q$ nor by a terminal edge, \Cref{lem:projection} with $(p,q,c,d)=(48,5,19,2)$ maps the restriction of $\gamma$ to $Q^+$ to a $(19,2)$-colouring, whose terminal gaps must be $(5,7,7)$ or $(6,6,7)$ by \Cref{lem:half}; we discard placements that fail this test for some such $z$. Placements are identified under the rotations and reflections preserving the schedule and under the automorphism $(0\ 7)(1\ 6)(2\ 5)(3\ 4)(8\ 12)$ of $Q$, which exchanges $r_1$ and $r_3$ and fixes $r_2$. This leaves $221\,975$ placements. \Cref{tab:fifth} breaks them down.
+
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{@{}ccc@{}}
+\toprule
+Slots empty in $Q$ & Schedules & Placements \\
+\midrule
+0 & 19 & 209\,550 \\
+1 & 11 & 9\,075 \\
+2 & 12 & 1\,872 \\
+3 & 13 & 713 \\
+4 & 14 & 504 \\
+5 & 15 & 261 \\
+6--9 & 70 & 0 \\
+\midrule
+Total & 154 & 221\,975 \\
+\bottomrule
+\end{tabular}
+\caption{The schedules and terminal placements in the proof of \Cref{lem:fifth}.}
+\label{tab:fifth}
+\end{table}
+
+For each placement we search for a colouring. At each vertex of $Q$ the slots used form a set of nine slots with all cyclic gaps at least $5$; there are $880$ such sets. A root's set contains its terminal slot. The search chooses these sets vertex by vertex and propagates three necessary conditions: slot $i$ lies in exactly $2s_i$ of the sets with the terminal slots removed; the five-slot window starting at $i$ misses exactly $13-2w_i-t_i$ vertices of $Q$, where $t_i$ is the number of terminal slots in it; and two vertices share a slot $i$ with $s_i=1$ only if they are adjacent, while adjacent vertices share at least one slot and at most one slot $i$ with $s_i=1$. For a complete choice of sets it searches for an assignment of slots to edges. The search is exhaustive and has no cut-off.
+
+Two programs carry out this search independently: one keeps explicit lists of the remaining sets at each vertex and propagates all the counting bounds to a fixed point, and the other uses precomputed compatibility bitsets. Both reject all $221\,975$ placements, in every case before any complete choice of sets is reached. As a control, both find a colouring when the terminal slots are $0$, $15$, $30$, which are every third position; this colouring is the image of $\gamma_0$ under $x\mapsto\lfloor48x/19\rfloor$. A separate enumeration of the $880$ hub sets reproduces the same list of placements. Each search takes about an hour of processor time.
+
+\paragraph{(F1)--(F4).}
+For the blocks of \Cref{sec:six} a program enumerates colourings in the same way. For $(20,3)$ each three-slot window contains at most four edges among the nine core vertices, with total deficit $20\cdot4-3\cdot26=2$; the deficient windows determine the numbers of edges in each slot, and the program assigns matchings of the required sizes to the slots, excluding conflicts at circular distance less than $3$ and with the terminal edges. The same method handles $(13,2)$, with no deficit, and $(27,4)$: for (F2) the $28$ edges in $27$ slots force exactly one slot with two edges, and for (F4) the deficit is $4$, giving $13\,041$ schedules. The whole program runs in under a minute. An independent encoding as a satisfiability problem, solved with CaDiCaL through PySAT, confirms (F2), (F4) and the lower bound $h\ge6+t$ in (F1).
+
+\section*{Acknowledgements}
+We thank the contributors to the repository \cite{SC}, whose constructions answered the question of Mazák and Zrubák about maximum degrees $\Delta\ge8$ and whose discussion of this problem we consulted.
+
+\begin{thebibliography}{99}\small
+\bibitem{Glucose} G.~Audemard and L.~Simon, \emph{Predicting learnt clauses quality in modern SAT solvers}, in: Proceedings of the 21st International Joint Conference on Artificial Intelligence (IJCAI 2009), 399--404.
+\bibitem{BKMS} R.\,A.~Brualdi, K.\,P.~Kiernan, S.\,A.~Meyer and M.\,W.~Schroeder, \emph{Cyclic matching sequencibility of graphs}, Australas.\ J.\ Combin.\ \textbf{53} (2012), 245--256.
+\bibitem{GZ} G.~Gao and X.~Zhu, \emph{Star-extremal graphs and the lexicographic product}, Discrete Math.\ \textbf{152} (1996), 147--156.
+\bibitem{PySAT} A.~Ignatiev, A.~Morgado and J.~Marques-Silva, \emph{PySAT: a Python toolkit for prototyping with SAT oracles}, in: Theory and Applications of Satisfiability Testing (SAT 2018), Lecture Notes in Comput.\ Sci.\ \textbf{10929}, Springer, 2018, 428--437.
+\bibitem{LM} R.~Lukoťka and J.~Mazák, \emph{Cubic graphs with given circular chromatic index}, SIAM J.\ Discrete Math.\ \textbf{24} (2010), 1091--1103.
+\bibitem{MZ} J.~Mazák and F.~Zrubák, \emph{Circular chromatic index of small graphs}, arXiv:2603.08822 (2026).
+\bibitem{SC} Solved conjectures, public repository of solutions to open problems, \url{https://github.com/1337isnot1337/solved-conjectures}, contributions on the circular chromatic index of 21--25 November 2026, accessed 25 November 2026.
+\bibitem{Vizing} V.\,G.~Vizing, \emph{On an estimate of the chromatic class of a $p$-graph}, Diskret.\ Analiz \textbf{3} (1964), 25--30 (in Russian).
+\bibitem{DRATtrim} N.~Wetzler, M.\,J.\,H.~Heule and W.\,A.~Hunt, \emph{DRAT-trim: efficient checking and trimming using expressive clausal proofs}, in: Theory and Applications of Satisfiability Testing (SAT 2014), Lecture Notes in Comput.\ Sci.\ \textbf{8561}, Springer, 2014, 422--429.
+\bibitem{Zhu01} X.~Zhu, \emph{Circular chromatic number: a survey}, Discrete Math.\ \textbf{229} (2001), 371--410.
+\end{thebibliography}
+
+\end{document}

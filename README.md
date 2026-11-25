@@ -1,8 +1,8 @@
-# Ten papers, November 2026
+# Eleven papers, November 2026
 
 Charles O'Neill, Max Kirkby, Astra and Fable, 24–25 November 2026.
 
-Each folder holds one paper: the PDF, its LaTeX source in `paper/`, the programs and data its proofs rely on, and, for seven of the ten, a Lean 4 formalisation in `lean/`, with replay instructions in the folder's README. Each paper's section "Formal verification in Lean" says what the formalisation covers and which published results it takes as hypotheses. The papers also have pages at https://charlesponeill.com/maths-releases/.
+Each folder holds one paper: the PDF, its LaTeX source in `paper/`, the programs and data its proofs rely on, and, for seven of the eleven, a Lean 4 formalisation in `lean/`, with replay instructions in the folder's README. Each paper's section "Formal verification in Lean" says what the formalisation covers and which published results it takes as hypotheses. The papers also have pages at https://charlesponeill.com/maths-releases/.
 
 | Paper | Main result | Links |
 | --- | --- | --- |
@@ -16,6 +16,7 @@ Each folder holds one paper: the PDF, its LaTeX source in `paper/`, the programs
 | [Conjugate pairs and the prime spectrum](conjugate-generation/) | every finite group G has conjugate elements a, b with π(⟨a, b⟩) = π(G), answering Shumyatsky’s Question 17.125 in the Kourovka Notebook (previously known when all maximal subgroups are Hall subgroups); the deduction from four cited theorems also proved in Lean | [PDF](conjugate-generation/conjugate-generation.pdf) · [page](https://charlesponeill.com/maths-releases/conjugate-generation/) |
 | [A Hadamard matrix of order 4792](hadamard-4792/) | an explicit Hadamard matrix of order 4792 = 8·599, an order for which none was known before (twice 2396, the smallest open order); HH^(T) = 4792I checked by three independent programs | [PDF](hadamard-4792/hadamard-4792.pdf) · [page](https://charlesponeill.com/maths-releases/hadamard-4792/) |
 | [Four-colour quadratic van der Waerden numbers](quadratic-differences/) | W(ex^(2)+fx; 4) ≤ 57|e|+39|f|+1 for all e, f, so the optimal constant C_4 asked for by Kumthekar, Gasarch, Regli and Whitehouse is 57 (they proved 57 ≤ C_4 ≤ 64); six new exact values of W(x^(2)+jx; 4); computer-assisted, with checked DRAT proofs | [PDF](quadratic-differences/quadratic-differences.pdf) · [page](https://charlesponeill.com/maths-releases/quadratic-differences/) |
+| [Denominators of the circular chromatic index](circular-index-denominators/) | for every q > 2 a connected regular simple graph, of degree 6 or 9, whose circular chromatic index has reduced denominator q and lies strictly between Δ+1/2 and Δ+1, answering Problem 7 of Mazák and Zrubák; every rational in [19/2, 29/3] is the circular chromatic index of a 9-regular graph; computer-assisted | [PDF](circular-index-denominators/circular-index-denominators.pdf) · [page](https://charlesponeill.com/maths-releases/circular-index-denominators/) |
 
 ## AI use
 
