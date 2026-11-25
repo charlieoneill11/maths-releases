@@ -1,0 +1,22 @@
+{
+  "Legendre.Arithmetic.firstRow_charge_verified": {
+    "checker": "Legendre.Arithmetic.rowChargeChecker",
+    "soundness": "Legendre.Arithmetic.rowChargeChecker_sound"
+  },
+  "Legendre.Arithmetic.secondRow_charge_verified": {
+    "checker": "Legendre.Arithmetic.rowChargeChecker",
+    "soundness": "Legendre.Arithmetic.rowChargeChecker_sound"
+  },
+  "Legendre.grid_mass_verified": {
+    "checker": "Legendre.checkGridMass",
+    "soundness": "Legendre.checkGridMass_integral_sound"
+  },
+  "Legendre.grid_moment_verified": {
+    "checker": "Legendre.checkGridMoment",
+    "soundness": "Legendre.checkGridMoment_integral_sound"
+  },
+  "Legendre.shoulderHead_check": {
+    "checker": "Legendre.checkShoulderHead",
+    "soundness": "Legendre.shoulderHeight_steps_of_check"
+  }
+}

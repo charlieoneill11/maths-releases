@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The optimal constant for four-colour quadratic van der Waerden numbers</title>
+<meta name="description" content="For integers e,f, not both zero, let W(ex2+fx;4) be the least N such that every four-colouring of 1,dots,N has two distinct integers of the same colour whose difference is ed2+fd for some integer d. Kumthekar, Gasarch, Regli and Whitehouse proved that W(ex2+fx;4)le64(|e|+|f|)+1, and asked for the op">
+<meta name="citation_title" content="The optimal constant for four-colour quadratic van der Waerden numbers">
+<meta name="citation_author" content="O&#x27;Neill, Charles">
+<meta name="citation_author" content="Kirkby, Max">
+<meta name="citation_author" content="Astra">
+<meta name="citation_publication_date" content="2026/11/25">
+<meta name="citation_pdf_url" content="https://charlieoneill11.github.io/maths-releases/quadratic-differences/quadratic-differences.pdf">
+<meta name="citation_abstract_html_url" content="https://charlieoneill11.github.io/maths-releases/quadratic-differences/">
+<meta name="citation_keywords" content="polynomial van der Waerden numbers, distance graphs, graph colouring, SAT solving, DRAT proofs">
+<meta name="citation_language" content="en">
+<meta name="dc.creator" content="Charles O&#x27;Neill">
+<meta name="dc.creator" content="Max Kirkby">
+<meta name="dc.creator" content="Astra">
+<meta name="dc.date" content="2026-11-25">
+<style>
+:root { --bg: #fdfdfb; --fg: #1d1d1b; --muted: #5d5d58; --link: #1f4e8c; --rule: #deded8; }
+@media (prefers-color-scheme: dark) { :root { --bg: #161615; --fg: #e9e9e4; --muted: #a3a39c; --link: #8fb4ec; --rule: #33332f; } }
+html { background: var(--bg); color: var(--fg); }
+body { max-width: 46rem; margin: 0 auto; padding: 2.5rem 1rem 4rem; font: 17px/1.6 Georgia, 'Palatino Linotype', Palatino, serif; }
+a { color: var(--link); }
+h1 { font-size: 1.6rem; line-height: 1.3; margin: 0 0 .4rem; }
+h2 { font-size: 1.15rem; margin-top: 2rem; }
+.meta { color: var(--muted); margin-bottom: 1.5rem; }
+.links a { margin-right: 1.2rem; }
+li { margin-bottom: .9rem; }
+
+.display { display: block; text-align: center; margin: .8rem 0; }
+.note { color: var(--muted); font-size: .92rem; border-top: 1px solid var(--rule); margin-top: 2.5rem; padding-top: 1rem; }
+pre { font: 13px/1.45 ui-monospace, Menlo, Consolas, monospace; background: var(--rule); padding: .8rem 1rem; overflow-x: auto; white-space: pre; }
+</style>
+</head>
+<body>
+<h1>The optimal constant for four-colour quadratic van der Waerden numbers</h1>
+<div class="meta">Charles O'Neill, Max Kirkby and Astra &middot; 25 November 2026</div>
+<div class="links"><a href="quadratic-differences.pdf">PDF</a><a href="quadratic-differences.bib">BibTeX</a><a href="https://github.com/charlieoneill11/maths-releases/tree/main/quadratic-differences">Programs and data</a><a href="https://charlieoneill11.github.io/maths-releases/">All ten papers</a></div>
+<h2>Abstract</h2>
+<p>For integers <i>e</i>,<i>f</i>, not both zero, let <i>W</i>(ex<sup>2</sup>+fx;4) be the least <i>N</i> such that every four-colouring of {1,…,<i>N</i>} has two distinct integers of the same colour whose difference is ed<sup>2</sup>+fd for some integer <i>d</i>. Kumthekar, Gasarch, Regli and Whitehouse proved that <i>W</i>(ex<sup>2</sup>+fx;4)≤64(|<i>e</i>|+|<i>f</i>|)+1, and asked for the optimal constant <i>C</i><sub>4</sub> in a bound of this form, which they showed lies between 57 and 64. We prove that <i>W</i>(ex<sup>2</sup>+fx;4)≤57|<i>e</i>|+39|<i>f</i>|+1 for all such <i>e</i>,<i>f</i>, so <i>C</i><sub>4</sub>=57. Both coefficients are attained, by <i>x</i><sup>2</sup> and by <i>x</i><sup>2</sup>+<i>x</i>. The proof maps the lattice ℤ<sup>2</sup> to the integers by (<i>u</i>,<i>v</i>)↦|<i>f</i>|<i>u</i>+|<i>e</i>|<i>v</i>, which turns the steps (<i>d</i>,±<i>d</i><sup>2</sup>) into the differences ±(ed<sup>2</sup>±fd). With the steps for 1≤<i>d</i>≤7 the lattice graph is four-colourable by an 8×16 periodic tile, so near the axis <i>f</i>=0 no finite subgraph of it can be an obstruction on its own. There we use the fact that a colouring pulled back from the integers is invariant under the kernel of this map, and a SAT computation with a checked DRAT proof shows that every proper colouring of a 12×58 rectangle contains one of sixteen small configurations, each of which forces a periodic pattern that this invariance rules out. We also determine <i>W</i>(<i>x</i><sup>2</sup>+jx;4) for 0≤<i>j</i>≤8; the values 82,81,75,89,73,53 for <i>j</i>=2,3,4,5,6,8 are new.</p>
+<p class="meta"><em>2020 Mathematics Subject Classification:</em> 05D10; 05C15, 11B25, 68V15<br><em>Keywords:</em> polynomial van der Waerden numbers, distance graphs, graph colouring, SAT solving, DRAT proofs</p>
+<h2>AI use and author contributions</h2>
+<p>The arguments and the programs in this paper were developed and run by Astra (GPT-6.2 Astra, OpenAI) from Charles O&#x27;Neill&#x27;s instructions. Two of the new threshold values, 82 and 81, were first proposed in those instructions; both were recomputed from the definition. The manuscript was prepared from the project&#x27;s research records with Claude (Anthropic). All computations were re-run before release, and the programs and certificates are available at https://github.com/charlieoneill11/maths-releases.</p>
+<p>Charles O'Neill chose the problem and directed the work. Charles O&#x27;Neill has checked the arguments and takes full responsibility for the correctness of the results.</p>
+<h2>Cite</h2>
+<pre>@misc{quadratic-differences-2026,
+  author       = {O&#x27;Neill, Charles and Kirkby, Max and {Astra}},
+  title        = {The optimal constant for four-colour quadratic van der {W}aerden numbers},
+  year         = {2026},
+  month        = nov,
+  howpublished = {\url{https://charlieoneill11.github.io/maths-releases/quadratic-differences/}},
+  note         = {Preprint. Programs and data: \url{https://github.com/charlieoneill11/maths-releases/tree/main/quadratic-differences}},
+}
+</pre>
+</body>
+</html>

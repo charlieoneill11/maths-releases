@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>An improved lower bound for the sixth moment of the Riemann zeta function</title>
+<meta name="description" content="Let M_6(T)=int_0T|zeta(tfrac12+it)|6dd t. The conjecture of Conrey and Ghosh predicts M_6(T)sim 42,c_3,T(log T)9, where c_3=a_3/9! and a_3 is the usual arithmetic factor. We prove unconditionally that [ liminf_TtoinftyfracM_6(T)c_3T(log T)9 ge 41.6406029094ldots, ] improving the previous record 41.0">
+<meta name="citation_title" content="An improved lower bound for the sixth moment of the Riemann zeta function">
+<meta name="citation_author" content="O&#x27;Neill, Charles">
+<meta name="citation_author" content="Kirkby, Max">
+<meta name="citation_author" content="Astra">
+<meta name="citation_author" content="Fable">
+<meta name="citation_publication_date" content="2026/11/24">
+<meta name="citation_pdf_url" content="https://charlieoneill11.github.io/maths-releases/zeta-sixth-moment/zeta-sixth-moment.pdf">
+<meta name="citation_abstract_html_url" content="https://charlieoneill11.github.io/maths-releases/zeta-sixth-moment/">
+<meta name="citation_keywords" content="Riemann zeta function, sixth moment, mean values, Kuznetsov formula, spectral large sieve">
+<meta name="citation_language" content="en">
+<meta name="dc.creator" content="Charles O&#x27;Neill">
+<meta name="dc.creator" content="Max Kirkby">
+<meta name="dc.creator" content="Astra">
+<meta name="dc.creator" content="Fable">
+<meta name="dc.date" content="2026-11-24">
+<style>
+:root { --bg: #fdfdfb; --fg: #1d1d1b; --muted: #5d5d58; --link: #1f4e8c; --rule: #deded8; }
+@media (prefers-color-scheme: dark) { :root { --bg: #161615; --fg: #e9e9e4; --muted: #a3a39c; --link: #8fb4ec; --rule: #33332f; } }
+html { background: var(--bg); color: var(--fg); }
+body { max-width: 46rem; margin: 0 auto; padding: 2.5rem 1rem 4rem; font: 17px/1.6 Georgia, 'Palatino Linotype', Palatino, serif; }
+a { color: var(--link); }
+h1 { font-size: 1.6rem; line-height: 1.3; margin: 0 0 .4rem; }
+h2 { font-size: 1.15rem; margin-top: 2rem; }
+.meta { color: var(--muted); margin-bottom: 1.5rem; }
+.links a { margin-right: 1.2rem; }
+li { margin-bottom: .9rem; }
+
+.display { display: block; text-align: center; margin: .8rem 0; }
+.note { color: var(--muted); font-size: .92rem; border-top: 1px solid var(--rule); margin-top: 2.5rem; padding-top: 1rem; }
+pre { font: 13px/1.45 ui-monospace, Menlo, Consolas, monospace; background: var(--rule); padding: .8rem 1rem; overflow-x: auto; white-space: pre; }
+</style>
+</head>
+<body>
+<h1>An improved lower bound for the sixth moment of the Riemann zeta function</h1>
+<div class="meta">Charles O'Neill, Max Kirkby, Astra and Fable &middot; 24 November 2026</div>
+<div class="links"><a href="zeta-sixth-moment.pdf">PDF</a><a href="zeta-sixth-moment.bib">BibTeX</a><a href="https://github.com/charlieoneill11/maths-releases/tree/main/zeta-sixth-moment">Programs and data</a><a href="https://charlieoneill11.github.io/maths-releases/">All ten papers</a></div>
+<h2>Abstract</h2>
+<p>Let <i>M</i><sub>6</sub>(<i>T</i>)=∫<sub>0</sub><sup><i>T</i></sup>|ζ(½+it)|<sup>6</sup> dt. The conjecture of Conrey and Ghosh predicts <i>M</i><sub>6</sub>(<i>T</i>)∼ 42 <i>c</i><sub>3</sub> <i>T</i>(log <i>T</i>)<sup>9</sup>, where <i>c</i><sub>3</sub>=<i>a</i><sub>3</sub>/9! and <i>a</i><sub>3</sub> is the usual arithmetic factor. We prove unconditionally that <span class="display">lim inf<sub><i>T</i>→∞</sub><i>M</i><sub>6</sub>(<i>T</i>) / (<i>c</i><sub>3</sub><i>T</i>(log <i>T</i>)<sup>9</sup>) ≥ 41.6406029094…,</span> improving the previous record 41.008 of Fraccaro. The argument places every Cauchy–Schwarz test in a common Hilbert space of Schur profiles on the simplex {0&lt;x&lt;y&lt;z&lt;1}, where the target ζ<sup>3</sup> has mass exactly 42. A lower bound then becomes the measure of the region on which physical pairings of test Dirichlet polynomials can be shown to agree with the unitary model. We first determine exactly what the two classical test families can give, namely 264076794201/6400000000=41.2619990939…. We then enlarge the admissible region using the Kuznetsov formula for marked short divisors with the level-averaged spectral large sieves of Deshouillers–Iwaniec and Watt, Heath-Brown's estimate for <i>d</i><sub>3</sub> in arithmetic progressions, and, for moduli up to <i>T</i><sup>3/5</sup>, a dual-sum estimate for hyper-Kloosterman sums based on the sums-of-products theorem of Fouvry, Kowalski and Michel, combined with the bounds of Deshouillers and Iwaniec for sums of Kloosterman fractions and with the Kuznetsov formula at the level fixed by the denominators. We also show that enlarging the supports within the classes used here (the dominant shapes, the extreme traces, the shapes with a short coordinate, and the balanced and mixed-row regions, with their reflections) cannot take the projection beyond 41.9462895683…&lt;42. The exact masses, this ceiling, the covering argument for the mixed row and the deduction of the bound from the arithmetic pairings have been checked in Lean 4 with Mathlib.</p>
+<p class="meta"><em>2020 Mathematics Subject Classification:</em> 11M06; 11F72, 11L05, 11N37<br><em>Keywords:</em> Riemann zeta function, sixth moment, mean values, Kuznetsov formula, spectral large sieve</p>
+<h2>AI use and author contributions</h2>
+<p>The mathematical arguments and computer programs in this paper were developed by Astra (GPT-6.2 Astra, OpenAI). Fable (Fable 5.2, Anthropic) worked throughout as a second model: it proposed alternative approaches, reviewed arguments and raised objections. The manuscript was prepared from the project&#x27;s research records with Claude (Anthropic). All computations were re-run before release, and the programs and certificates are available at https://github.com/charlieoneill11/maths-releases.</p>
+<p>Open-weight models, Kimi K3.1 Pro (Moonshot AI) and DeepSeek V4.1 Flash (DeepSeek), were able to derive a significant proportion of these results when given guidance. We will report the details separately.</p>
+<p>Charles O'Neill proposed the problem because the Riemann hypothesis, now a theorem, gives Harper's bound <i>M</i><sub>6</sub>(<i>T</i>)≪ <i>T</i>(log <i>T</i>)<sup>9</sup>, which controls the error terms of the Cauchy–Schwarz method at the correct order. His technical contribution was to ask for the test-function method to be set up as an optimisation problem and, if it fell short of 42, for its ceiling to be proved. This led to the exact value in Theorem 1 and to the ceiling in Proposition 3. Max Kirkby set up and ran the experiments with open-weight models. Charles O&#x27;Neill has checked the arguments and takes full responsibility for the correctness of the results.</p>
+<h2>Cite</h2>
+<pre>@misc{zeta-sixth-moment-2026,
+  author       = {O&#x27;Neill, Charles and Kirkby, Max and {Astra} and {Fable}},
+  title        = {An improved lower bound for the sixth moment of the {R}iemann zeta function},
+  year         = {2026},
+  month        = nov,
+  howpublished = {\url{https://charlieoneill11.github.io/maths-releases/zeta-sixth-moment/}},
+  note         = {Preprint. Programs and data: \url{https://github.com/charlieoneill11/maths-releases/tree/main/zeta-sixth-moment}},
+}
+</pre>
+</body>
+</html>

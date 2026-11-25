@@ -1,0 +1,1 @@
+{"band_sha256": "928ff9cf18b91199fd012560569bbc7c0117a8ddde69c02fb60220d80ce3c33c", "generator": 4, "hit": true, "index": 268, "spec": [[4, 1, 19, -2], [4, 1, 19, -2], [25, 13, 62, -7], [37, 28, 8, -1]], "stage1": "2518683 paired entries, 6 K-level instances after the conditioned join in 0.03s", "stage2": "full witness at record 3", "tau": [[3, -3, 0, 0]], "wall_seconds": 2.83}

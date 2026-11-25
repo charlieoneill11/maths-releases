@@ -1,0 +1,426 @@
+\documentclass[11pt,colorlinks]{charlie}
+\input{preamble}
+\usepackage{amssymb}
+
+\newcommand{\D}{\mathcal D}
+\newcommand{\sgn}{\sigma}
+\renewcommand{\aiusestatement}{The arguments and the programs in this paper were developed and run by Astra (GPT-6.2 Astra, OpenAI) from Charles O'Neill's instructions. Two of the new threshold values, 82 and 81, were first proposed in those instructions; both were recomputed from the definition. The manuscript was prepared from the project's research records with Claude (Anthropic). All computations were re-run before release, and the programs and certificates are available at \coderepo.}
+
+\title{The optimal constant for four-colour quadratic van der Waerden numbers}
+\author{Charles O'Neill, Max Kirkby and Astra}
+\date{25 November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+For integers $e,f$, not both zero, let $W(ex^2+fx;4)$ be the least $N$ such that every four-colouring of $\{1,\dots,N\}$ has two distinct integers of the same colour whose difference is $ed^2+fd$ for some integer $d$. Kumthekar, Gasarch, Regli and Whitehouse proved that $W(ex^2+fx;4)\le64(|e|+|f|)+1$, and asked for the optimal constant $C_4$ in a bound of this form, which they showed lies between $57$ and $64$. We prove that $W(ex^2+fx;4)\le57|e|+39|f|+1$ for all such $e,f$, so $C_4=57$. Both coefficients are attained, by $x^2$ and by $x^2+x$. The proof maps the lattice $\Z^2$ to the integers by $(u,v)\mapsto|f|u+|e|v$, which turns the steps $(d,\pm d^2)$ into the differences $\pm(ed^2\pm fd)$. With the steps for $1\le d\le7$ the lattice graph is four-colourable by an $8\times16$ periodic tile, so near the axis $f=0$ no finite subgraph of it can be an obstruction on its own. There we use the fact that a colouring pulled back from the integers is invariant under the kernel of this map, and a SAT computation with a checked DRAT proof shows that every proper colouring of a $12\times58$ rectangle contains one of sixteen small configurations, each of which forces a periodic pattern that this invariance rules out. We also determine $W(x^2+jx;4)$ for $0\le j\le8$; the values $82,81,75,89,73,53$ for $j=2,3,4,5,6,8$ are new.
+\end{abstract}
+\mscandkeywords{05D10; 05C15, 11B25, 68V15}{polynomial van der Waerden numbers, distance graphs, graph colouring, SAT solving, DRAT proofs}
+
+\section*{AI use and author contributions}
+\aiusestatement
+
+Charles O'Neill chose the problem and directed the work. \responsibilitystatement
+
+\section{Introduction}
+
+Let $P\in\Z[x]$ be a nonzero polynomial with $P(0)=0$ and let $r\ge2$. The polynomial van der Waerden theorem of Bergelson and Leibman \cite{BL} implies, as a special case, that for every $r$ there is an $N$ such that every $r$-colouring of $[N]=\{1,\dots,N\}$ contains distinct integers $u,v$ of the same colour with $v-u=P(d)$ for some integer $d$. Following \cite{KGRW}, write $W(P;r)$ for the least such $N$. Put
+\[
+\D(P)=\{|P(d)|:d\in\Z,\ P(d)\ne0\}.
+\]
+Then $W(P;r)$ is the least $N$ for which the graph on $[N]$ in which $u\sim v$ whenever $|u-v|\in\D(P)$ has no proper $r$-colouring.
+
+For four colours and quadratic polynomials the exact values are small but were found only recently. Canakci, Christenson, Fleischman, Gasarch, McNabb and Smolyak showed with a SAT solver that $W(x^2;4)=58$ \cite{CCFGMS}, and Kumthekar, Gasarch, Regli and Whitehouse \cite{KGRW} found nine further exact values, among them $W(x^2+x;4)=97$ and $W(x^2+7x;4)=49$. They also proved a uniform bound \cite[Theorem~4.3]{KGRW}:
+\begin{equation}\label{eq:kgrw}
+W(ex^2+fx;4)\le64(|e|+|f|)+1\qquad(e,f\in\Z,\ (e,f)\ne(0,0)).
+\end{equation}
+Let $C_4$ be the smallest constant $C$ such that $W(ex^2+fx;4)\le C(|e|+|f|)+1$ for all such $e,f$. Since $W(x^2;4)=58$, \eqref{eq:kgrw} gives $57\le C_4\le64$, and the authors state: ``One immediate open problem is to determine the optimal constant $C_4$'' \cite[Section~6]{KGRW}. We determine it.
+
+\begin{theorem}\label{thm:main}
+For all integers $e,f$, not both zero,
+\[
+W(ex^2+fx;4)\le57|e|+39|f|+1 .
+\]
+In particular $C_4=57$.
+\end{theorem}
+
+Both coefficients are best possible. The coefficient $57$ is attained by $W(x^2;4)=58$. With the first coefficient fixed at $57$, the second cannot be smaller than $39$, because $W(x^2+x;4)=97=57+39+1$ \cite[Theorem~2.3]{KGRW}.
+
+Along the way we determine $W(x^2+jx;4)$ for $0\le j\le8$; \cite[Lemma~4.2]{KGRW} had shown that each of these values is at most $97$.
+
+\begin{theorem}\label{thm:table}
+The values of $W(x^2+jx;4)$ for $0\le j\le8$ are as follows.
+\begin{center}
+\begin{tabular}{@{}lccccccccc@{}}
+\toprule
+$j$ & $0$ & $1$ & $2$ & $3$ & $4$ & $5$ & $6$ & $7$ & $8$\\
+\midrule
+$W(x^2+jx;4)$ & $58$ & $97$ & $82$ & $81$ & $75$ & $89$ & $73$ & $49$ & $53$\\
+Source & \cite{CCFGMS} & \cite{KGRW} & new & new & new & new & new & \cite{KGRW} & new\\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{theorem}
+
+\paragraph{The method.}
+Write $E=|e|$ and $F=|f|$; by symmetry it is enough to treat $P(x)=Ex^2+Fx$ with $E,F\ge0$ (\Cref{lem:symmetry}). The proof of \eqref{eq:kgrw} in \cite{KGRW} labels the point $(u,v)\in\Z^2$ by $Fu+Ev$. A lattice step $(d,d^2)$ changes the label by $P(d)$ and a step $(d,-d^2)$ changes it by $-P(-d)$, so a four-colouring of an interval of integers pulls back to a proper colouring of the lattice graph with these steps, on the points whose labels lie in the interval. Kumthekar et al.\ checked that the graph on the rectangle $[0,10]\times[0,64]$ with the steps $1\le d\le8$, which has $715$ vertices, is not four-colourable \cite[Lemma~4.1]{KGRW}. The labels of this rectangle span $64E+10F$, which gives \eqref{eq:kgrw} except for the finitely many ratios $F/E$ at which a step collapses.
+
+A smaller set of $350$ points of the same rectangle is still not four-colourable (\Cref{prop:crop}), and its labels span only $64E+10F-2\min(8F,E+F,2E)$. This proves \Cref{thm:main} whenever $E<6F$. Near the axis, when $F/E$ is small, no argument of this kind can reach $57$. If $7E>65F$, every difference $|P(d)|$ with $|d|\ge8$ exceeds $57(E+F)$, so in an interval of length $57(E+F)$ only the steps with $|d|\le7$ give edges, and the lattice graph with these steps is four-colourable: an $8\times16$ periodic tile colours all of $\Z^2$ (\Cref{prop:tile}). Any proof in this range must therefore use the fact that the pulled-back colouring is constant on the fibres of the labelling map.
+
+That is what \Cref{sec:nearaxis} does. We pass to the sublattice $(2\Z)\times(4\Z)$, on which the steps with $d=2,4,6$ act as steps $(d',\pm d'^2)$ with $d'=1,2,3$, and consider the four colourings of one of its two parity classes that are constant on the cosets of a sublattice of index four. Each of them is proper, and if such a colouring appears on three consecutive columns of points with labels in a suitable window, a counting argument with the labels forces it on every later column (\Cref{lem:propagation}). The kernel of the labelling map contains a vector that joins two points with different prescribed colours, so this cannot happen (\Cref{lem:noblock}). A computation then shows that every proper colouring of the even part of a $12\times58$ rectangle contains, somewhere, one of sixteen configurations of eight or ten points that forces such a pattern on three columns (\Cref{lem:patterns,lem:sat}). This gives $W(Ex^2+Fx;4)\le57E+11F+1$ for $E\ge6F>0$ (\Cref{thm:nearaxis}).
+
+\paragraph{Computer assistance.}
+Four steps are finite computations: the tile (\Cref{prop:tile}), which can also be checked by hand; the non-colourability of the $350$-point set (\Cref{prop:crop}); the forcing of the sixteen configurations (\Cref{lem:patterns}); and the non-colourability of the $12\times58$ rectangle without them (\Cref{lem:sat}). The two non-colourability statements and the upper bounds in \Cref{thm:table} are refutations of CNF formulas by a SAT solver. Each refutation comes with a DRAT proof checked by drat-trim \cite{DRAT}, an independent proof checker, and the formulas were compared with a second, independently written encoder. \Cref{sec:computations} lists the programs, the hashes of the inputs and proofs, and the replay commands.
+
+\section{Preliminaries}\label{sec:prelim}
+
+For a polynomial $P$ and an integer $N\ge1$ let $G(N,P)$ be the graph on $\{0,1,\dots,N-1\}$ in which $u\sim v$ when $|u-v|\in\D(P)$. Translation does not change the graph, so $W(P;4)$ is the least $N$ for which $G(N,P)$ has no proper four-colouring, and $W(P;4)-1$ is the largest $N$ for which $G(N,P)$ has one.
+
+\begin{lemma}\label{lem:symmetry}
+Let $e,f$ be integers, not both zero, and put $E=|e|$, $F=|f|$. Then $\D(ex^2+fx)=\D(Ex^2+Fx)$. In particular $W(ex^2+fx;4)=W(Ex^2+Fx;4)$.
+\end{lemma}
+
+\begin{proof}
+The polynomials $P(x)$, $-P(x)$ and $P(-x)$ have the same set $\D$, and these operations change the signs of $e$ and $f$ independently.
+\end{proof}
+
+\begin{lemma}[{\cite[Proposition~2.1]{KGRW}}]\label{lem:scaling}
+For every integer $h\ge1$, $W(hP;r)=h\bigl(W(P;r)-1\bigr)+1$.
+\end{lemma}
+
+\begin{lemma}\label{lem:linear}
+For every integer $F\ge1$, $W(Fx;4)=4F+1$.
+\end{lemma}
+
+\begin{proof}
+Here $\D(Fx)$ is the set of positive multiples of $F$. On $\{0,\dots,4F-1\}$ colour $u$ by $\lfloor u/F\rfloor$; two integers at a distance divisible by $F$ lie in different blocks. Among $4F+1$ consecutive integers some residue class modulo $F$ contains five of them, and they are pairwise adjacent.
+\end{proof}
+
+\paragraph{Lattice graphs.}
+For $k\ge1$ let $\Gamma_k$ be the graph on $\Z^2$ in which $(u,v)$ is adjacent to $(u+d,v+d^2)$ and to $(u+d,v-d^2)$ for $1\le d\le k$. A step $(d,\sgn d^2)$ with $\sgn=\pm1$ preserves the parity of $u+v$, so $\Gamma_k$ is the disjoint union of its restrictions to the even points ($u+v$ even) and the odd points. For a finite set $X\subset\Z^2$ we write $\Gamma_k[X]$ for the induced subgraph.
+
+\begin{lemma}[Pullback]\label{lem:pullback}
+Let $E,F\ge0$, not both zero, put $P(x)=Ex^2+Fx$ and $\lambda(u,v)=Fu+Ev$. Let $X\subset\Z^2$ be finite, let $k\ge1$, and suppose that $F\ne dE$ for $1\le d\le k$. Let $a=\min_X\lambda$ and $b=\max_X\lambda$. If $\chi$ is a proper four-colouring of $G(b-a+1,P)$, then $x\mapsto\chi(\lambda(x)-a)$ is a proper four-colouring of $\Gamma_k[X]$. In particular, if $\Gamma_k[X]$ is not four-colourable then $W(P;4)\le b-a+1$.
+\end{lemma}
+
+\begin{proof}
+Let $x=(u,v)$ and $y=(u+d,v+\sgn d^2)$ be adjacent in $\Gamma_k[X]$. Then $\lambda(y)-\lambda(x)=Fd+\sgn Ed^2$, which is $P(d)$ if $\sgn=1$ and $-P(-d)$ if $\sgn=-1$. It is nonzero: for $\sgn=1$ because $E,F$ are not both zero, and for $\sgn=-1$ because $F\ne dE$. So $\lambda(x)-a$ and $\lambda(y)-a$ are distinct vertices of $G(b-a+1,P)$ at a distance in $\D(P)$, and they have different colours.
+\end{proof}
+
+\section{Two lattice graphs}\label{sec:lattice}
+
+\begin{proposition}\label{prop:tile}
+Let $T$ be the $8\times16$ array
+\begin{center}\small
+$\setlength{\arraycolsep}{1.6pt}
+\begin{array}{c|cccccccccccccccc}
+ & 0&1&2&3&4&5&6&7&8&9&10&11&12&13&14&15\\\hline
+0& 0&1&0&0&2&2&2&2&2&2&1&3&3&3&3&1\\
+1& 2&2&2&3&1&3&1&3&1&3&1&2&2&1&2&2\\
+2& 1&1&1&3&1&3&2&2&0&0&0&0&3&0&3&1\\
+3& 0&0&0&0&0&0&0&1&3&2&3&1&3&1&3&0\\
+4& 2&2&1&3&3&3&3&1&0&1&0&0&2&2&2&2\\
+5& 1&3&1&2&2&1&2&2&2&2&2&3&1&3&1&3\\
+6& 0&0&0&0&3&0&3&1&1&1&1&3&1&3&2&2\\
+7& 3&2&3&1&3&1&3&0&0&0&0&0&0&0&0&1
+\end{array}$
+\end{center}
+with rows indexed by $u\bmod8$ and columns by $v\bmod16$. The colouring $(u,v)\mapsto T(u\bmod8,\,v\bmod16)$ is a proper four-colouring of $\Gamma_7$.
+\end{proposition}
+
+\begin{proof}
+The colouring is periodic with periods $(8,0)$ and $(0,16)$, so it suffices to check the $128$ points $(u,v)$ with $0\le u<8$, $0\le v<16$ against their $14$ neighbours $(u+d,v\pm d^2)$, $1\le d\le7$, reduced modulo $(8,16)$. The residues of $d^2$ modulo $16$ are $1,4,9,0,9,4,1$. Both programs of \Cref{sec:computations} carry out these $1792$ comparisons.
+\end{proof}
+
+In particular, for every $n$ the graph $\Gamma_7[\{0,\dots,n-1\}^2]$ is four-colourable; for $n\le65$ this is the graph on the $n\times n$ square with every step $(d,\pm d^2)$ that fits. The tile cannot accommodate $d=8$, since $(8,\pm64)$ is a period.
+
+Let $Q=\{0,\dots,10\}\times\{0,\dots,64\}$, the rectangle of \cite[Lemma~4.1]{KGRW}, and let
+\[
+S=\{(u,v)\in Q:\ u+v\text{ even},\ v\ne0\text{ or }u\ge8,\ v\ne64\text{ or }u\le2\}.
+\]
+So $S$ consists of the even points of $Q$ in rows $1$ to $63$, the points $(8,0)$ and $(10,0)$, and the points $(0,64)$ and $(2,64)$. It has $350$ points.
+
+\begin{proposition}\label{prop:crop}
+The graph $\Gamma_8[S]$, which has $350$ vertices and $2362$ edges, is not four-colourable.
+\end{proposition}
+
+\begin{proof}
+This is a finite computation (\Cref{sec:computations}). The CNF formula with four Boolean variables per vertex, clauses saying that each vertex has exactly one colour and that no edge is monochromatic, and two unit clauses naming the colours $0$ and $1$ at the ends of one edge, has $1400$ variables and $11\,900$ clauses. Kissat~4.0.4 \cite{Kissat} refutes it, and drat-trim \cite{DRAT} verifies the resulting DRAT proof.
+\end{proof}
+
+The only edges of $\Gamma_8[S]$ with $d=8$ are the two edges joining $(8,0)$ to $(0,64)$ and $(10,0)$ to $(2,64)$. The even part of $Q$ (358 vertices, 2436 edges) and all of $Q$ (715 vertices, 4864 edges) contain $S$, so they are not four-colourable either; the latter is \cite[Lemma~4.1]{KGRW}.
+
+\begin{corollary}\label{cor:crop}
+Let $E,F\ge0$, not both zero, with $F\ne dE$ for $1\le d\le8$. Then
+\[
+W(Ex^2+Fx;4)-1\le64E+10F-2\min(8F,\,E+F,\,2E).
+\]
+\end{corollary}
+
+\begin{proof}
+Let $\lambda(u,v)=Fu+Ev$. The minimum of $\lambda$ on row $0$ of $S$ is $\lambda(8,0)=8F$. In a row $v\ge1$ the least $u$ with $u+v$ even is $0$ or $1$, so the minimum over rows $v\ge1$ is attained at $(1,1)$ or $(0,2)$, with value $E+F$ or $2E$. Hence $\min_S\lambda=m:=\min(8F,E+F,2E)$. The map $(u,v)\mapsto(10-u,64-v)$ maps $S$ onto itself and sends $\lambda$ to $10F+64E-\lambda$, so $\max_S\lambda=64E+10F-m$. Now apply \Cref{lem:pullback} with $k=8$ and \Cref{prop:crop}.
+\end{proof}
+
+For $E\le F$ the minimum is $2E$, for $F\le E\le7F$ it is $E+F$, and for $E\ge7F$ it is $8F$. So the bound of \Cref{cor:crop} is $60E+10F$, $62E+8F$ and $64E-6F$ in these three ranges.
+
+\section{The near-axis range}\label{sec:nearaxis}
+
+\begin{theorem}\label{thm:nearaxis}
+Let $p,q$ be integers with $p\ge6q>0$. Then $W(px^2+qx;4)\le57p+11q+1$.
+\end{theorem}
+
+Throughout this section $p\ge6q>0$, $P(x)=px^2+qx$ and $N=57p+11q$. Suppose, for a contradiction, that $\chi$ is a proper four-colouring of $\{0,1,\dots,N\}$ for the distances $\D(P)$. Every step of $\Gamma_k$, for every $k$, has a nonzero label difference, because $pd^2-qd=d(pd-q)>0$ for $d\ge1$. So, by the proof of \Cref{lem:pullback}, the colouring
+\[
+c(u,v)=\chi(qu+pv)\qquad(0\le qu+pv\le N)
+\]
+gives different colours to any two points that are adjacent in $\Gamma_7$ and have labels in $[0,N]$.
+
+\paragraph{A coarse lattice.}
+Fix a base point $(u_0,v_0)$ with
+\begin{equation}\label{eq:base}
+0\le u_0\le7,\qquad 2\le v_0\le19,\qquad u_0+v_0\text{ even},
+\end{equation}
+and put $z=qu_0+pv_0$. There are $72$ such base points. To $(x,y)\in\Z^2$ we attach the point $\iota(x,y)=(u_0+2x,v_0+4y)$ and its label
+\[
+\ell(x,y)=qu_0+pv_0+2qx+4py=z+2qx+4py .
+\]
+We call $(x,y)\sim(x+d,y\pm d^2)$ with $d\in\{1,2,3\}$ a \emph{coarse step}. It maps under $\iota$ to the step $(2d,\pm(2d)^2)$ of $\Gamma_6$, and it preserves the parity of $x+y$. Fix a parity $\epsilon\in\{0,1\}$ and let $C=\{(x,y):x+y\equiv\epsilon\pmod2\}$. Let
+\[
+I=[z-2p,\ z+38p+4q].
+\]
+Since $z-2p=qu_0+p(v_0-2)\ge0$ and $z+38p+4q=q(u_0+4)+p(v_0+38)\le11q+57p$, the window $I$ lies in $[0,N]$. Its length is $40p+4q$. Let $A=\{s\in C:\ell(s)\in I\}$ be the set of \emph{active} coarse points. On $A$ the colouring $c'(s)=c(\iota(s))$ is defined, and it is proper for coarse steps.
+
+\begin{lemma}\label{lem:active}
+\begin{enumerate}
+\item\label{it:block} The active points with $0\le x\le2$ are exactly the $15$ points $(x,y)\in C$ with $0\le x\le2$ and $0\le y\le9$. We call this set the \emph{block} $B$.
+\item\label{it:box} Every point $(x,y)\in C$ with $-6\le x\le8$ and $0\le y\le9$ is active.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+We have $\ell(x,y)-z=2qx+4py$. If $0\le x\le2$ and $y\le-1$ then $2qx+4py\le4q-4p<-2p$, since $p>2q$. If $0\le x\le2$ and $y\ge10$ then $2qx+4py\ge40p>38p+4q$. If $0\le y\le9$ and $-6\le x\le8$ then $2qx+4py\ge-12q\ge-2p$ and $2qx+4py\le16q+36p\le38p+4q$, since $12q\le2p$. This proves both statements; for \ref{it:block} note that the points with $0\le y\le9$ and $0\le x\le2$ satisfy the bounds of \ref{it:box}.
+\end{proof}
+
+\paragraph{Prescribed colourings.}
+Let $L=\{(a,b)\in\Z^2:a+b\text{ even}\}$, so that $C$ is a coset of $L$, and let $2L=\{(2a,2b):(a,b)\in L\}$, a subgroup of index $4$ in $L$. Define
+\[
+\varphi(x,y)=\bigl(x\bmod2,\ \lfloor(y-x)/2\rfloor\bmod2\bigr)\in(\Z/2)^2 .
+\]
+
+\begin{lemma}\label{lem:phi}
+For $s,s'\in C$ with $s-s'=(a,b)$,
+\[
+\varphi(s)-\varphi(s')=\bigl(a\bmod2,\ \tfrac{b-a}2\bmod2\bigr).
+\]
+In particular $\varphi(s)=\varphi(s')$ if and only if $s-s'\in2L$. A coarse step $(d,\sgn d^2)$ changes $\varphi$ by $(1,0)$ if $(d,\sgn)\in\{(1,+),(3,-)\}$, by $(1,1)$ if $(d,\sgn)\in\{(1,-),(3,+)\}$, and by $(0,1)$ if $d=2$.
+\end{lemma}
+
+\begin{proof}
+Write $s=(x,y)$ and $s'=(x',y')$. Since $s,s'\in C$, the integers $y-x$ and $y'-x'$ have the same parity, so $\lfloor(y-x)/2\rfloor-\lfloor(y'-x')/2\rfloor=\bigl((y-x)-(y'-x')\bigr)/2=(b-a)/2$. If $a$ is even and $(b-a)/2$ is even then $a,b$ are even and $a/2+b/2=a+(b-a)/2$ is even, so $(a,b)\in2L$; the converse is similar. The values for the coarse steps follow by substituting $(a,b)=(d,\sgn d^2)$.
+\end{proof}
+
+For a bijection $\pi\colon(\Z/2)^2\to\{0,1,2,3\}$ we call $\pi\circ\varphi$ a \emph{prescribed colouring} of $C$. By \Cref{lem:phi} every coarse step changes $\varphi$, so a prescribed colouring is proper for coarse steps.
+
+\begin{lemma}[Propagation]\label{lem:propagation}
+Suppose that $c'=\pi\circ\varphi$ on the block $B$ for some bijection $\pi$. Then $c'=\pi\circ\varphi$ at every active point $(x,y)$ with $x\ge0$.
+\end{lemma}
+
+\begin{proof}
+By \Cref{lem:active}\ref{it:block} the statement holds for $x\le2$. Let $x\ge3$, assume the statement for all active points in columns $0,\dots,x-1$, and let $s=(x,y)$ be active. Fix one of the three values $\gamma\ne\varphi(s)$ and put $\beta=\varphi(s)-\gamma\ne0$. By \Cref{lem:phi} there are $d,d'\in\{1,2,3\}$, given by
+\begin{center}
+\begin{tabular}{@{}cccc@{}}
+\toprule
+$\beta$ & $d$ & $d'$ & $\ell(t')-\ell(t)$\\
+\midrule
+$(1,0)$ & $1$ & $3$ & $40p-4q$\\
+$(1,1)$ & $3$ & $1$ & $40p+4q$\\
+$(0,1)$ & $2$ & $2$ & $32p$\\
+\bottomrule
+\end{tabular}
+\end{center}
+such that the points $t=s-(d,d^2)$ and $t'=s-(d',-d'^2)$ of $C$ both satisfy $\varphi(t)=\varphi(t')=\gamma$. Here $\ell(t)=\ell(s)-2qd-4pd^2<\ell(s)$ and $\ell(t')=\ell(s)-2qd'+4pd'^2>\ell(s)$, and $\ell(t')-\ell(t)=2q(d-d')+4p(d^2+d'^2)$ is the value in the last column, which is at most $40p+4q$, the length of $I$. If neither $t$ nor $t'$ were active, then $\ell(t)<z-2p$ and $\ell(t')>z+38p+4q$, so $\ell(t')-\ell(t)>40p+4q$. Hence one of them is active. It lies in one of the columns $x-3,x-2,x-1$, so by the induction hypothesis its colour is $\pi(\gamma)$. It is joined to $s$ by a coarse step, so $c'(s)\ne\pi(\gamma)$. As this holds for all three $\gamma\ne\varphi(s)$, $c'(s)=\pi(\varphi(s))$.
+\end{proof}
+
+\begin{lemma}\label{lem:noblock}
+For no bijection $\pi$ does $c'$ agree with $\pi\circ\varphi$ on $B$.
+\end{lemma}
+
+\begin{proof}
+For $(a,b)\in L$ write $(a,b)=\alpha(1,1)+\beta(0,2)$ with $\alpha=a$ and $\beta=(b-a)/2$. Then $\ell(s+(a,b))-\ell(s)=2qa+4pb=\alpha K+\beta M$ with $K=4p+2q$ and $M=8p$. Let $g=\gcd(K,M)$ and
+\[
+\kappa=\tfrac Mg(1,1)-\tfrac Kg(0,2)\in L .
+\]
+Then $\ell(s+\kappa)=\ell(s)$ for every $s$, and the first coordinate of $\kappa$ is $M/g>0$. In the coordinates $(\alpha,\beta)$ the subgroup $2L$ consists of the pairs with $\alpha$ and $\beta$ both even, and $M/g$ and $K/g$ are coprime, so $\kappa\notin2L$.
+
+Suppose $c'=\pi\circ\varphi$ on $B$. Take any $s\in B$. The point $s+\kappa$ lies in $C$, has the same label as $s$, so it is active, and its first coordinate is positive. By \Cref{lem:propagation}, $c'(s+\kappa)=\pi(\varphi(s+\kappa))$, and $\varphi(s+\kappa)\ne\varphi(s)$ by \Cref{lem:phi}. But $c'(s+\kappa)=\chi(\ell(s+\kappa))=\chi(\ell(s))=c'(s)=\pi(\varphi(s))$, a contradiction.
+\end{proof}
+
+\paragraph{Forcing configurations.}
+A \emph{configuration} is a set $U$ of eight or ten points of the block $\{(x,y):0\le x\le2,\ 0\le y\le9\}$, all of one parity, that meets all four classes of $\varphi$. We say that $c'$ \emph{contains} $U$ if $c'$ agrees on $U$ with some prescribed colouring $\pi\circ\varphi$; equivalently, two points of $U$ have the same colour if and only if their difference lies in $2L$.
+
+\begin{lemma}\label{lem:patterns}
+Let $\mathcal U$ be the sixteen configurations listed in \Cref{tab:patterns}. If $c'$ contains some $U\in\mathcal U$, agreeing there with $\pi\circ\varphi$, then $c'=\pi\circ\varphi$ on $B$.
+\end{lemma}
+
+\begin{proof}
+By \Cref{lem:active}\ref{it:box}, every point of $C$ in the box $X=\{-6\le x\le8,\ 0\le y\le9\}$ is active, so $c'$ is a proper colouring of the coarse-step graph on $X\cap C$. Start from the colours $\pi(\varphi(s))$ on $U$ and repeatedly give a point of $X\cap C$ the fourth colour when three of its coarse neighbours in $X$ already carry the other three. Each such step is forced in every proper colouring that agrees with $\pi\circ\varphi$ on $U$. For each of the sixteen configurations this process colours all $15$ points of $B$, and the colours agree with $\pi\circ\varphi$; up to renaming of the colours the process does not depend on $\pi$. This is a finite check, carried out by two independent programs (\Cref{sec:computations}).
+\end{proof}
+
+The configurations were found by enumerating, for each parity, the inclusion-minimal subsets of the block that force all of it by this process inside $0\le x\le8$. There are four of size eight and four of size ten for each parity. The reflections $x\mapsto2-x$ and $y\mapsto9-y$ map the block onto itself and permute the classes of $\varphi$; the second one exchanges the two parities. Closing under them gives the sixteen configurations of \Cref{tab:patterns}. A configuration obtained by $x\mapsto2-x$ forces the block inside $-6\le x\le2$, which is why the box $X$ extends to $x=-6$.
+
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{@{}cl@{}}
+\toprule
+$|U|$ & Points $(x,y)$ of the configuration\\
+\midrule
+$8$ & $(0,0),(0,2),(0,6),(1,3),(1,5),(1,7),(1,9),(2,0)$\\
+$8$ & $(0,0),(0,2),(1,3),(1,5),(1,7),(1,9),(2,0),(2,2)$\\
+$8$ & $(0,0),(0,6),(1,3),(1,5),(1,7),(1,9),(2,0),(2,6)$\\
+$8$ & $(0,0),(1,3),(1,5),(1,7),(1,9),(2,0),(2,2),(2,6)$\\
+$8$ & $(0,3),(0,7),(0,9),(1,0),(1,2),(1,4),(1,6),(2,9)$\\
+$8$ & $(0,3),(0,9),(1,0),(1,2),(1,4),(1,6),(2,3),(2,9)$\\
+$8$ & $(0,7),(0,9),(1,0),(1,2),(1,4),(1,6),(2,7),(2,9)$\\
+$8$ & $(0,9),(1,0),(1,2),(1,4),(1,6),(2,3),(2,7),(2,9)$\\
+$10$ & $(0,0),(0,2),(0,6),(0,8),(1,1),(1,3),(1,5),(1,7),(2,0),(2,8)$\\
+$10$ & $(0,0),(0,2),(0,8),(1,1),(1,3),(1,5),(1,7),(2,0),(2,2),(2,8)$\\
+$10$ & $(0,0),(0,6),(0,8),(1,1),(1,3),(1,5),(1,7),(2,0),(2,6),(2,8)$\\
+$10$ & $(0,0),(0,8),(1,1),(1,3),(1,5),(1,7),(2,0),(2,2),(2,6),(2,8)$\\
+$10$ & $(0,1),(0,3),(0,7),(0,9),(1,2),(1,4),(1,6),(1,8),(2,1),(2,9)$\\
+$10$ & $(0,1),(0,3),(0,9),(1,2),(1,4),(1,6),(1,8),(2,1),(2,3),(2,9)$\\
+$10$ & $(0,1),(0,7),(0,9),(1,2),(1,4),(1,6),(1,8),(2,1),(2,7),(2,9)$\\
+$10$ & $(0,1),(0,9),(1,2),(1,4),(1,6),(1,8),(2,1),(2,3),(2,7),(2,9)$\\
+\bottomrule
+\end{tabular}
+\caption{The sixteen forcing configurations, in coarse coordinates. The colours on a configuration are those of a prescribed colouring $\pi\circ\varphi$, for any of the $24$ bijections $\pi$.}
+\label{tab:patterns}
+\end{table}
+
+For example, in the first configuration the classes of $\varphi$ are $\{(0,0)\}$, $\{(0,2),(0,6),(2,0)\}$, $\{(1,5),(1,9)\}$ and $\{(1,3),(1,7)\}$, so the configuration is contained in $c'$ when these four sets receive four different colours, each set in one colour.
+
+Let $R$ be the set of even points of $\{0,\dots,11\}\times\{0,\dots,57\}$, so $|R|=348$. For a base point \eqref{eq:base} and a configuration $U$, the points $\iota(U)$ lie in $R$: their coordinates satisfy $u_0\le u\le u_0+4\le11$ and $2\le v\le v_0+36\le55$, and $u+v\equiv u_0+v_0\equiv0\pmod2$.
+
+\begin{lemma}\label{lem:sat}
+Let $\psi$ be a proper four-colouring of $\Gamma_7[R]$. Then for some base point \eqref{eq:base}, some $U\in\mathcal U$ and some bijection $\pi$, the colouring $(x,y)\mapsto\psi(\iota(x,y))$ agrees with $\pi\circ\varphi$ on $U$.
+\end{lemma}
+
+\begin{proof}
+This is a finite computation (\Cref{sec:computations}). The CNF formula has four variables for each of the $348$ points of $R$, the clauses saying that each point has exactly one colour, four clauses for each of the $2352$ edges of $\Gamma_7[R]$, two unit clauses naming the colours at the ends of one edge, and one clause for each of the $72\cdot16\cdot24=27\,648$ triples (base point, configuration, bijection), which forbids the corresponding assignment of colours to the points $\iota(U)$. It has $1392$ variables and $39\,494$ clauses. Kissat~4.0.4 refutes it. Drat-trim verified the DRAT proof that Kissat produced, using $35\,621\,617$ resolution steps, and wrote a trimmed proof, which is stored with the programs and which drat-trim also verifies.
+\end{proof}
+
+\begin{proof}[Proof of \Cref{thm:nearaxis}]
+The points of $R$ have labels $qu+pv\in[0,11q+57p]=[0,N]$, so $c$ restricts to a proper four-colouring of $\Gamma_7[R]$. By \Cref{lem:sat} there are a base point, a configuration $U\in\mathcal U$ of some parity $\epsilon$, and a bijection $\pi$ such that $c'=\pi\circ\varphi$ on $U$, where $c'$ is defined for this base point and parity. By \Cref{lem:patterns}, $c'=\pi\circ\varphi$ on the block $B$. This contradicts \Cref{lem:noblock}. Hence $\{0,\dots,N\}$ has no proper four-colouring, and $W(P;4)\le N+1$.
+\end{proof}
+
+\section{Proof of \texorpdfstring{\Cref{thm:main}}{Theorem 1}}\label{sec:proof}
+
+By \Cref{lem:symmetry} we may assume $e=E\ge0$ and $f=F\ge0$, not both zero. We show $W(Ex^2+Fx;4)-1\le57E+39F$ in each of five cases.
+\begin{enumerate}
+\item $E=0$. By \Cref{lem:linear}, $W-1=4F\le39F$.
+\item $F=0$. By \Cref{lem:scaling} and $W(x^2;4)=58$ \cite{CCFGMS}, $W-1=57E$.
+\item $F=jE$ with $E\ge1$ and $1\le j\le8$. By \Cref{lem:scaling}, $W-1=E\bigl(W(x^2+jx;4)-1\bigr)\le96E=57E+39E\le57E+39F$, using $W(x^2+jx;4)\le97$ \cite[Lemma~4.2]{KGRW}; \Cref{thm:table} gives the exact values.
+\item $E\ge6F>0$. By \Cref{thm:nearaxis}, $W-1\le57E+11F$.
+\item $0<E<6F$ and $F\notin\{E,2E,\dots,8E\}$. By \Cref{cor:crop}, $W-1\le60E+10F\le57E+13F$ if $E\le F$, and $W-1\le62E+8F\le57E+38F$ if $F\le E<6F$.
+\end{enumerate}
+These cases cover all pairs: if $E,F>0$ and $F=jE$ with $1\le j\le8$ we are in case~3, and otherwise either $E\ge6F$ or $E<6F$ with $F\notin\{E,\dots,8E\}$. This proves the bound. Since $57E+39F+1\le57(E+F)+1$, it gives $C_4\le57$, and $W(x^2;4)=58$ gives $C_4\ge57$. \qed
+
+The worst case for the second coefficient is $F=E$, where $W-1=96E$; every other case gives at most $57E+38F$.
+
+\section{The thresholds for \texorpdfstring{$x^2+jx$}{x²+jx}}\label{sec:table}
+
+\begin{proof}[Proof of \Cref{thm:table}]
+For each $j$, \Cref{tab:words} in \Cref{app:words} gives a word of length $W-1$ over $\{0,1,2,3\}$, where $W$ is the value in \Cref{thm:table}. Read as a colouring of $\{0,\dots,W-2\}$, it gives different colours to any two integers whose difference lies in $\D(x^2+jx)$; so $W(x^2+jx;4)\ge W$. For the upper bound, the CNF formula for proper four-colourings of $G(W,x^2+jx)$, built as in the proof of \Cref{prop:crop}, is unsatisfiable. For each $j$ a DRAT refutation produced by Glucose \cite{Glucose} through PySAT \cite{PySAT} is stored with the programs and is verified by drat-trim. So $W(x^2+jx;4)\le W$.
+\end{proof}
+
+The graphs $G(W,x^2+jx)$ at the thresholds have $266$, $543$, $461$, $422$, $418$, $428$, $418$, $215$ and $264$ edges for $j=0,\dots,8$. The values for $j=0$, $1$ and $7$ agree with \cite{CCFGMS} and \cite[Theorem~2.3 and Proposition~2.9]{KGRW}.
+
+\begin{remark}\label{rem:odd}
+For odd $j=2k+1$ the distances are $|d^2+jd|=2|T_{d+k}-T_k|$ with $T_s=s(s+1)/2$, so they are all even and the graph splits into its two parity classes. For $j=1,3,7$ the upper bound also follows from a short independent-set search. Dividing the larger class of $\{0,\dots,W-1\}$ by two gives the graph on $\{0,\dots,m-1\}$, with $m=49,41,25$, in which $u\sim v$ when $|u-v|=|T_s-T_k|\ne0$ for some $s$. A four-colouring would have a colour class with at least $\lceil m/4\rceil=13,11,7$ points, and an exhaustive search shows that these graphs have no independent sets of these sizes. For $j=5$ this argument fails: the set $\{0,1,5,9,10,14,15,20,31,36,37,41\}$ is independent in the corresponding graph on $45$ points.
+\end{remark}
+
+\section{Remarks}\label{sec:remarks}
+
+\paragraph{Why the near-axis range needs a different argument.}
+Suppose $7E>65F>0$. For $|d|\ge8$ we have $|P(d)|\ge64E-8F>57(E+F)$, so on the interval $\{0,\dots,57(E+F)\}$ only the steps with $|d|\le7$ give edges. Every such edge lifts to an edge of $\Gamma_7$, which is four-colourable by \Cref{prop:tile}. So in this range a proof of \Cref{thm:main} cannot come from a finite subgraph of the lattice graph alone, as in \Cref{cor:crop}; it has to use the identifications that the labelling map makes, as \Cref{lem:noblock} does.
+
+\paragraph{Periodic colourings.}
+Let $M\ge1$ and let $a,b$ be integers. \Cref{thm:main} implies that no four-colouring of $\Z/M\Z$ gives different colours to $x$ and $x+ad^2+bd$ for every $x$ and every $1\le|d|\le7$. Indeed, fix $F\ge0$ with $F\equiv b\pmod M$. For every $E\equiv a\pmod M$, such a colouring, read modulo $M$, would colour the integers so that any two at a distance $|Ed^2+Fd|$ with $1\le|d|\le7$ differ. When $7E>65F$ every distance $|Ed^2+Fd|$ with $|d|\ge8$ is at least $64E-8F$, so the colouring would be proper on $\{0,\dots,64E-8F-1\}$ and $W(Ex^2+Fx;4)-1\ge64E-8F$. For large $E$ this contradicts $W-1\le57(E+F)$. Before the proof of \Cref{thm:main} was found, a computer search had excluded such colourings directly for every $M\le192$.
+
+\section{The computations}\label{sec:computations}
+
+The programs, formulas and proofs are available at \coderepo. Every claim of unsatisfiability is certified by a DRAT proof checked with drat-trim \cite{DRAT}, and the formula of \Cref{prop:crop} was solved with Kissat~4.0.4 \cite{Kissat}. We re-ran every check on 25 November 2026.
+
+\begin{enumerate}
+\item \emph{Thresholds and the tile.} One program checks the nine colourings of \Cref{tab:words} against the distance sets and checks the nine refutations for the upper bounds with drat-trim. It compares the edge sets produced by the encoder with an enumeration that tests each pair through the discriminant of $d^2+jd\mp k$. It also checks the tile of \Cref{prop:tile} on all $128$ residues and on the $58\times58$ square edge by edge, the sizes of $Q$, its even part and $S$, and the searches of \Cref{rem:odd}. It takes about two seconds.
+\item \emph{The forcing formula.} A second program generates the formula of \Cref{lem:sat}, and a third, written independently of it, audits the formula. The audit rebuilds the edges of $\Gamma_7[R]$ by testing every pair of points and checks the exactly-one clauses and the two unit clauses. For each of the $27\,648$ configuration clauses it finds a base point for which the forbidden assignment forces the block, by the propagation in the proof of \Cref{lem:patterns}, to a prescribed colouring. Drat-trim then checks the proof, in about $40$ seconds.
+\item \emph{The grids.} Kissat solves the formulas for the even part of $Q$ and for $S$ (\Cref{prop:crop}), and drat-trim checks the resulting proofs, in a few minutes each.
+\item \emph{An independent check.} A further program was written separately for this paper. It takes the words, the tile and the configurations from \Cref{tab:words}, \Cref{prop:tile} and \Cref{tab:patterns}, and checks that they agree with the published data. It enumerates the distance sets directly from $|d^2+jd|$ and checks the nine words. It rebuilds every CNF formula used here from the definitions, including the $27\,648$ configuration clauses, and compares each, as a set of clauses, with the formula used in the checks above. The only clauses it takes from those formulas are the two symmetry-breaking unit clauses, and it checks that they name two different colours at the ends of an edge. It runs drat-trim on the stored proofs against its own formulas and re-solves the formula of \Cref{prop:crop} with Kissat. It also runs its own propagation for \Cref{lem:patterns}, checks the inequalities of \Cref{lem:active} and the kernel vector of \Cref{lem:noblock} for all $1\le q\le20$ and $6q\le p\le120$, and checks the case analysis of \Cref{sec:proof} for $0\le E,F\le400$. It takes about three minutes.
+\end{enumerate}
+
+\begin{table}[ht]
+\centering\footnotesize
+\begin{tabular}{@{}L{0.36\linewidth}L{0.56\linewidth}@{}}
+\toprule
+Object & SHA-256\\
+\midrule
+formula of \Cref{lem:sat} & \texttt{0e39e712bfba5a99cb880ded1c66fcfb\allowbreak c175b60b199e48bc432241d31fe28832}\\
+its trimmed proof (binary DRAT) & \texttt{1b8b8f21348fd5c06d508b157a49feb5\allowbreak 881daf203c6ba1c08391e9c3a1ab6829}\\
+the same proof, compressed with xz & \texttt{41e5c90b89a72038ab9d551a98752e36\allowbreak 9b01b6985679e7f1e8934d0738ada6f3}\\
+formula for the even part of $Q$ & \texttt{28b969e5f4669bfc7a5a3ac5cab132d3\allowbreak 47afda1fe96cc456dce92307bccf9a83}\\
+formula of \Cref{prop:crop} & \texttt{4d7a888d0c668c6f11e44ad3af3bf912\allowbreak e3d67ea095d2e148d33707c7bc1e4a10}\\
+source code of drat-trim & \texttt{d834b649f437e091597f5347f259b9f6\allowbreak 81087f89ca0844d0cee250a1a1a0c2ee}\\
+\bottomrule
+\end{tabular}
+\caption{SHA-256 hashes of the main formulas and proofs.}
+\label{tab:hashes}
+\end{table}
+
+\section*{Acknowledgements}
+The problem, the bound \eqref{eq:kgrw} and the rectangle $Q$ are from the paper of Kumthekar, Gasarch, Regli and Whitehouse \cite{KGRW}. We thank them for posing the question so concretely.
+
+\appendix
+\section{Colourings at the thresholds}\label{app:words}
+
+\Cref{tab:words} gives, for each $j$, the colours of $0,1,\dots,W-2$ in order, where $W=W(x^2+jx;4)$; the words are broken into lines of $48$ letters.
+
+\begin{table}[ht]
+\centering\footnotesize
+\begin{tabular}{@{}cc>{\ttfamily}l@{}}
+\toprule
+$j$ & $W$ & \normalfont colours of $0,1,\dots,W-2$\\
+\midrule
+0 & 58 & 013210130121301212032120323213232130301303012030\\
+  &    & 120103201\\
+1 & 97 & 021332102200330123021332213211330023021132213211\\
+  &    & 330023102300213211330023102100213311021032102100\\
+2 & 82 & 010121232020131202313020202313020202313030202313\\
+  &    & 131202313131202323030101313020131\\
+3 & 81 & 021120330211203302112033022033021120330211203302\\
+  &    & 11203311203302112033021120330211\\
+4 & 75 & 022133300221330001212300011222003112220331122233\\
+  &    & 30121233300111330001113200\\
+5 & 89 & 001312312123001231232300123123230000123123000012\\
+  &    & 3123000012323123001232312300123131231200\\
+6 & 73 & 022211333300022111133300222211133000022211333300\\
+  &    & 022111133300222211133000\\
+7 & 49 & 020202101010313131232323020202101010313131232323\\
+8 & 53 & 000000111111133333322222220000000111111333333322\\
+  &    & 2222\\
+\bottomrule
+\end{tabular}
+\caption{Proper four-colourings of $G(W-1,x^2+jx)$.}
+\label{tab:words}
+\end{table}
+
+\begin{thebibliography}{99}\small
+\bibitem{Glucose} G.~Audemard and L.~Simon, \emph{Predicting learnt clauses quality in modern SAT solvers}, in: Proc.\ 21st International Joint Conference on Artificial Intelligence (IJCAI 2009), 399--404.
+\bibitem{BL} V.~Bergelson and A.~Leibman, \emph{Polynomial extensions of van der Waerden's and Szemer\'edi's theorems}, J.\ Amer.\ Math.\ Soc.\ \textbf{9} (1996), 725--753.
+\bibitem{Kissat} A.~Biere, T.~Faller, K.~Fazekas, M.~Fleury, N.~Froleyks and F.~Pollitt, \emph{CaDiCaL, Gimsatul, IsaSAT and Kissat entering the SAT Competition 2024}, in: Proc.\ of SAT Competition 2024: Solver, Benchmark and Proof Checker Descriptions, University of Helsinki, 2024.
+\bibitem{CCFGMS} B.~Canakci, H.~Christenson, R.~Fleischman, W.~Gasarch, N.~McNabb and D.~Smolyak, \emph{On SAT solvers and Ramsey-type numbers}, arXiv:2312.01159 (2023).
+\bibitem{PySAT} A.~Ignatiev, A.~Morgado and J.~Marques-Silva, \emph{PySAT: a Python toolkit for prototyping with SAT oracles}, in: Theory and Applications of Satisfiability Testing (SAT 2018), Lecture Notes in Comput.\ Sci.\ \textbf{10929}, Springer, 2018, 428--437.
+\bibitem{KGRW} I.~Kumthekar, W.~Gasarch, W.~Regli and I.~Whitehouse, \emph{Exact values and bounds for four color quadratic polynomial van der Waerden numbers}, arXiv:2611.14913v1 (2026).
+\bibitem{DRAT} N.~Wetzler, M.\,J.\,H.~Heule and W.\,A.~Hunt, Jr., \emph{DRAT-trim: efficient checking and trimming using expressive clausal proofs}, in: Theory and Applications of Satisfiability Testing (SAT 2014), Lecture Notes in Comput.\ Sci.\ \textbf{8561}, Springer, 2014, 422--429.
+\end{thebibliography}
+
+\end{document}

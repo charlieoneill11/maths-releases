@@ -1,0 +1,46 @@
+\usepackage{booktabs,array}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\setlength{\emergencystretch}{3em}
+\usepackage[capitalize,nameinlink]{cleveref}
+\usepackage{aliascnt}
+\makeatletter
+\def\ch@redefthm#1#2#3{\expandafter\let\csname #1\endcsname\relax
+  \expandafter\let\csname end#1\endcsname\relax
+  \newaliascnt{#1}{theorem}\newtheorem{#1}[#1]{#2}\aliascntresetthe{#1}%
+  \crefname{#1}{#2}{#3}\Crefname{#1}{#2}{#3}}
+\crefname{theorem}{Theorem}{Theorems}\Crefname{theorem}{Theorem}{Theorems}
+\theoremstyle{chplain}
+\ch@redefthm{lemma}{Lemma}{Lemmas}
+\ch@redefthm{proposition}{Proposition}{Propositions}
+\ch@redefthm{corollary}{Corollary}{Corollaries}
+\ch@redefthm{conjecture}{Conjecture}{Conjectures}
+\theoremstyle{chdefinition}
+\ch@redefthm{definition}{Definition}{Definitions}
+\ch@redefthm{example}{Example}{Examples}
+\ch@redefthm{hypothesis}{Hypothesis}{Hypotheses}
+\makeatother
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\one}{\mathbf{1}}
+\newcommand{\dd}{\,\mathrm{d}}
+
+\newif\ifdraftmarkers \draftmarkersfalse
+\newcounter{gapcount}
+\newcommand{\gap}[1]{\ifdraftmarkers\stepcounter{gapcount}%
+  \par\smallskip\noindent\fcolorbox{red!60!black}{red!5}{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{%
+  \textcolor{red!60!black}{\textbf{Gap \thegapcount.}} #1}}\par\smallskip\fi}
+\newcommand{\unchecked}[1]{\ifdraftmarkers%
+  \par\smallskip\noindent\fcolorbox{orange!80!black}{orange!6}{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{%
+  \textcolor{orange!80!black}{\textbf{Unchecked.}} #1}}\par\smallskip\fi}
+\newcommand{\source}[1]{\ifdraftmarkers{\textcolor{gray}{\footnotesize[source: \texttt{#1}]}}\fi}
+\newcommand{\todo}[1]{\ifdraftmarkers{\textcolor{blue!70!black}{\footnotesize[\textbf{todo:} #1]}}\fi}
+
+\newcommand{\coderepo}{\url{https://github.com/charlieoneill11/maths-releases}}
+\newcommand{\aiusestatement}{The mathematical arguments and computer programs in this paper were developed by Astra (GPT-6.2 Astra, OpenAI). Fable (Fable~5.2, Anthropic) worked throughout as a second model: it proposed alternative approaches, reviewed arguments and raised objections. The manuscript was prepared from the project's research records with Claude (Anthropic). All computations were re-run before release, and the programs and certificates are available at \coderepo.}
+\newcommand{\responsibilitystatement}{Charles O'Neill has checked the arguments and takes full responsibility for the correctness of the results.}
+\newcommand{\mscandkeywords}[2]{\par\medskip\noindent{\small\textit{2020 Mathematics Subject Classification.} #1\par\noindent\textit{Keywords.} #2\par}}

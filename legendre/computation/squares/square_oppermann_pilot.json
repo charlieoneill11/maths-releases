@@ -1,0 +1,27 @@
+{
+  "property": "For each integer m in the stated inclusive ranges, the decoded primes p and q satisfy m^2 < p < m(m+1) < q < (m+1)^2.",
+  "published_inclusive_upper_base": 70500000000000,
+  "published_source": "https://doi.org/10.1007/s40993-024-00589-4",
+  "checker": "python check_square_witnesses.py FIRST LAST ARCHIVE.gz",
+  "encoding": "Gzip-compressed pairs of consecutive little-endian 16-bit lattice offsets as decoded by check_square_witnesses.py. The initial base is provided externally.",
+  "shards": [
+    {
+      "archive": "square_witnesses.gz",
+      "first": 70500000000001,
+      "last": 70500001000000,
+      "rows": 1000000,
+      "archive_bytes": 2222517,
+      "archive_sha256": "95459bf781d31091e266a68b9a2fc9c86e53cf458ef798ea81ca86c264c36b14",
+      "decoded_rows_sha256": "66ba2737de8806d0c36dcb176a14c4c19c58828d94bdb5f9f7225e9d5820d6d3"
+    },
+    {
+      "archive": "square_oppermann_extension.gz",
+      "first": 70500001000001,
+      "last": 70500001100000,
+      "rows": 100000,
+      "archive_bytes": 223308,
+      "archive_sha256": "554d326afdc631e3ced22b00f9a5de3fbe0b40f4a213af8baeb7914f27ca5c6b",
+      "decoded_rows_sha256": "3d2e028598407cdbffed2f8e5bc32590026ddbc2266201e15f866cf250c58b80"
+    }
+  ]
+}

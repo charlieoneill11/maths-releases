@@ -1,0 +1,1181 @@
+\documentclass[11pt,colorlinks]{charlie}
+\input{preamble}
+\usepackage{amssymb}
+
+\newcommand{\li}{\operatorname{li}}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\cR}{\mathcal R}
+\newcommand{\cP}{\mathcal P}
+\newcommand{\cB}{\mathcal B}
+\newcommand{\cA}{\mathcal A}
+\newcommand{\cS}{\mathcal S}
+\newcommand{\cJ}{\mathcal J}
+\newcommand{\Ka}{\mathcal K}
+\newcommand{\e}{\mathrm{e}}
+\newcommand{\xo}{x_0}
+
+\title{A prime between every two consecutive $\tfrac{11}{5}$-th powers}
+\author{Charles O'Neill, Max Kirkby, Astra and Fable}
+\date{24 November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Legendre's conjecture asserts that there is a prime between any two consecutive squares. A natural weakening replaces the exponent $2$ by $\alpha>2$. Chamberland and Straub showed, assuming the Riemann hypothesis, that the case $\alpha=11/5$ reduces to a finite verification, and the best published statement valid for every positive integer is at $\alpha=2.2253$. We prove that the interval $(n^{11/5},(n+1)^{11/5})$ contains a prime for every positive integer $n$. The proof uses the Riemann hypothesis, which Alp\"oge has proved, so the result is unconditional. An explicit-formula argument with a compactly supported test function of twelve cosine modes, together with the Brun--Titchmarsh inequality of Montgomery and Vaughan and the theorem of Carneiro, Milinovich and Soundararajan, handles every real $x\ge3.5\times10^{13}$. This part has also been proved in Lean~4 with Mathlib, from the Riemann hypothesis and five published results taken as hypotheses. Below that we use a computation. It certifies a prime in $(m^2,(m+1)^2)$ for every $m\le10^{14}$, which extends the verification of Legendre's conjecture by Sorenson and Webster by about $42\%$, and a prime in $(n^{11/5},(n+1)^{11/5})$ for each of the remaining $2.97\times10^{13}$ bases $n<3.5\times10^{13}$. Its archive is held in private storage. The certificates released with the paper, with the computation of Sorenson and Webster, cover every $n\le3{,}883{,}865{,}444{,}451$ and every $m\le70{,}500{,}002{,}100{,}000$; for the other bases the theorems rest on the verification done during the original run, of which $1.6\times10^8$ checks have been replayed independently. A final section lowers the analytic cutoff to $32{,}746{,}701{,}927{,}355$, using a weighted large sieve over Farey fractions with squarefree denominators and lower bounds for the number of semiprimes obtained from the complete prime-gap histogram below $4\times10^{18}$. With the first $1.4\times10^6$ zeros of $\zeta$ and the table of maximal prime gaps up to $1.32\times10^{20}$, whose completeness rests on an exhaustive search not published in a refereed journal, the cutoff becomes $32{,}654{,}578{,}787{,}390$.
+\end{abstract}
+\mscandkeywords{11N05; 11M26, 11Y11}{primes in short intervals, Legendre's conjecture, explicit formula, Riemann hypothesis, prime gaps}
+
+\section*{AI use and author contributions}
+\aiusestatement
+
+Charles O'Neill proposed the problem because the Riemann hypothesis, now a theorem \cite{Alpoge}, reduces the exponent $\tfrac{11}{5}$ to a finite verification, as Chamberland and Straub observed \cite{CS}. His technical contribution was to propose closing the finite range by direct computation, and to provide the cloud computing resources for the verification described in \Cref{sec:sweep}. \responsibilitystatement
+
+\section{Introduction}\label{sec:intro}
+Legendre's conjecture, that $(m^2,(m+1)^2)$ contains a prime for every integer $m\ge1$, remains open even though the Riemann hypothesis is now a theorem \cite{Alpoge}. Under RH there is a prime in every interval $[y,y+c\sqrt y\log y]$ with $y$ large \cite{Cramer,CMS}; the interval $(m^2,(m+1)^2)$ has length $2m+1\asymp\sqrt y$, which is slightly too short. For an exponent $\alpha>2$ the interval $(n^\alpha,(n+1)^\alpha)$ has length about $\alpha n^{\alpha-1}=\alpha y^{1-1/\alpha}$ at height $y=n^\alpha$, which exceeds $\sqrt y\log y$ for large $n$. Unconditionally, Baker, Harman and Pintz \cite{BHP} give a prime in $[y-y^{0.525},y]$ for large $y$, so for every $\alpha>1/0.475\approx2.105$ the interval $(n^\alpha,(n+1)^\alpha)$ contains a prime for all sufficiently large $n$. That theorem gives no explicit starting point.
+
+Carneiro, Milinovich and Soundararajan \cite{CMS} proved, assuming RH, an explicit version with constant $\tfrac{22}{25}$. Chamberland and Straub \cite{CS} used it to study $(n^\alpha,(n+1)^\alpha)$ for every $n$. Their argument proves the statement for all real $x\ge1$ when $\alpha\ge2.2253$, and at $\alpha=11/5$ it leaves a finite range of integers. By Alp\"oge's theorem \cite{Alpoge} these results are unconditional, and we use RH freely, citing \cite{Alpoge} where it enters. It enters only through \Cref{lem:cms,lem:explicit}, and hence through \Cref{thm:outer,thm:sharp} and \Cref{thm:main}; \Cref{thm:squares} and the finite computation do not use it, and GRH is not used. We found no published statement valid for every positive integer at exponent $2.2$.
+
+\begin{theorem}\label{thm:main}
+For every positive integer $n$ there is a prime $p$ with
+\[
+ n^{11/5}<p<(n+1)^{11/5}.
+\]
+\end{theorem}
+
+The computation behind \Cref{thm:main} also extends the verification of Legendre's conjecture. Sorenson and Webster \cite{SW} verified it for $m\le7.05\times10^{13}$.
+
+\begin{theorem}\label{thm:squares}
+For every integer $m$ with $1\le m\le10^{14}$ there is a prime $p$ with $m^2<p<(m+1)^2$.
+\end{theorem}
+
+The proof of \Cref{thm:main} has three parts. Throughout, $\alpha=11/5$ and
+\[
+ n_1=3{,}883{,}853{,}444{,}450 .
+\]
+
+\begin{proposition}[Low range]\label{prop:low}
+\Cref{thm:main} holds for $1\le n\le n_1$.
+\end{proposition}
+
+\begin{theorem}[Large range]\label{thm:outer}
+For every real $x\ge35\cdot10^{12}$ the open interval $(x^{11/5},(x+1)^{11/5})$ contains a prime.
+\end{theorem}
+
+\begin{proposition}[Finite range]\label{prop:sweep}
+For every integer $n$ with $n_1<n<35\cdot10^{12}$ there is a prime $p$ with $n^{11}<p^5<(n+1)^{11}$.
+\end{proposition}
+
+\begin{proof}[Proof of \Cref{thm:main}]
+By \Cref{lem:integer} below, $n^{11}<p^5<(n+1)^{11}$ is equivalent to $p\in(n^{11/5},(n+1)^{11/5})$. \Cref{prop:low}, \Cref{prop:sweep} and \Cref{thm:outer} cover all $n\ge1$.
+\end{proof}
+
+\Cref{prop:low} follows from the computation of Sorenson and Webster (\Cref{sec:elementary}). \Cref{thm:squares,prop:sweep} are proved by a direct computation, which exhibits a prime with a short primality certificate for each of $5.9\times10^{13}$ bases (\Cref{sec:sweep}).
+
+The computation was run in November 2026 on rented machines, and its archive is held in private storage. \Cref{sec:status} separates what this run checked from what has been reproduced independently. Briefly: the certificates released with this paper, together with \cite{SW}, prove \Cref{thm:main} for every $n\le3{,}883{,}865{,}444{,}451$ and \Cref{thm:squares} for every $m\le70{,}500{,}002{,}100{,}000$, and anyone can replay them; they also cover some isolated ranges. For the other bases below $35\cdot10^{12}$, respectively up to $10^{14}$, \Cref{thm:main,thm:squares} rest on the verification performed during the original run and on its audit. So far a second party has replayed $160{,}000{,}000$ of its checks. \Cref{thm:main,thm:squares} have therefore not been verified independently in full.
+
+\Cref{thm:outer} is proved in \Cref{sec:twelve} by an explicit-formula argument in the spirit of \cite{CMS}. If $(ae^{-D},ae^{D})$ contains no prime, then a sum over primes weighted by a compactly supported test function is controlled by its values on the two \emph{shoulders} just outside the interval. The explicit formula then forces an inequality between $D\sqrt a$ and $\log(1/D)$ that fails for large $a$. We use a test function with twelve cosine modes and bound the number of primes on the shoulders by the Brun--Titchmarsh inequality of Montgomery and Vaughan \cite{MV}. This gives the range $[35\cdot10^{12},6\cdot10^{14}]$, and the theorem of Carneiro, Milinovich and Soundararajan covers larger $x$ (\Cref{cor:cms}).
+
+In \Cref{sec:sharp} we show that the analytic argument can be pushed further down.
+
+\begin{theorem}\label{thm:sharp}
+\begin{enumerate}[label=(\alph*)]
+\item For every real $x\ge32{,}971{,}281{,}678{,}698$ the open interval $(x^{11/5},(x+1)^{11/5})$ contains a prime. Using the prime-gap histogram below $4\times10^{18}$ of Oliveira e Silva, Herzog and Pardi \cite{OeSHP}, the same holds for every real $x\ge32{,}746{,}701{,}927{,}355$.
+\item Assume, in addition, the bounds (G2) of \Cref{tab:records} for the gaps between consecutive primes below $1.32\times10^{20}$. Then the same holds for every real $x\ge\xo=32{,}654{,}578{,}787{,}390$.
+\end{enumerate}
+\end{theorem}
+
+\Cref{thm:sharp} is not used in the proof of \Cref{thm:main}. Part (a) shortens the finite range by $35\cdot10^{12}-32{,}746{,}701{,}927{,}355=2{,}253{,}298{,}072{,}645$ bases, and part (b) by $35\cdot10^{12}-\xo=2{,}345{,}421{,}212{,}610$ bases, about $8\%$ of the bases checked directly. The proof sharpens the count of primes on the shoulders in three ways. The first is a weighted large sieve over Farey fractions with squarefree denominators. The second is a lower bound for the number of semiprimes among the sieve's survivors: from the complete prime-gap histogram below $4\times10^{18}$ \cite{OeSHP} in part (a), and in part (b) also from the table of maximal prime gaps \cite{RecordGaps}. The third, on a short final range in part (b), is the signed contribution of the first $1.4\times10^6$ zeros \cite{Platt,LMFDB}. The table \cite{RecordGaps} has not appeared in a refereed journal, and above $4\times10^{18}$ its use requires that the exhaustive search for maximal gaps through $1.32\times10^{20}$ reported there be complete. This is why part (b) is stated with that assumption.
+
+\begin{remark}[Why $11/5$]
+Exponents tending to $2$ would give Legendre's conjecture. Suppose the statement held for a sequence $\alpha_j\downarrow2$. Fix $m$ and choose $j$ with $(m+1)^{\alpha_j}<(m+1)^2+1$. A prime $p$ with $m^{\alpha_j}<p<(m+1)^{\alpha_j}$ satisfies $m^2<p\le(m+1)^2$, and $(m+1)^2$ is not prime, so $p\in(m^2,(m+1)^2)$. A single exponent gives nothing towards Legendre's conjecture. The exponent $11/5$ is the first of the form $2+1/k$ at which the finite range left by the analytic argument is within reach of direct computation.
+\end{remark}
+\subsection*{Notation}
+We write $\alpha=\frac{11}5$ and $\sigma=\frac{11}{10}$. For real $x\ge1$ put
+\begin{equation}\label{eq:aD}
+ a=(x(x+1))^{\sigma},\quad D=\sigma\log(1+1/x),\quad P=D\sqrt a,\quad L=\log\sqrt a,
+\end{equation}
+so that $x^\alpha=ae^{-D}$ and $(x+1)^\alpha=ae^{D}$. Also $W=aD$ and $\Delta=D/(2\pi)$. The Fourier transform is $\widehat g(y)=\int g(s)e^{2\pi iys}\dd s$. Sums over $\gamma$ run over the ordinates of the nontrivial zeros $\frac12+i\gamma$ of $\zeta$, with multiplicity. Rational numbers written in decimal are exact.
+
+\section{Elementary reductions}\label{sec:elementary}
+
+\begin{lemma}\label{lem:integer}
+Let $n\ge1$ be an integer. Neither $n^{\alpha}$ nor $(n+1)^\alpha$ is prime, and a prime $p$ lies in $(n^\alpha,(n+1)^\alpha)$ if and only if $n^{11}<p^5<(n+1)^{11}$.
+\end{lemma}
+\begin{proof}
+If $n^{11/5}=m$ is an integer then $m^5=n^{11}$, so $5v_\ell(m)=11v_\ell(n)$ and $5\mid v_\ell(n)$ for every prime $\ell$. Hence $n=k^5$ and $m=k^{11}$, which is $1$ or composite. The same applies to $n+1$. The equivalence holds because $t\mapsto t^5$ is increasing on $[0,\infty)$.
+\end{proof}
+
+\begin{lemma}\label{lem:halfsquares}
+Let $N_0\ge1$ be an integer such that for every integer $1\le m\le N_0$ each of the closed intervals $[m^2,m(m+1)]$ and $[m(m+1),(m+1)^2]$ contains a prime. Then for every real $y$ with $1\le y<N_0$ and $y^2\notin\Z$ the open interval $(y^2,(y+1)^2)$ contains a prime.
+\end{lemma}
+\begin{proof}
+Let $m=\lfloor y\rfloor$, so $1\le m\le N_0-1$. Suppose first that $y^2\le m(m+1)$, and let $p$ be a prime in $[m(m+1),(m+1)^2]$. Then $p\ge y^2$, and $p\ne y^2$ as $y^2\notin\Z$; also $p\ne(m+1)^2$, so $p<(m+1)^2\le(y+1)^2$. Otherwise $y^2>m(m+1)$, and since $y\ge m$,
+\[
+ (y+1)^2=y^2+2y+1>m(m+1)+2m+1=(m+1)(m+2)-1 .
+\]
+Let $p$ be a prime in $[(m+1)^2,(m+1)(m+2)]$; here $m+1\le N_0$. Both endpoints are composite, so $y^2<(m+1)^2<p\le(m+1)(m+2)-1<(y+1)^2$.
+\end{proof}
+
+\begin{proof}[Proof of \Cref{prop:low}]
+Sorenson and Webster \cite{SW} verified that $(m^2,m(m+1))$ and $(m(m+1),(m+1)^2)$ contain primes for $2\le m\le N_0=7.05\times10^{13}$; for $m=1$ the closed half-intervals contain $2$ and $3$. Let $n\ge1$ be an integer with $n^{11}<N_0^{10}$, that is $n^\sigma<N_0$. Since $t\mapsto t^\sigma$ has derivative at least $\sigma>1$ on $[1,\infty)$, we have $(n+1)^\sigma>n^\sigma+1$. Choose a real $y$ with $n^\sigma<y<\min(N_0,(n+1)^\sigma-1)$ such that $y^2$ is not an integer. By \Cref{lem:halfsquares} there is a prime in $(y^2,(y+1)^2)\subset(n^{\alpha},(n+1)^{\alpha})$. Exact integer arithmetic gives
+\[
+ n_1^{11}<N_0^{10}<(n_1+1)^{11},
+\]
+which proves the proposition.
+\end{proof}
+
+\begin{lemma}\label{lem:squarepower}
+Let $n\ge400$ be an integer with $n^{11}\le10^{140}$, and let $m$ be the least integer with $m^{10}\ge n^{11}$. Then $1\le m\le10^{14}$ and $(m^2,(m+1)^2)\subset(n^\alpha,(n+1)^\alpha)$.
+\end{lemma}
+\begin{proof}
+Here $m=\lceil n^{11/10}\rceil$, and $m\le10^{14}$ because $n^{11/10}\le10^{14}$. By the mean value theorem $(n+1)^{11/10}-n^{11/10}\ge\frac{11}{10}n^{1/10}\ge\frac{11}{10}\cdot400^{1/10}>2$, the last because $1.1^{10}\cdot400>2^{10}$. Hence $n^{11/10}\le m<n^{11/10}+1$ and $m+1<n^{11/10}+2<(n+1)^{11/10}$. Squaring gives $n^\alpha\le m^2$ and $(m+1)^2<(n+1)^\alpha$.
+\end{proof}
+
+\begin{lemma}\label{lem:cms}
+Let $X<Y$ be real with $Y\ge5$ and
+\[
+ Y-X-\tfrac12>\tfrac{22}{25}\sqrt Y\log Y .
+\]
+Then $(X,Y)$ contains a prime.
+\end{lemma}
+\begin{proof}
+By RH \cite{Alpoge} and \cite[Theorem~5]{CMS}, for every $u\ge4$ the closed interval $[u,u+\frac{22}{25}\sqrt u\log u]$ contains a prime. Suppose first that $X\ge4$, and choose $\varepsilon$ with $0<\varepsilon<\frac12$. Then $u=X+\varepsilon$ satisfies $4\le u<Y$, since $Y-X>\frac12$. As $t\mapsto\sqrt t\log t$ is increasing on $[1,\infty)$, a prime $p$ in $[u,u+\frac{22}{25}\sqrt u\log u]$ satisfies
+\[
+ X<X+\varepsilon\le p\le X+\varepsilon+\tfrac{22}{25}\sqrt Y\log Y<X+\varepsilon+Y-X-\tfrac12<Y .
+\]
+Suppose next that $X<4$. If $Y>5$ the prime $5$ lies in $(X,Y)$. If $Y=5$, the hypothesis gives $X<\frac92-\frac{22}{25}\sqrt5\log5<\frac32$, since $\frac{22}{25}\sqrt5\log5>3.16$, and the prime $3$ lies in $(X,Y)$.
+\end{proof}
+
+\begin{corollary}\label{cor:cms}
+For every real $x\ge6\cdot10^{14}$ the interval $(x^\alpha,(x+1)^\alpha)$ contains a prime.
+\end{corollary}
+\begin{proof}
+Put $X=x^\alpha$, $Y=(x+1)^\alpha$ and $\varepsilon=2\cdot10^{-15}$. By the mean value theorem $Y-X\ge\alpha x^{\alpha-1}=\frac{11}5x^{6/5}$. Since $1.1/x<1.9\cdot10^{-15}$, we have $(1+1/x)^{11/10}\le e^{1.1/x}<1+\varepsilon$ and $\log(1+1/x)<\varepsilon$, so $\sqrt Y=(x+1)^{11/10}\le(1+\varepsilon)x^{11/10}$ and $\log Y\le\frac{11}5(\log x+\varepsilon)$. Also $\frac12<2\cdot10^{-17}\cdot\frac{11}5x^{11/10}$. Dividing the condition of \Cref{lem:cms} by $\frac{11}5x^{11/10}$, it suffices that
+\[
+ x^{1/10}-\tfrac{22}{25}(1+\varepsilon)(\log x+\varepsilon)-2\cdot10^{-17}>0 .
+\]
+The derivative of the left side with respect to $\log x$ is $\frac1{10}x^{1/10}-\frac{22}{25}(1+\varepsilon)$, which is positive once $x^{1/10}>8.8\,(1+\varepsilon)$. At $x=6\cdot10^{14}$ we have $x^{1/10}>30.04$, and the left side exceeds $0.1$.
+\end{proof}
+
+\begin{remark}
+Chamberland and Straub \cite[\S3]{CS} apply \cite{CMS} at $y=n^\alpha$. Their displayed bound starts at $921{,}755{,}345{,}005{,}754$, and evaluating their comparison \cite[(6)]{CS} directly gives every integer $n\ge571{,}412{,}224{,}574{,}286$. We do not need these values.
+\end{remark}
+
+\section{The explicit formula and a necessary condition for a gap}\label{sec:explicit}
+
+\begin{definition}\label{def:cosine}
+Let $K>0$, let $J\ge1$, and let $w_0,\dots,w_{J-1}$ be real. Put $k_j=2j+1$ and
+\[
+ G(s)=\one_{[-K,K]}(s)\sum_{j=0}^{J-1}w_j\cos\Big(\frac{\pi k_js}{2K}\Big),\qquad F=\widehat G,\qquad G_+=\max(G,0).
+\]
+We call $G$ a \emph{cosine test} of support $K$.
+\end{definition}
+
+\begin{lemma}\label{lem:cosine}
+Let $G$ be a cosine test. Then $G$ is even and Lipschitz, $G(\pm K)=0$, $\|G\|_\infty\le\sum|w_j|$ and $\|G\|_1\le2K\sum|w_j|$. Its transform is real, even and entire, with $F(0)=\int G$,
+\begin{equation}\label{eq:Fclosed}
+ F(y)=\frac{4K}{\pi}\cos(2\pi Ky)\sum_{j=0}^{J-1}\frac{(-1)^jk_jw_j}{k_j^2-(4Ky)^2},\qquad F\Big(\frac{k_j}{4K}\Big)=Kw_j,
+\end{equation}
+and $|F(y)|\ll_G(1+|y|)^{-2}$. Moreover $\|F\|_\infty\le\|G\|_1$ and $|F'(y)|\le2\pi K^2\sum|w_j|$ for all $y$.
+\end{lemma}
+\begin{proof}
+Each term vanishes at $\pm K$ since $k_j$ is odd, so $G$ is continuous; it is piecewise smooth, hence Lipschitz. For $\omega=\pi k/(2K)$ and $\beta=2\pi y$ with $\omega\ne\pm\beta$,
+\begin{align*}
+ \int_{-K}^K\cos(\omega s)\cos(\beta s)\dd s&=\frac{\sin((\omega-\beta)K)}{\omega-\beta}+\frac{\sin((\omega+\beta)K)}{\omega+\beta}\\
+ &=\frac{(-1)^{(k-1)/2}\,2\omega\cos(\beta K)}{\omega^2-\beta^2},
+\end{align*}
+because $\sin(\pi k/2\mp\beta K)=(-1)^{(k-1)/2}\cos(\beta K)$ for odd $k$. Since $2\omega/(\omega^2-\beta^2)=4Kk/(\pi(k^2-(4Ky)^2))$, this gives \eqref{eq:Fclosed}; the value at $4Ky=k_j$ follows by continuity, or directly. Each summand of \eqref{eq:Fclosed} is $O(y^{-2})$. Finally $|F|\le\int|G|$ and $|F'(y)|\le2\pi\int|sG(s)|\dd s\le2\pi K^2\sum|w_j|$.
+\end{proof}
+
+\begin{lemma}[Explicit formula]\label{lem:explicit}
+Let $G$ be a cosine test of support $K$, and let $D>0$ and $a$ satisfy $ae^{-KD}\ge2$. Then
+\begin{multline}\label{eq:explicit}
+ \sum_{m\ge2}\frac{\Lambda(m)}{\sqrt m}G\Big(\frac{\log(m/a)}D\Big)+D\sum_\gamma F(\Delta\gamma)\cos(\gamma\log a)+E_0\\
+ =D\sqrt a\int G(s)\cosh\Big(\frac{Ds}2\Big)\dd s,
+\end{multline}
+where $\Delta=D/(2\pi)$, $E_0=D\sum_{k\ge1}a^{-2k-1/2}\int G(s)e^{-(2k+1/2)Ds}\dd s$, and the sum over $\gamma$ converges absolutely.
+\end{lemma}
+\begin{proof}
+Put $f(t)=t^{-1/2}G(\log(t/a)/D)$ for $t>0$. It is Lipschitz and supported in $[A,B]=[ae^{-KD},ae^{KD}]\subset[2,\infty)$. Its Mellin transform $\tilde f(w)=\int_0^\infty f(t)t^{w-1}\dd t$ is entire, and the substitution $t=ae^{D\sigma}$ gives
+\[
+ \tilde f(w)=Da^{w-1/2}\int G(\sigma)e^{(w-1/2)D\sigma}\dd\sigma .
+\]
+We use the explicit formula of von Mangoldt in the truncated form \cite[Ch.~17]{Davenport}: for $x\ge2$ and $T\ge2$,
+\begin{gather*}
+ \psi_0(x)=x-\sum_{|\gamma|<T}\frac{x^\rho}\rho-\log2\pi-\tfrac12\log(1-x^{-2})+R(x,T),\\
+ |R(x,T)|\le C\Big(\frac{x\log^2(xT)}T+\log x\min\Big(1,\frac x{T\langle x\rangle}\Big)\Big),
+\end{gather*}
+with an absolute constant $C$. Here $\psi_0(x)$ is the mean of the left and right limits of $\psi$ at $x$, so $\psi_0(x)=\psi(x)$ unless $x$ is a prime power, and $\langle x\rangle$ is the distance from $x$ to the nearest prime power other than $x$ itself. We only use the formula for $x$ in the support $[A,B]$ of $f$, where $x\ge A\ge2$. Since $f$ is Lipschitz with compact support in $(1,\infty)$, Stieltjes integration by parts gives $\sum_m\Lambda(m)f(m)=\int f\dd\psi=-\int\psi(t)f'(t)\dd t$. In the last integral we may replace $\psi$ by $\psi_0$ and then by the right side of the formula, since they differ only on the countable set of prime powers. We integrate each term against $-f'$. First, $-\int tf'(t)\dd t=\int f=\tilde f(1)$. Next, $\int(t^\rho/\rho)f'(t)\dd t=-\int t^{\rho-1}f(t)\dd t=-\tilde f(\rho)$. The constant contributes $\log2\pi\int f'=0$. Since $\frac{d}{dt}\log(1-t^{-2})=2\sum_{k\ge1}t^{-2k-1}$,
+\[
+ \tfrac12\int\log(1-t^{-2})f'(t)\dd t=-\sum_{k\ge1}\int t^{-2k-1}f(t)\dd t=-\sum_{k\ge1}\tilde f(-2k).
+\]
+Finally $|\int R(t,T)f'(t)\dd t|\le\|f'\|_\infty\int_A^B|R(t,T)|\dd t$, and we let $T\to\infty$ with $f$ fixed. The first part of $R$ contributes $O(B^2\log^2(BT)/T)$. For the second, $\min(1,B/(T\langle t\rangle))\le B/T+\sum_u\min(1,B/(T|t-u|))$, the sum over the prime powers $u\ne t$ with $|t-u|\le1$. The term $B/T$ contributes $O(B^2\log B/T)$, and each prime power $u\in[A-1,B+1]$ contributes $O(B\log B\log T/T)$ for $T\ge B$, since $\int_{|t-u|\le1}\min(1,B/(T|t-u|))\dd t\le\frac{2B}T(1+\log\frac TB)$. All these tend to $0$ as $T\to\infty$, the implied constants depending only on $A$, $B$ and $f$. Hence
+\[
+ \sum_m\Lambda(m)f(m)=\tilde f(1)-\lim_{T\to\infty}\sum_{|\gamma|<T}\tilde f(\rho)-\sum_{k\ge1}\tilde f(-2k).
+\]
+By RH \cite{Alpoge} each $\rho=\frac12+i\gamma$ with $\gamma$ real, and then $\tilde f(\rho)=Da^{i\gamma}F(\Delta\gamma)$. As $|F(y)|\ll(1+|y|)^{-2}$ and the number of $\gamma$ in $[T,T+1]$ is $O(\log T)$, the sum converges absolutely. The zeros are symmetric under $\gamma\mapsto-\gamma$ and $F$ is even, so the sum equals $D\sum_\gamma F(\Delta\gamma)\cos(\gamma\log a)$. Finally $\tilde f(1)=D\sqrt a\int G(\sigma)e^{D\sigma/2}\dd\sigma=D\sqrt a\int G\cosh(D\sigma/2)$ since $G$ is even, and $\tilde f(-2k)$ is the $k$th term of $E_0$.
+\end{proof}
+
+\begin{lemma}\label{lem:Nt}
+For $t>0$ let $N(t)$ be the number of $\gamma\in(0,t]$, with multiplicity, and write $N(t)=\frac t{2\pi}\log\frac t{2\pi e}+\frac78+R(t)$. Then $|R(t)|\le3+0.15\log^+t$.
+\end{lemma}
+\begin{proof}
+Trudgian \cite[Cor.~1]{Trudgian} proved $|R(t)|\le0.112\log t+0.278\log\log t+2.510+0.2/t$ for $t\ge e$. Writing $\ell=\log t\ge1$, the function $0.278\log\ell-0.038\ell$ has maximum $0.278(\log(0.278/0.038)-1)<0.276$, so $|R(t)|\le0.15\ell+0.276+2.510+0.2/e<3+0.15\ell$. For $0<t<e$ we have $N(t)=0$, and $\frac t{2\pi}\log\frac t{2\pi e}+\frac78$ lies in $[-\frac18,\frac78]$ there, since its minimum over $t>0$ is $\frac78-1$, at $t=2\pi$.
+\end{proof}
+
+\begin{lemma}\label{lem:zerosum}
+Let $F$ be real, even and $C^1$ with $|F(y)|\ll(1+|y|)^{-2}$, and put
+\begin{gather*}
+ \|F\|_1=\int_\R|F|,\qquad M_F=\int_\R|F(y)|\log|y|\dd y,\\
+ V_0=\int_0^\infty|F'|,\qquad V_1=\int_0^\infty\log^+y\,|F'(y)|\dd y,
+\end{gather*}
+all finite. For $0<D<1$ and $\Delta=D/(2\pi)$,
+\begin{multline*}
+ D\sum_\gamma|F(\Delta\gamma)|\le\|F\|_1\log\frac1D+M_F+2D\|F\|_\infty\\
+ +2D\Big[\Big(3+0.15\log\frac{2\pi}D\Big)V_0+0.15V_1\Big].
+\end{multline*}
+\end{lemma}
+\begin{proof}
+Put $\phi(t)=|F(\Delta t)|$. Since $F$ is $C^1$ and $|\cdot|$ is $1$-Lipschitz, $\phi$ is absolutely continuous on every bounded interval, with $|\phi'(t)|\le\Delta|F'(\Delta t)|$ almost everywhere. (We do not assume that $F'$ is bounded.) Let $M(t)=\frac t{2\pi}\log\frac t{2\pi e}+\frac78$ and let $t_0\in(9,10)$ be its zero; $N=0$ on $(0,t_0]$, so $R(t_0)=0$. For $T>t_0$, integrating by parts on $[t_0,T]$ with $N=M+R$ and $M'(t)=\frac1{2\pi}\log\frac t{2\pi}$,
+\[
+ \int_{t_0}^T\phi\dd N=\phi(T)R(T)+\int_{t_0}^T\phi(t)\frac1{2\pi}\log\frac t{2\pi}\dd t-\int_{t_0}^TR(t)\phi'(t)\dd t .
+\]
+As $T\to\infty$, $\phi(T)R(T)\to0$ because $|F(y)|\ll(1+|y|)^{-2}$ and $|R(T)|\le3+0.15\log T$, and the two integrals converge absolutely because $M_F$, $\|F\|_1$, $V_0$ and $V_1$ are finite. By symmetry of the zeros,
+\[
+ \tfrac12\sum_\gamma|F(\Delta\gamma)|=\int_{t_0}^\infty\phi\dd N=\int_{t_0}^\infty\phi(t)\frac1{2\pi}\log\frac t{2\pi}\dd t-\int_{t_0}^\infty R(t)\phi'(t)\dd t .
+\]
+By \Cref{lem:Nt} and $\log^+(y/\Delta)\le\log(2\pi/D)+\log^+y$, the last integral is at most $\int_0^\infty(3+0.15\log^+(y/\Delta))|F'(y)|\dd y\le(3+0.15\log\frac{2\pi}D)V_0+0.15V_1$. In the first integral substitute $y=\Delta t$; since $2\pi\Delta=D$ it equals $D^{-1}\int_{\Delta t_0}^\infty|F(y)|\log(y/D)\dd y$. The integrand is positive for $y>D$, so extending the range to $(0,\infty)$ changes the integral by at most $\int_0^D|F(y)|\log(D/y)\dd y\le D\|F\|_\infty$. Multiplying by $2D$ and using that $F$ is even gives the claim.
+\end{proof}
+
+Throughout, $U=1+10^{-12}$.
+
+\begin{proposition}[A necessary condition for a gap]\label{prop:gap}
+Let $G$ be a cosine test of support $1\le K\le\frac52$ with $\sum|w_j|<1$ and $\|G\|_1<4$, and let $F,M_F,V_0,V_1$ be as above. Let $a>1$ and $D>0$ satisfy
+\begin{equation}\label{eq:H}
+ \log a\ge60,\qquad KD\le\frac{U-1}U,\qquad KP<100,
+\end{equation}
+where $P=D\sqrt a$, and suppose that the open interval $(ae^{-D},ae^{D})$ contains no prime. (Note $(U-1)/U<10^{-12}$, so $KD<10^{-12}$.) Let $\cB$ be a set of positive ordinates $\gamma$, counted once each, with $F(\Delta\gamma)\ge0$. Put $\ell=\log a+KD$ and
+\[
+ E_{\mathrm{pow}}=\Big(2+\frac{\ell}{\log2}(1+KPU)\Big)\frac{\ell U}{\sqrt a}.
+\]
+Then
+\begin{multline}\label{eq:gap}
+ PF(0)\le\sum_{1<|s_p|\le K}\frac{\log p}{\sqrt p}G_+(s_p)+\|F\|_1\log\frac1D+M_F\\
+ -2D\sum_{\gamma\in\cB}F(\Delta\gamma)\big(1-\cos(\gamma\log a)\big)+E_{\mathrm{pow}}\\
+ +2D\Big[\Big(3+0.15\log\frac{2\pi}D\Big)V_0+0.15V_1+4\Big]+10^{-12},
+\end{multline}
+where the sum runs over primes $p$ and $s_p=\log(p/a)/D$.
+\end{proposition}
+\begin{proof}
+Since $\log a\ge60$ and $KD<10^{-12}$, we have $ae^{-KD}>e^{59}>2$, so \Cref{lem:explicit} applies. We bound the terms of \eqref{eq:explicit}. Since $\cosh u\le1+u^2$ for $|u|\le1$, the right side of \eqref{eq:explicit} is at least $PF(0)-P\|G\|_1(KD)^2/4\ge PF(0)-10^{-22}$, as $P<100$. Also $|E_0|\le D\|G\|_1\sum_{k\ge1}(ae^{-KD})^{-2k-1/2}<10^{-20}$.
+
+In the sum over $m$, write $s_m=\log(m/a)/D$; only $|s_m|\le K$ contributes. Primes with $|s_p|<1$ do not exist by hypothesis. For primes with $1<|s_p|\le K$ we use $G\le G_+$. The remaining terms are the at most two endpoints $ae^{\pm D}$ and the proper prime powers $m=p^r$, $r\ge2$, in $[A,B]=[ae^{-KD},ae^{KD}]$. Each has $\Lambda(m)\le\log B=\ell$, $m^{-1/2}\le U/\sqrt a$ and $|G|\le\sum|w_j|<1$. The exponent satisfies $2\le r\le\ell/\log2$, so fewer than $\ell/\log 2$ exponents occur. For each $r$, the number of $r$th powers in $[A,B]$ is at most
+\[
+ 1+B^{1/r}-A^{1/r}\le1+\sqrt B-\sqrt A=1+2\sqrt a\sinh(KD/2)\le1+KPU,
+\]
+because $\frac1ru^{1/r-1}\le\frac12u^{-1/2}$ for $u\ge1$. So these terms contribute at most $E_{\mathrm{pow}}$.
+
+For the zeros, $D\sum_\gamma F\cos=D\sum_\gamma|F|-D\sum_\gamma(|F|-F\cos)$. Every term of the second sum is nonnegative, and for $\pm\gamma$ with $\gamma\in\cB$ the two terms together equal $2F(\Delta\gamma)(1-\cos(\gamma\log a))$. Now apply \Cref{lem:zerosum} with $\|F\|_\infty\le\|G\|_1<4$. Collecting terms gives \eqref{eq:gap}, with $10^{-12}$ covering the two tiny errors.
+\end{proof}
+
+\subsection{The shoulders}\label{sec:shoulder-basics}
+Let $G$ be a cosine test of support $1\le K\le\frac52$ and let $(a,D)$ satisfy \eqref{eq:H}. The sum
+\[
+ \Sigma_+=\sum_{1<|s_p|\le K}\frac{\log p}{\sqrt p}G_+(s_p)
+\]
+in \eqref{eq:gap} runs over the primes on the two \emph{shoulders} $ae^{D}<p\le ae^{KD}$ and $ae^{-KD}\le p<ae^{-D}$. By \eqref{eq:H}, $e^{KD}<1/(1-KD)\le U$; the bound $KD<10^{-12}$ alone would not give this. For $m\in[ae^{-KD},ae^{KD}]$ we have $|\log m-2L|\le KD<2L(U-1)$ and $e^{-KD/2}\le\sqrt{m/a}\le e^{KD/2}$, so the weight $\theta(m)=\log m/\sqrt m$ satisfies
+\begin{equation}\label{eq:theta}
+ U^{-2}\,\frac{2L}{e^{L}}\le\theta(m)\le U^2\,\frac{2L}{e^{L}},\qquad L=\log\sqrt a .
+\end{equation}
+
+\begin{lemma}\label{lem:physical}
+Let $I=(s_1,s_2]\subset(1,K]$ with $s_2-s_1=v$. The integers $m$ with $s_m\in I$ form the integers of a real interval of length $t\in[Wv,WvU]$, and those with $-s_m\in I$ form the integers of a real interval of length $t\in[Wv/U,Wv]$; here $W=aD$.
+\end{lemma}
+\begin{proof}
+The first interval is $(ae^{Ds_1},ae^{Ds_2}]$, of length $a(e^{Ds_2}-e^{Ds_1})$, which lies between $aDv$ and $aDve^{Ds_2}\le aDvU$ by the mean value theorem. The second is $[ae^{-Ds_2},ae^{-Ds_1})$, of length between $aDve^{-Ds_2}\ge aDv/U$ and $aDv$.
+\end{proof}
+
+\section{Proof of \Cref{thm:outer}}\label{sec:twelve}
+We cover $x\ge35\cdot10^{12}$ by two ranges: $x\ge6\cdot10^{14}$ (\Cref{cor:cms}) and $35\cdot10^{12}\le x\le6\cdot10^{14}$ (\Cref{prop:twelve}). Throughout, $x$ is real, $a,D,P,L,W$ are as in \eqref{eq:aD}, and we say that $x$ is a \emph{hole} if $(x^\alpha,(x+1)^\alpha)=(ae^{-D},ae^D)$ contains no prime. We use repeatedly that
+\begin{equation}\label{eq:PD}
+\begin{gathered}
+ P\ge\frac{11}{10}x^{1/10}\frac x{x+1},\qquad\log\frac1D\le\log\frac{x+1}{1.1},\\
+ 1.1\log x\le L\le1.1\log(x+1),
+\end{gathered}
+\end{equation}
+which follow from $\frac1{x+1}\le\log(1+\frac1x)\le\frac1x$ and $x^{11/10}\le\sqrt a\le(x+1)^{11/10}$. The function $x^{1/10}\cdot x/(x+1)$ is increasing.
+
+\subsection{Rigorous arithmetic}\label{sec:arith}
+The numerical statements of this section, and of \Cref{sec:sharp,sec:shoulders,sec:sieve,sec:semiprimes,sec:tests,sec:outer}, are checked by the programs listed in \Cref{app:programs}. They work with exact rational numbers. Transcendental quantities are replaced by rational enclosures, and every rounding goes in the direction that weakens the inequality being checked. The enclosures are the following.
+\begin{itemize}
+\item $\pi\in[\pi_-,\pi_-+10^{-36}]$, where $\pi_-$ is the truncation of $\pi$ to $36$ decimals; the program confirms this from Machin's formula with alternating-series remainders.
+\item $\cos(\pi q)$ for rational $q$: reduce to $q\in[0,\frac12]$ by the symmetries of cosine. The Taylor partial sums of $\cos t$ through degrees $22$ and $24$ are a lower and an upper bound for $0\le t\le2$; they are evaluated at $t=(\pi_-+10^{-36})q$ and $t=\pi_-q$ respectively, and rounded outwards to multiples of $10^{-18}$.
+\item $\log y$ for rational $y\ge1$: either the series $\log y'=2\operatorname{artanh}\frac{y'-1}{y'+1}$ with an explicit geometric tail bound, after writing $y=2^ky'$ with $1\le y'<2$, rounded outwards to multiples of $2^{-200}$; or the correctly rounded decimal logarithm at $48$ or $54$ significant digits (Python's \texttt{decimal} module), widened by more than its rounding error. We write $[\log y]_\pm$ for the two ends.
+\item $y^{1/10}$ for integer $y$: the adjacent multiples of $2^{-200}$ enclosing it, found by integer bisection on tenth powers. We write $[y^{1/10}]_\pm$.
+\end{itemize}
+
+\subsection{The twelve-mode test}
+Let $G_{12}$ be the cosine test (\Cref{def:cosine}) of support $K=2$ with the twelve weights
+\begin{align*}
+ 10^6(w_0,\dots,w_5)&=(462994,\,232962,\,17574,\,-31174,\,472,\,7016),\\
+ 10^6(w_6,\dots,w_{11})&=(-1460,\,-974,\,377,\,-20,\,3,\,-11),
+\end{align*}
+and let $F_{12}=\widehat{G_{12}}$. Then $\sum|w_j|=0.755037<1$ and $\|G_{12}\|_1\le2K\sum|w_j|<4$, and by \eqref{eq:Fclosed}
+\[
+ F_{12}(y)=\frac8\pi\cos(4\pi y)\sum_{j=0}^{11}\frac{(-1)^jk_jw_j}{k_j^2-64y^2},\qquad k_j=2j+1 .
+\]
+
+\begin{lemma}\label{lem:twelve}
+For $F=F_{12}$, in the notation of \Cref{lem:zerosum},
+\begin{gather*}
+ F(0)>1.00000063,\qquad\|F\|_1<0.765870,\qquad M_F+2\cdot10^{-6}<-1.37957,\\
+ V_0<625,\qquad V_1<2000.
+\end{gather*}
+\end{lemma}
+\begin{proof}
+Write $\kappa_r=\sum_jk_j^r|w_j|$. By \eqref{eq:Fclosed}, $F(0)=\frac8\pi\sum_j(-1)^jw_j/k_j$, and the enclosure of $\pi$ gives $F(0)>1.00000063$ (the value is $1.0000006340\ldots$).
+
+\emph{The integrals on $[0,16]$.} Since $F''(y)=-4\pi^2\int s^2G(s)e^{2\pi iys}\dd s$, we have $|F''|\le4\pi^2\sum|w_j|\int_{-2}^2s^2\dd s=4\pi^2\cdot\frac{16}3\sum|w_j|<161$. Let $h=1/4000$ and $y_i=ih$. The program encloses $F(y_i)$ for $0\le i\le64000$ by the closed form, with outward rounding. On each cell $[y_{i-1},y_i]$ let $\ell_i$ be the linear interpolant of $F$ at the two ends. Then $|F-\ell_i|\le\varepsilon:=161h^2/8$ on the cell, and $|\ell_i|$ lies between the smaller and the larger of $|F(y_{i-1})|,|F(y_i)|$ if these have the same sign, and below the larger otherwise. Hence
+\[
+ \int_{y_{i-1}}^{y_i}|F|\le\frac h2\big(|F(y_{i-1})|+|F(y_i)|\big)+\varepsilon h .
+\]
+For the logarithmic moment, on cells with $y_{i-1}\ge1$, where $\log y\ge0$, we use $|F|\le\max(|F(y_{i-1})|,|F(y_i)|)+\varepsilon$. On cells with $y_i\le1$, where $\log y\le0$, we use $|F|\ge\max\big(0,\min(|F(y_{i-1})|,|F(y_i)|)-\varepsilon\big)$ when the enclosures of $F(y_{i-1})$ and $F(y_i)$ have the same strict sign, and $|F|\log y\le0$ otherwise. In both cases $\int_{y_{i-1}}^{y_i}\log y\,\dd y=y_i\log y_i-y_{i-1}\log y_{i-1}-h$ is evaluated with correctly rounded $48$-digit logarithms, rounded in the direction that increases the bound.
+
+\emph{Tails.} For $y\ge16$ put $X=8y\ge128$ and $\lambda_0=1-(23/128)^2$. Then $X^2-k_j^2\ge\lambda_0X^2$ for all $j$, as $k_j\le23$. Writing $\frac1{k^2-X^2}=-\frac1{X^2}-\frac{k^2}{X^2(X^2-k^2)}$ in the closed form gives
+\[
+ |F(y)|\le\frac{c_2}{y^2}+\frac{c_4}{y^4},\qquad c_2=\frac{8\,|\sum_j(-1)^jk_jw_j|}{64\pi},\qquad c_4=\frac{8\,\kappa_3}{4096\pi\lambda_0}.
+\]
+(The weights are such that $c_2<1.2\cdot10^{-7}$; also $c_4<0.0244$.) Hence $\int_{16}^\infty|F|\le\frac{c_2}{16}+\frac{c_4}{3\cdot16^3}$ and $\int_{16}^\infty|F(y)|\log y\,\dd y\le c_2\frac{\log16+1}{16}+c_4\frac{\log16+1/3}{3\cdot16^3}$. Adding twice the integrals over $[0,16]$ (as $F$ is even) and twice the tails, the program finds $\|F\|_1<0.7658691$ and $M_F<-1.3795756$, and checks the stated inequalities exactly.
+
+\emph{Variation.} By \Cref{lem:cosine}, $|F'|\le2\pi K^2\sum|w_j|<19<39$. For $y\ge16$ write $F(y)=\frac8\pi\cos(4\pi y)S(y)$ with $S(y)=\sum_j(-1)^jk_jw_j/(k_j^2-64y^2)$. Then $|S(y)|\le\kappa_1/(64\lambda_0y^2)$, and since $\frac{\dd}{\dd y}(k^2-64y^2)^{-1}=128y(k^2-64y^2)^{-2}$, also $|S'(y)|\le2\kappa_1/(64\lambda_0^2y^3)$. Hence
+\[
+ |F'(y)|\le\frac8\pi\cdot\frac{\kappa_1}{64}\Big(\frac{4\pi}{\lambda_0y^2}+\frac2{\lambda_0^2y^3}\Big)\le\frac8\pi\cdot\frac{\kappa_1}{64}\Big(\frac{4\pi}{\lambda_0}+\frac2{16\lambda_0^2}\Big)\frac1{y^2}<\frac2{y^2},
+\]
+as $\kappa_1=1.590087$. Therefore $V_0\le16\cdot39+\int_{16}^\infty2y^{-2}\dd y<625$ and $V_1\le39\int_1^{16}\log y\,\dd y+\int_{16}^\infty2y^{-2}\log y\,\dd y=39(16\log16-15)+\frac{\log16+1}8<2000$.
+\end{proof}
+
+\begin{lemma}\label{lem:twelve-steps}
+Let $h=1/4000$. There are rational numbers $e_1\ge e_2\ge\dots\ge e_{4000}\ge e_{4001}=0$ with $e_1<0.76$ such that $(G_{12})_+(s)\le e_j$ whenever $1+(j-1)h<s\le1+jh$, for $1\le j\le4000$.
+\end{lemma}
+\begin{proof}
+On $[1,2]$ the function $G_{12}$ is the cosine sum, and $|G_{12}''|\le\sum_j|w_j|(\pi k_j/4)^2<16$. For $0\le i\le4000$ let $u_i\ge0$ be the upper bound for $(G_{12})_+(1+ih)$ obtained by replacing each term $w_j\cos(\pi k_j(1+ih)/4)$ by the larger of $w_j$ times the two ends of the enclosure of the cosine, and replacing a negative total by $0$. On the cell $[1+(i-1)h,1+ih]$, $G_{12}$ is at most its linear interpolant plus $16h^2/8=2h^2$, so $(G_{12})_+\le\max(u_{i-1},u_i)+2h^2$ there. Put $e_{4001}=0$ and $e_j=\max\big(e_{j+1},\max(u_{j-1},u_j)+2h^2\big)$ for $j=4000,\dots,1$. The program checks $e_1<0.76$.
+\end{proof}
+
+\subsection{The shoulders}
+We count the primes on the shoulders with the following form of the Brun--Titchmarsh inequality: by \cite[Thm.~2]{MV}, an interval $(y,y+t]$ with $y\ge0$ and $t>1$ contains fewer than $2t/\log t$ primes. Hence every real interval of length $t>1$ contains at most $2t/\log t+1$ primes.
+
+Let $e_j$ be as in \Cref{lem:twelve-steps}, put $v_j=j/4000$ and $U_1=1+10^{-10}$, and let $\cJ$ be the set of $j$ with $e_j>e_{j+1}$.
+
+\begin{lemma}\label{lem:twelve-shoulders}
+Let $35\cdot10^{12}\le x\le6\cdot10^{14}$. Then $(a,D)$ satisfies \eqref{eq:H} with $K=2$, and $P<34$. Let $P_0,\lambda_-,\lambda_+>0$ be such that $P\ge P_0$, $\lambda_-\le L\le\lambda_+$ and $W>4000U_1$. For $j\in\cJ$ let $b_j\le\log(P_0v_j)-\log U_1$ be real numbers with $\lambda_-+b_j>0$, and put $L_j=\lambda_+$ if $b_j\ge0$ and $L_j=\lambda_-$ otherwise. Then, for $G=G_{12}$,
+\[
+ \Sigma_+\le P\mathfrak b+4U^2e_1\lambda_+e^{-L},\qquad\mathfrak b=8U_1^2\sum_{j\in\cJ}(e_j-e_{j+1})\,v_j\,\frac{L_j}{L_j+b_j}.
+\]
+\end{lemma}
+\begin{proof}
+By \eqref{eq:PD}, $\log a=2L\ge2.2\log(35\cdot10^{12})>68$. Also $KD=2.2\log(1+1/x)\le2.2/x<10^{-13}<(U-1)/U$, and $P\le1.1(x+1)^{11/10}/x$, which increases for $x>10$ and is less than $34$ at $x=6\cdot10^{14}$. So \eqref{eq:H} holds.
+
+Consider the right shoulder. For $1+(i-1)/4000<s\le1+i/4000$, \Cref{lem:twelve-steps} gives
+\[
+ (G_{12})_+(s)\le e_i=\sum_{j\ge i}(e_j-e_{j+1})=\sum_{j\in\cJ}(e_j-e_{j+1})\one[s\le1+v_j].
+\]
+Let $\theta_{\max}=U^2\cdot2L/e^L$, an upper bound for $\theta(p)$ on the shoulders by \eqref{eq:theta}. Then
+\[
+ \sum_{1<s_p\le2}\theta(p)(G_{12})_+(s_p)\le\theta_{\max}\sum_{j\in\cJ}(e_j-e_{j+1})\,\pi_j^+,
+\]
+where $\pi_j^+$ is the number of primes $p$ with $1<s_p\le1+v_j$. By \Cref{lem:physical} these primes lie in a real interval of length $t\in[Wv_j/U,Wv_jU]$. Here $W=aD=Pe^L$, so $t\ge Wv_1/U>1$ and
+\[
+ \log t\ge L+\log(Pv_j)-\log U\ge L+b_j>0,
+\]
+as $U<U_1$. By the Brun--Titchmarsh inequality above, $\pi_j^+\le2Wv_jU/(L+b_j)+1$. Now $\theta_{\max}\cdot2Wv_jU=4U^3Pv_jL$ and $U^3<U_1^2$. The function $\lambda\mapsto\lambda/(\lambda+b_j)$ is monotone on $[\lambda_-,\lambda_+]$, increasing if $b_j\ge0$ and decreasing if $b_j<0$, so $L/(L+b_j)\le L_j/(L_j+b_j)$. Hence the right shoulder contributes at most
+\[
+ 4U_1^2P\sum_{j\in\cJ}(e_j-e_{j+1})\,v_j\frac{L_j}{L_j+b_j}+\theta_{\max}\sum_{j\in\cJ}(e_j-e_{j+1}),
+\]
+and the last sum is $e_1$. The left shoulder is treated in the same way, with the primes $p$ satisfying $1<-s_p\le1+v_j$, which by \Cref{lem:physical} lie in an interval of length in $[Wv_j/U,Wv_j]$. Finally $\theta_{\max}\le U^2\cdot2\lambda_+e^{-L}$.
+\end{proof}
+
+\subsection{The comparison}
+For $k\ge0$ put
+\[
+ J_k(x)=1.1\,k\,x^{1/10}\frac x{x+1}-0.765870\log\frac{x+1}{1.1}+1.37957 .
+\]
+
+\begin{table}[ht]
+\centering\footnotesize\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}rrrrrrrrr@{}}
+\toprule
+$l/10^{12}$ & $r/10^{12}$ & $\lambda_-$ & $\lambda_+$ & $P_0$ & $\mathfrak b<$ & $k$ & $J_k(l)>$ & $J_k^\flat>$\\
+\midrule
+$35$ & $37$ & $34.2$ & $34.4$ & $24.877$ & $0.098159$ & $0.90184$ & $0.0030$ & $1.4776$\\
+$37$ & $600$ & $34.2$ & $37.5$ & $25.015$ & $0.098420$ & $0.90150$ & $0.0769$ & $1.4892$\\
+\bottomrule
+\end{tabular}
+\caption{The two ranges of \Cref{prop:twelve}. The last column is a lower bound for $J_k^\flat=\frac{\dd J_k}{\dd\log x}$ on $[l,\infty)$. The computed values are $\mathfrak b=0.0981587910\ldots$ and $0.0984189880\ldots$, $J_k(l)\ge0.0030109\ldots$ and $0.0769651\ldots$.}\label{tab:twelve}
+\end{table}
+
+\begin{proposition}\label{prop:twelve}
+No $x\in[35\cdot10^{12},6\cdot10^{14}]$ is a hole.
+\end{proposition}
+\begin{proof}
+Let $[l,r]$ be a row of \Cref{tab:twelve} and $x\in[l,r]$. The program checks:
+\begin{enumerate}[label=(\roman*)]
+\item $\lambda_-<1.1[\log l]_-$ and $1.1[\log(r+1)]_+<\lambda_+$, so $\lambda_-\le L\le\lambda_+$ by \eqref{eq:PD};
+\item $P_0<1.1[l^{1/10}]_-\,l/(l+1)$, so $P\ge P_0$ by \eqref{eq:PD}, and $P_0\,l\,[l^{1/10}]_->4000U_1\cdot10^{12}$, which gives $W=Pe^L\ge P_0x^{11/10}>4000U_1$;
+\item with $b_j=[\log(P_0v_j)]_--[\log U_1]_+$, that $\lambda_-+b_j>0$ for $j\in\cJ$, and that $\mathfrak b$, with each term rounded up to a multiple of $10^{-20}$, is less than the tabulated value;
+\item $k<1.00000063-\mathfrak b$, so $0<k<F_{12}(0)-\mathfrak b$ by \Cref{lem:twelve};
+\item $1.1\,k\,[l^{1/10}]_-\frac l{l+1}-0.765870\,[\log\frac{l+1}{1.1}]_++1.37957$ exceeds the tabulated lower bound for $J_k(l)$, and $0.11\,k\,[l^{1/10}]_-\frac l{l+1}-0.765870$ exceeds the tabulated lower bound for the derivative.
+\end{enumerate}
+Suppose that $x$ is a hole. We apply \Cref{prop:gap} to $G_{12}$ with $\cB=\emptyset$; its hypotheses hold by \Cref{lem:twelve-shoulders}. We bound the error terms of \eqref{eq:gap} uniformly on $[35\cdot10^{12},6\cdot10^{14}]$. There $D\le1.1/l$ with $l=35\cdot10^{12}$, $\log(2\pi/D)\le\log(7(r+1)/1.1)$ with $r=6\cdot10^{14}$, $\ell=\log a+2D<2\cdot37.5+1$, $\sqrt a\ge l^{11/10}$ and $P<34$. With \Cref{lem:twelve} the program finds
+\[
+ E_{\mathrm{pow}}<7.3\cdot10^{-10},\qquad2D\Big[\Big(3+0.15\log\frac{2\pi}D\Big)V_0+0.15V_1+4\Big]<3.6\cdot10^{-10},
+\]
+and $4U^2e_1\lambda_+e^{-L}<4U^2\cdot0.76\cdot37.5/l^{11/10}<1.5\cdot10^{-13}$. Together with the $10^{-12}$ of \eqref{eq:gap} the error terms total less than $1.1\cdot10^{-9}$, and in particular less than $2\cdot10^{-6}$. Hence \eqref{eq:gap} and \Cref{lem:twelve-shoulders} give
+\[
+ P\big(F_{12}(0)-\mathfrak b\big)\le\|F_{12}\|_1\log\frac1D+M_{F_{12}}+2\cdot10^{-6}<0.765870\log\frac1D-1.37957 .
+\]
+By (iv) and \eqref{eq:PD} the left side is at least $1.1kx^{1/10}x/(x+1)$, and the right side is at most $0.765870\log((x+1)/1.1)-1.37957$. So $J_k(x)<0$. On the other hand, for $x\ge l$,
+\begin{align*}
+ \frac{\dd J_k}{\dd\log x}&=1.1\,k\,x^{1/10}\frac x{x+1}\Big(\frac1{10}+\frac1{x+1}\Big)-0.765870\frac x{x+1}\\
+ &\ge0.11\,k\,x^{1/10}\frac x{x+1}-0.765870,
+\end{align*}
+which is increasing in $x$ and positive at $x=l$ by (v). So $J_k(x)\ge J_k(l)>0$, a contradiction. The two rows cover $[35\cdot10^{12},6\cdot10^{14}]$.
+\end{proof}
+
+\begin{proof}[Proof of \Cref{thm:outer}]
+Combine \Cref{prop:twelve} and \Cref{cor:cms}.
+\end{proof}
+
+\begin{remark}
+A second, independent program repeats the computations of \Cref{lem:twelve,prop:twelve} in ball arithmetic. It evaluates $F_{12}$ as a sum of sinc functions on a different grid ($h=1/4096$), and gives $J_k(l)>0.00301095$ and $J_k(l)>0.07696517$ for the two rows.
+\end{remark}
+
+\section{The computation}\label{sec:sweep}
+In this section we prove \Cref{thm:squares,prop:sweep}. A \emph{witness} for a square base $m$ is a prime $p$ with $m^2<p<(m+1)^2$, and a witness for a power base $n$ is a prime $p$ with $n^{11}<p^5<(n+1)^{11}$. Both inequalities are checked in exact integer arithmetic. Primality is certified by the following lemma, or, for a few bases, by a Pratt certificate \cite{Pratt}.
+
+\begin{lemma}\label{lem:bls}
+Let $p>1$ be odd and let $F$ be a power of $2$ with $F\mid p-1$, $F^3>p$ and $3^{(p-1)/2}\equiv-1\pmod p$. Write $(p-1)/F=sF+t$ with $0\le t<F$. If $(F+1)^2>p$, or if $t^2-4s$ is negative or not a perfect square, then $p$ is prime.
+\end{lemma}
+\begin{proof}
+Let $q$ be a prime divisor of $p$. The order of $3$ modulo $q$ divides $p-1$ but not $(p-1)/2$, since $3^{(p-1)/2}\equiv-1\not\equiv1\pmod q$. Hence its $2$-adic valuation equals that of $p-1$, so $F$ divides it, and $F\mid q-1$. If $p$ were composite it would have exactly two prime factors counted with multiplicity, as $(F+1)^3>p$; write $p=(1+aF)(1+bF)$ with $a,b\ge1$. Then $p\ge(F+1)^2$. If $a+b\ge F$ then $ab\ge a+b-1\ge F-1$ and $p=1+(a+b)F+abF^2\ge1+F^2+(F-1)F^2>p$, which is absurd; so $a+b<F$, and $(p-1)/F=abF+(a+b)$ gives $s=ab$, $t=a+b$, and $t^2-4s=(a-b)^2$, a perfect square.
+\end{proof}
+
+In the computation $F=2^{\lceil b/3\rceil}$, where $b$ is the bit length of $p$, so that $F^3\ge2^b>p$; all witnesses are below $2^{100}$.
+
+\subsection{Retained certificates}
+Certificates from earlier runs are published at \coderepo, together with a program that replays them. For squares they cover:
+\begin{itemize}
+\item $70{,}500{,}000{,}000{,}001\le m\le70{,}500{,}001{,}100{,}000$, with a witness in each of $(m^2,m(m+1))$ and $(m(m+1),(m+1)^2)$;
+\item $70{,}500{,}001{,}100{,}001\le m\le70{,}500{,}002{,}100{,}000$, and the two pilot ranges $85{,}249{,}999{,}000{,}001\le m\le85{,}250{,}000{,}000{,}000$ and $99{,}999{,}999{,}000{,}001\le m\le10^{14}$;
+\item $11{,}894{,}934$ further bases $m>70{,}500{,}002{,}100{,}000$ outside the two pilot ranges, namely the bases $m=\lfloor\sqrt p\rfloor$ for the witnesses $p$ of the retained power certificates for $3{,}883{,}853{,}444{,}451\le n\le3{,}883{,}865{,}444{,}451$ ($11{,}894{,}829$ distinct bases), and $105$ bases from alternative witnesses at some of the same $n$.
+\end{itemize}
+Since a prime is not a square, every prime $p$ is a witness for the square base $\lfloor\sqrt p\rfloor$. For powers, the retained certificates with $n>5{,}336{,}699{,}231{,}206$ are listed in \Cref{tab:archive}.
+
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{@{}rrr@{}}
+\toprule
+First $n$ & Last $n$ & Bases\\
+\midrule
+10\,000\,000\,000\,000 & 10\,000\,000\,008\,191 & 8\,192\\
+13\,672\,702\,248\,661 & 13\,672\,702\,248\,861 & 201\\
+32\,650\,000\,000\,000 & 32\,650\,000\,002\,048 & 2\,049\\
+32\,654\,400\,000\,000 & 32\,654\,400\,004\,095 & 4\,096\\
+32\,654\,570\,787\,390 & 32\,654\,571\,787\,389 & 1\,000\,000\\
+32\,654\,577\,787\,390 & 32\,654\,578\,787\,389 & 1\,000\,000\\
+32\,657\,972\,050\,141 & 32\,657\,972\,050\,141 & 1\\
+34\,999\,999\,000\,000 & 34\,999\,999\,999\,999 & 1\,000\,000\\
+\midrule
+& & 3\,014\,539\\
+\bottomrule
+\end{tabular}
+\caption{Retained power certificates above $n_2=5{,}336{,}699{,}231{,}206$. The single base at $32{,}657{,}972{,}050{,}141$ has a Pratt certificate; the others use \Cref{lem:bls}.}\label{tab:archive}
+\end{table}
+
+\subsection{The 2026 computation}
+The remaining bases were divided into three workloads:
+\begin{itemize}
+\item \emph{squares}: every $m$ with $70{,}500{,}002{,}100{,}001\le m\le10^{14}$ not covered by a retained certificate, $29{,}499{,}984{,}005{,}066$ bases;
+\item \emph{powers, first band}: every $n$ with $5{,}336{,}699{,}231{,}207\le n\le32{,}700{,}000{,}000{,}000$ not in \Cref{tab:archive}, $27{,}363{,}298{,}754{,}255$ bases;
+\item \emph{powers, second band}: every $n$ with $32{,}700{,}000{,}000{,}001\le n\le34{,}999{,}998{,}999{,}999$, $2{,}299{,}998{,}999{,}999$ bases.
+\end{itemize}
+In total there are $59{,}163{,}281{,}759{,}320$ bases. Of these, $800{,}000{,}000$ were done in pilot runs and the rest in $319{,}488$ production shards ($118{,}030$, $109{,}458$ and $92{,}000$ for the three workloads), listed in a schedule that was fixed before the run; its SHA-256 digest is
+\begin{center}\footnotesize
+\texttt{c7a9f9a2c86a11316936f92bba319ad0074437a0708165ae412c11b463758108}.
+\end{center}
+
+Witnesses were found by search programs that test candidates $p\equiv1\pmod F$ in the interval, using vectorised $52$-bit modular arithmetic where the size of $p$ allows it (the first power band and most square bases) and GMP otherwise. For a base where the search failed, a slower search produced a witness with a certificate of \Cref{lem:bls} or a Pratt certificate. The correctness of the search programs does not matter, because every witness was then checked by a separate verifier. For each shard, the archive of witnesses was uploaded to storage, fetched back, and compared with its SHA-256 digest. The verifier (a C++ program using GMP, and a Python checker for Pratt certificates) then read the fetched archive and checked:
+\begin{enumerate}
+\item that the bases are exactly the scheduled bases of the shard, each once and in increasing order;
+\item the strict inequalities $m^2<p<(m+1)^2$, or $n^{11}<p^5<(n+1)^{11}$, for each witness;
+\item the primality of each witness, by the hypotheses of \Cref{lem:bls} with $F=2^{\lceil b/3\rceil}$, or by its Pratt certificate.
+\end{enumerate}
+A receipt recording the bounds, the digest and the storage key of the shard was written only after the verifier accepted it. The pilot runs worked in the same way and recorded their archives in seven pilot manifests. A final audit reconciled the receipts of all $319{,}488$ shards and the pilot manifests with the schedule.
+
+The computation ran from 22 November 2026, 18:26 PST, until the audit confirmed coverage on 23 November 2026, 21:20 UTC, a total of 18 hours 53 minutes. It used up to $230$ machines with $32$ logical cores each, about $2{,}924$ machine-hours in all.
+
+\emph{Hardware and software.} The machines were Blaxel cloud sandboxes provided by Baseten. Each sandbox had $96$\,GiB of memory and $32$ logical CPUs ($16$ physical cores) of an x86-64 Intel Xeon processor with AVX-512 IFMA, running Linux~6.12. Every sandbox compiled the search programs and the verifier itself, with the system C\texttt{++} compiler and GMP; the vectorised search uses AVX-512 IFMA when the processor advertises it. The schedule was divided into $230$ slots, each owning a fixed slice of the shards. At most $230$ sandboxes ran at once. Over the run $317$ sandboxes were started, three failed attempts were resumed from their receipts, and all were released. The archives were written to a Hugging Face storage bucket and read back before verification; write volume peaked at about $5.1$\,TB per hour. From launch to the final audit the fleet verified about $8.7\times10^8$ witnesses per second. Per active sandbox it verified about $6.7\times10^6$ per second in the fast power search and in the square search, and $1.2\times10^6$ per second in the GMP search. The storage bucket of the computation holds $51{,}694{,}242{,}191{,}412$ bytes in $639{,}242$ files; this is the total archived footprint, including the schedule and the receipts as well as the certificate archives. With read access to the bucket, the audit can be repeated with a published program. In its basic mode the program reads the schedule, the plan file, every production receipt, the seven pilot manifests and the sizes of the stored archives, but no archive contents. It checks that the schedule has the digest above; that each receipt belongs to its shard and lists archives covering the shard's bases in order without gaps; that the pilot manifests have the digests listed in the plan file, list distinct archives, and have the row counts that the plan file assigns to the pilots; that the schedule's shard and row totals agree with the plan file; and that every archive listed in a receipt or a pilot manifest is present with its recorded size. In replay mode it also fetches the archive of every production shard, compares it with the digest in the receipt, and runs the verifier on it with the shard's bounds and list of excluded bases; this repeats the arithmetic for all $59{,}162{,}481{,}759{,}320$ production bases, and the work can be split into independent slots. The published digest authenticates the schedule but not the plan file; the plan file's totals and its digests of the seven pilot manifests should be compared with the copy published with the programs. For the $800{,}000{,}000$ pilot bases the program does not read the archives, so a pilot archive altered without a change of length would pass. Each pilot archive was fetched back and verified when it was made, before its manifest entry was written; that check is not repeated by the released programs. The program also does not re-derive from the ranges themselves that the production shards, the pilot ranges, the excluded bases and the retained certificates cover each workload exactly once. That was checked by the planning program when the schedule was made, from the pilot manifests and the retained archives.
+
+\subsection{Status of the evidence}\label{sec:status}
+Three kinds of evidence support \Cref{thm:squares,prop:sweep}.
+
+\emph{Public certificates.} The replay program for the published certificates reads only published files. It rebuilds the decoder and the GMP verifier, verifies every retained witness and Pratt certificate, and checks the coverage counts of \Cref{sec:sweep}; it needs no network access. With \cite{SW} and \Cref{prop:low}, the retained certificates prove \Cref{thm:main} for every $n\le3{,}883{,}865{,}444{,}451$ and \Cref{thm:squares} for every $m\le70{,}500{,}002{,}100{,}000$. They also cover isolated ranges: for squares, the two pilot ranges and the $11{,}894{,}934$ further bases listed in \Cref{sec:sweep}; for powers, the rows of \Cref{tab:archive} and, through the square pilot ranges, the bases $4{,}616{,}019{,}348{,}273\le n\le4{,}616{,}019{,}397{,}498$ and $5{,}336{,}699{,}182{,}690\le n\le5{,}336{,}699{,}231{,}206$. The analytic results cover every real $x\ge35\cdot10^{12}$ (\Cref{thm:outer}), and every real $x\ge32{,}746{,}701{,}927{,}355$ by \Cref{thm:sharp}(a).
+
+\emph{The original computation.} For every other base, $3{,}883{,}865{,}444{,}451<n<35\cdot10^{12}$ and $70{,}500{,}002{,}100{,}000<m\le10^{14}$, \Cref{prop:sweep,thm:squares} rest on the 2026 computation: on the verification of each archive after it had been stored and fetched back, on the receipts and pilot manifests written after that verification, and on the final audit. Its programs, the schedule digest, the pilot-manifest digests and the audited totals of all $230$ slots are public; its archive is not.
+
+\emph{Independent reproduction.} A referee with read access to the bucket replayed the $96$ archives listed in three of the seven pilot manifests, $160{,}000{,}000$ rows ($64{,}000{,}000$ square, $64{,}000{,}000$ fast-power and $32{,}000{,}000$ GMP bases); the archives matched the manifests. The other $640{,}000{,}000$ pilot rows and the $59{,}162{,}481{,}759{,}320$ production rows have not been replayed by anyone other than the original run.
+
+A full replay of the pilot is not implemented. It would authenticate the plan file against the published record and the seven pilot manifests against their digests there; fetch every pilot archive and compare it with its digest; decode the witnesses according to their recorded kind and range and verify primality and the strict inequalities; and reconcile the pilot ranges, the production shards, the excluded bases and the retained certificates without gaps or double counting. It needs read access to the bucket. Replaying the production shards needs the same access and the replay mode of the audit program.
+
+In short, \Cref{thm:main,thm:squares} are proved by the computation described here, but they have not been verified independently in full. An independent check is available for the public prefixes and isolated ranges above and for $1.6\times10^8$ further bases; the remaining $5.9\times10^{13}$ checks rest on the original run.
+
+\subsection{Proofs}
+\begin{proof}[Proof of \Cref{thm:squares}]
+For $m\le7.05\times10^{13}$ this is the computation of Sorenson and Webster \cite{SW} (for $m=1$, the interval $(1,4)$ contains $2$). The remaining $10^{14}-70{,}500{,}000{,}000{,}000=29{,}500{,}000{,}000{,}000$ bases are covered by the retained certificates ($1{,}100{,}000+1{,}000{,}000+2{,}000{,}000+11{,}894{,}934$ bases) and the square workload ($29{,}499{,}984{,}005{,}066$ bases).
+\end{proof}
+
+\begin{proof}[Proof of \Cref{prop:sweep}]
+Let $n_2=5{,}336{,}699{,}231{,}206$, the largest integer with $n_2^{11}\le10^{140}$. For $n_1<n\le n_2$ we have $n>400$, so \Cref{lem:squarepower} gives a square base $m\le10^{14}$ with $(m^2,(m+1)^2)\subset(n^\alpha,(n+1)^\alpha)$, and \Cref{thm:squares} gives a prime there. The $29{,}663{,}300{,}768{,}793$ bases $n_2<n<35\cdot10^{12}$ are covered by \Cref{tab:archive} ($3{,}014{,}539$ bases) and the two power workloads ($27{,}363{,}298{,}754{,}255+2{,}299{,}998{,}999{,}999$ bases).
+\end{proof}
+
+\appendix
+\section{A sharper cutoff}\label{sec:sharp}
+In this appendix and \Cref{sec:shoulders,sec:sieve,sec:semiprimes,sec:tests,sec:outer} we prove \Cref{thm:sharp}. None of this is used in the proof of \Cref{thm:main}. By \Cref{thm:outer} it suffices to show that no $x$ between the stated cutoff and $35\cdot10^{12}$ is a hole. We show this up to $3.9\cdot10^{13}$, which is the range the program checks: \Cref{prop:twenty} gives part (b) and \Cref{prop:twenty-a} gives part (a).
+
+The argument has the same structure as \Cref{sec:twelve}: \Cref{prop:gap}, a bound for the shoulder sum $\Sigma_+$, and a comparison function. It uses a test function with twenty cosine modes and support $\frac52$ (\Cref{sec:tests}), and it bounds $\Sigma_+$ more sharply in three ways.
+\begin{enumerate}
+\item A weighted large sieve over the Farey fractions with squarefree denominators replaces the Brun--Titchmarsh inequality. Discarding the other fractions increases the spacing of the remaining ones, and the spacing enters the Montgomery--Vaughan weights (\Cref{sec:sieve}).
+\item The sieve counts every integer free of small prime factors, including the products $pq$ of two large primes. A lower bound for the number of such semiprimes on the shoulders can therefore be subtracted. We obtain it from the distribution of primes at the much smaller heights $m/q$, using the complete histogram of prime gaps below $4\times10^{18}$ \cite{OeSHP} through a convexity inequality (\Cref{lem:convex}), and, in part (b) only, the table of maximal prime gaps \cite{RecordGaps} through a wheel argument (\Cref{lem:wheel}).
+\item In part (b), on a short final range, we retain the signed contribution of the first $1.4\times10^6$ zeros \cite{Platt,LMFDB}.
+\end{enumerate}
+The shoulder sum is first decomposed into layers (\Cref{sec:shoulders}), so that the sieve can be applied to intervals.
+
+\section{Layers on the shoulders}\label{sec:shoulders}
+In this section $G$ is a cosine test of support $1\le K\le\frac52$, $(a,D)$ satisfy \eqref{eq:H}, and $\Sigma_+$ is the shoulder sum of \Cref{sec:shoulder-basics}.
+Fix an integer $M\ge1$ such that $(K-1)M$ is an integer, and cut $[1,K]$ into cells $C_i=(1+\frac{i-1}M,1+\frac iM]$, $1\le i\le n=(K-1)M$. Let $g=\sum_ih_i\one_{C_i}$ with $h_i\ge0$ and $g(s)\ge G_+(s)$ for $1<s\le K$. For each $\lambda\ge0$ the set $\{g>\lambda\}$ is a disjoint union of maximal runs of consecutive cells. As $\lambda$ increases, these runs change only at the finitely many values $h_i$. Hence there are finitely many \emph{strips} $(I_\kappa,\eta_\kappa)$, where $I_\kappa$ is a run of $w_\kappa$ consecutive cells and $\eta_\kappa>0$, such that
+\begin{equation}\label{eq:strips}
+ g=\sum_\kappa\eta_\kappa\one_{I_\kappa},\qquad\sum_\kappa\eta_\kappa=\int_0^\infty\#\{\text{runs of }\{g>\lambda\}\}\dd\lambda .
+\end{equation}
+(A stack algorithm produces them in one pass over the cells.) Write $v_\kappa=w_\kappa/M$ for the log-width of $I_\kappa$.
+
+\begin{lemma}\label{lem:sigma-plus}
+For each strip $\kappa$ and each sign, let $J_\kappa^\pm$ be the set of integers $m$ with $\pm s_m\in I_\kappa$, and let $\cA_\kappa^\pm\subset J_\kappa^\pm$ contain every prime of $J_\kappa^\pm$. Let $\cS$ be a set of composite integers $m$ with $1<|s_m|\le K$ such that $m\in\cA_\kappa^\pm$ whenever $m\in J_\kappa^\pm$. Let $0\le g_-\le G_+$ on $(1,K]$. Then
+\[
+ \Sigma_+\le U^2\frac{2L}{e^L}\Big[\sum_\kappa\eta_\kappa\big(|\cA_\kappa^+|+|\cA_\kappa^-|\big)-\sum_{m\in\cS}g_-(|s_m|)\Big].
+\]
+\end{lemma}
+\begin{proof}
+By \eqref{eq:theta}, $G_+\le g$ and \eqref{eq:strips},
+\[
+ \Sigma_+\le U^2\frac{2L}{e^L}\sum_{1<|s_p|\le K}g(|s_p|)=U^2\frac{2L}{e^L}\sum_\kappa\eta_\kappa\big(\pi(J_\kappa^+)+\pi(J_\kappa^-)\big),
+\]
+where $\pi(J)$ is the number of primes in $J$. Since $\cA_\kappa^\pm$ contains the primes of $J_\kappa^\pm$ and the elements of $\cS\cap J_\kappa^\pm$, which are composite, $\pi(J_\kappa^\pm)\le|\cA_\kappa^\pm|-|\cS\cap J_\kappa^\pm|$. Finally $\sum_\kappa\eta_\kappa(|\cS\cap J_\kappa^+|+|\cS\cap J_\kappa^-|)=\sum_{m\in\cS}g(|s_m|)\ge\sum_{m\in\cS}g_-(|s_m|)$.
+\end{proof}
+
+In \Cref{sec:sieve} we take for $\cA_\kappa^\pm$ the elements of $J_\kappa^\pm$ free of prime factors up to a radius $z_\kappa<2\cdot10^8$, and bound $|\cA_\kappa^\pm|$ by a large sieve. In \Cref{sec:semiprimes} we take for $\cS$ products of two primes larger than $2\cdot10^8$; these lie in every $\cA_\kappa^\pm$ that contains them, as the lemma requires.
+
+\section{A weighted sieve over squarefree Farey fractions}\label{sec:sieve}
+
+\subsection{The weighted large sieve}
+Let $\rho=\sqrt{1+\frac23\sqrt{6/5}}=1.31540\ldots$ be Preissmann's constant, and put $\Ka=1.316>\rho$.
+
+\begin{lemma}\label{lem:largesieve}
+Let $R\ge2$, let $x_1,\dots,x_R$ be distinct points of $\R/\Z$ and $\delta_r=\min_{s\ne r}\|x_r-x_s\|>0$. Let $M$ and $N\ge1$ be integers, let $(c_n)_{M<n\le M+N}$ be complex numbers and $S(x)=\sum_nc_ne(nx)$. Then
+\[
+ \sum_{r=1}^R\frac{|S(x_r)|^2}{N+\Ka\delta_r^{-1}}\le\sum_n|c_n|^2 .
+\]
+\end{lemma}
+\begin{proof}
+Preissmann \cite{Preissmann} proved the weighted Hilbert inequality
+\begin{equation}\label{eq:hilbert}
+ \Big|\sum_{r\ne s}\frac{u_r\bar u_s}{\lambda_r-\lambda_s}\Big|\le\rho\pi\sum_r\frac{|u_r|^2}{\delta'_r}
+\end{equation}
+for distinct reals $\lambda_r$ with $\delta'_r=\min_{s\ne r}|\lambda_r-\lambda_s|$, improving the constant $\frac32$ in the real-line form of Montgomery and Vaughan \cite[Theorem~2, (1.7)]{MVH}. We first deduce the periodic form
+\begin{equation}\label{eq:csc}
+ \Big|\sum_{r\ne s}u_r\bar u_s\csc\pi(x_r-x_s)\Big|\le\rho\sum_r\frac{|u_r|^2}{\delta_r}.
+\end{equation}
+Represent each $x_r$ by a real number in $[0,1)$. For an integer $Q\ge1$ apply \eqref{eq:hilbert} to the points $\lambda_{r,j}=x_r+j$, $|j|\le Q$, with coefficients $(-1)^ju_r$; their minimal distances are at least $\delta_r$. Divide by $2Q+1$ and let $Q\to\infty$. The pairs $(r,j),(r,j')$ with $j\ne j'$ contribute $\sum_r|u_r|^2\sum_{0<|k|\le2Q}(-1)^k(1-\frac{|k|}{2Q+1})/k=0$. For $r\ne s$ the pairs contribute $u_r\bar u_s$ times the Ces\`aro means of the symmetric partial sums of $\sum_k(-1)^k/(x_r-x_s+k)$, which converge to $\pi\csc\pi(x_r-x_s)$. This gives \eqref{eq:csc}.
+
+Now put $\omega_r=(N+\Ka/\delta_r)^{-1}$ and consider the operator $T:(c_n)\mapsto(\omega_r^{1/2}S(x_r))_r$. For complex $(b_r)$,
+\[
+ \|T^*b\|^2=\sum_n\Big|\sum_rb_r\omega_r^{1/2}e(-nx_r)\Big|^2=\sum_{r,s}b_r\bar b_s(\omega_r\omega_s)^{1/2}\sum_ne\big(n(x_s-x_r)\big).
+\]
+The diagonal terms give $N\sum_r|b_r|^2\omega_r$. For $\theta\notin\Z$, $\sum_{M<n\le M+N}e(n\theta)=e(\beta\theta)\sin(\pi N\theta)/\sin(\pi\theta)$ with $\beta=M+\frac{N+1}2$, and $\sin(\pi N\theta)=\frac1{2i}(e(\frac N2\theta)-e(-\frac N2\theta))$. Each of the two resulting off-diagonal forms is of the shape \eqref{eq:csc} with $u_r=b_r\omega_r^{1/2}e(-(\beta\pm\frac N2)x_r)$, so the off-diagonal terms have absolute value at most $\rho\sum_r|b_r|^2\omega_r/\delta_r$. Hence $\|T^*b\|^2\le\sum_r|b_r|^2\omega_r(N+\rho/\delta_r)\le\sum_r|b_r|^2$, so $\|T\|=\|T^*\|\le1$.
+\end{proof}
+
+\subsection{The sifted count}
+Fix $\lambda=0.83$ and $T=\Ka\lambda=1.09228$. Let $J$ be a real interval containing exactly $N$ integers, where $\lambda N\ge4$, let $z=\sqrt{\lambda N}$ and $B=\lfloor z\rfloor\ge2$, and let $\cA$ be the set of integers of $J$ with no prime factor $\le z$. Let $\cR$ be the set of fractions $a/q$ with $1\le q\le B$, $q$ squarefree, $0\le a<q$ and $(a,q)=1$, viewed as points of $\R/\Z$; as $B\ge2$, $\cR$ contains at least the two points $0$ and $\frac12$. For $a/q\in\cR$ let $\delta_{a,q}$ be the distance from $a/q$ to the nearest other point of $\cR$.
+
+\begin{lemma}\label{lem:sifted}
+$|\cA|\le N/H$, where
+\[
+ H=\sum_{q\le z}\frac{\mu^2(q)}{\varphi(q)}\Big(1+\frac{\Ka}{N\varphi(q)}\sideset{}{^*}\sum_{a\bmod q}\delta_{a,q}^{-1}\Big)^{-1}.
+\]
+\end{lemma}
+\begin{proof}
+Put $Z=|\cA|$ and $S(x)=\sum_{n\in\cA}e(nx)$. For squarefree $q\le z$ every $n\in\cA$ is coprime to $q$, so $\sum^*_aS(a/q)=\sum_{n\in\cA}c_q(n)=\mu(q)Z$, where $c_q$ is Ramanujan's sum. By Cauchy--Schwarz,
+\[
+ \mu^2(q)Z^2\le\sideset{}{^*}\sum_a\frac{|S(a/q)|^2}{N+\Ka\delta_{a,q}^{-1}}\cdot\sideset{}{^*}\sum_a\big(N+\Ka\delta_{a,q}^{-1}\big).
+\]
+Divide by the last factor, sum over $q\le z$ and apply \Cref{lem:largesieve} to the points of $\cR$ and $c_n=\one_\cA(n)$. This gives $Z^2\sum_q\mu^2(q)/\sum^*_a(N+\Ka\delta_{a,q}^{-1})\le Z$, which is $Z\le N/H$.
+\end{proof}
+
+\subsection{Farey spacing}
+For squarefree $1<q\le B$ and $(a,q)=1$, let $b_-$ and $b_+$ be the integers in $(B-q,B]$ with $ab_-\equiv1$ and $ab_+\equiv-1\pmod q$. They are the denominators of the neighbours of $a/q$ in the Farey sequence of order $B$, at distances $1/(qb_-)$ and $1/(qb_+)$ \cite[Ch.~III]{HW}. Every point of $\cR$ belongs to that Farey sequence, so
+\begin{equation}\label{eq:delta}
+ \delta_{a,q}^{-1}\le q\,b_{\rm hi},\qquad b_{\rm hi}=\max(b_-,b_+),\quad b_{\rm lo}=\min(b_-,b_+).
+\end{equation}
+Put $r=(B-b_-)/q$ and $r'=(B-b_+)/q$, both in $[0,1)$, so $b_{\rm hi}=B-q\min(r,r')$. Since $b_-+b_+\equiv0\pmod q$ we have $r'=\{v_0-r\}$ with $v_0=\{2B/q\}$. As $a$ runs over the reduced residues modulo $q$, $b_-$ runs over the integers of $(B-q,B]$ coprime to $q$, and so does $b_+$. Write $\omega(q)$ for the number of prime factors of $q$ and $e_q=2^{\omega(q)}/\varphi(q)$. By inclusion--exclusion over the divisors of $q$, for every interval $I\subset[0,1)$
+\begin{equation}\label{eq:discrepancy}
+ \Big|\#\{a:r\in I\}-\varphi(q)|I|\Big|\le2^{\omega(q)},
+\end{equation}
+and the same holds for $r'$. Put $A(v)=\frac14+\frac{v(1-v)}2$ for $v\in[0,1)$; extended periodically, $A$ is continuous and $\frac12$-Lipschitz on $\R/\Z$.
+
+\begin{lemma}\label{lem:mean}
+For squarefree $1<q\le B$,
+\[
+ \frac1{\varphi(q)}\sideset{}{^*}\sum_a\min(r,r')\ge A(v_0)-2e_q\ge A(v)-2e_q-\frac1q,\qquad v=\{2z/q\}.
+\]
+\end{lemma}
+\begin{proof}
+Let $h(t)=\min(t,\{v_0-t\})$ on $[0,1)$. On $[0,v_0]$ it is $\min(t,v_0-t)$ and on $(v_0,1)$ it is $\min(t,1+v_0-t)$, so each superlevel set $\{h>\mu\}$ is a union of at most two intervals and $0\le h<1$. By \eqref{eq:discrepancy},
+\begin{align*}
+ \frac1{\varphi(q)}\sideset{}{^*}\sum_ah(r)&=\int_0^1\frac{\#\{a:h(r)>\mu\}}{\varphi(q)}\dd\mu\\
+ &\ge\int_0^1|\{h>\mu\}|\dd\mu-2e_q=\int_0^1h-2e_q .
+\end{align*}
+Direct integration gives $\int_0^{v_0}\min(t,v_0-t)\dd t=v_0^2/4$ and $\int_{v_0}^1\min(t,1+v_0-t)\dd t=\frac14(1+v_0)^2-v_0^2$, with sum $A(v_0)$. Finally $\|2B/q-2z/q\|<2/q$ in $\R/\Z$, so $A(v_0)\ge A(v)-1/q$.
+\end{proof}
+
+The second improvement comes from the fractions we discarded. Let $\cP=\{2,3,5,7\}$ and, for squarefree $q$,
+\[
+ c_q=1-\prod_{p\in\cP,\,p\nmid q}\Big(1-\frac1{p^2}\Big).
+\]
+
+\begin{lemma}\label{lem:reduced}
+For squarefree $1<q\le B$, with $s=q/z$,
+\[
+ \frac1{\varphi(q)}\sideset{}{^*}\sum_a\delta_{a,q}^{-1}\le q\Big[z-q\Big(A(v)+\frac{c_q}{4(1+s)}-62e_q-\frac2q\Big)\Big].
+\]
+Without the term $c_q/(4(1+s))$ the bound holds with $62e_q+2/q$ replaced by $2e_q+1/q$.
+\end{lemma}
+\begin{proof}
+The second statement follows from \eqref{eq:delta}, $b_{\rm hi}=B-q\min(r,r')\le z-q\min(r,r')$ and \Cref{lem:mean}.
+
+Suppose that $p^2\mid b_{\rm hi}$ for some $p\in\cP$ with $p\nmid q$. Then the Farey neighbour with denominator $b_{\rm hi}$ is not in $\cR$. On that side the next Farey fraction lies at a further distance at least $1/(b_{\rm hi}B)\ge1/(b_{\rm hi}z)$, so every point of $\cR$ on that side is at distance at least $1/(qb_{\rm hi})+1/(zb_{\rm hi})$ from $a/q$. On the other side the distance is at least $1/(qb_{\rm lo})$. Hence
+\[
+ \delta_{a,q}^{-1}\le\max\Big(qb_{\rm lo},\frac{qzb_{\rm hi}}{z+q}\Big)=qb_{\rm hi}-q\min\Big(b_{\rm hi}-b_{\rm lo},\frac{qb_{\rm hi}}{z+q}\Big).
+\]
+Here $b_{\rm hi}-b_{\rm lo}=q|r-r'|$, and since $b_{\rm hi}\ge z-1-q\min(r,r')$ and $1-s\min(r,r')\ge1-\min(r,r')\ge|r-r'|$,
+\[
+ \frac{b_{\rm hi}}{z+q}\ge\frac{1-1/z-s\min(r,r')}{1+s}\ge\frac{|r-r'|-1/z}{1+s}.
+\]
+So the saving is at least $\frac{q^2}{1+s}(|r-r'|-\frac1z)$. It remains to show
+\begin{equation}\label{eq:saving-mean}
+ \frac1{\varphi(q)}\sideset{}{^*}\sum_{a:\,\exists p\in\cP,\,p\nmid q,\,p^2\mid b_{\rm hi}}|r-r'|\ge\frac{c_q}4-60e_q .
+\end{equation}
+Given this, the total saving divided by $\varphi(q)$ is at least $\frac{q^2}{1+s}(\frac{c_q}4-60e_q-\frac1z)\ge q^2(\frac{c_q}{4(1+s)}-60e_q-\frac1q)$, and combining with \Cref{lem:mean} proves the lemma.
+
+For \eqref{eq:saving-mean}, write the left side as $\int_0^1\varphi(q)^{-1}\#\{a:\text{condition},\,|r-r'|>\mu\}\dd\mu$ and split according to whether $r<r'$ (then $b_{\rm hi}=b_-$) or $r>r'$ (then $b_{\rm hi}=b_+$). In the first case the condition $r'-r>\mu$ defines a union of at most two intervals of $r$, that is of at most two intervals of $b_-$. The number of integers $b$ in an interval of length $\ell$ that are coprime to $q$ and divisible by $p^2$ for some $p\in\cP$ with $p\nmid q$ is, by inclusion--exclusion over the at most $15$ nonempty subsets of $\cP$ and over the divisors of $q$, equal to $c_q\varphi(q)\ell/q$ up to an error of at most $15\cdot2^{\omega(q)}$. The second case is symmetric, with $r'$ in place of $r$. So, uniformly in $\mu$, the count is at least $\varphi(q)c_q|\{t:|t-\{v_0-t\}|>\mu\}|-60\cdot2^{\omega(q)}$. Integrating over $\mu$ gives at least $c_q\int_0^1|t-\{v_0-t\}|\dd t-60e_q=c_q\frac{v_0^2+(1-v_0)^2}2-60e_q\ge\frac{c_q}4-60e_q$.
+\end{proof}
+
+\subsection{A lower bound for $H$}
+For $0<s\le1$ put $v(s)=\{2/s\}$ and
+\[
+ w(s)=\frac1{1+Ts\big(1-sA(v(s))\big)},\qquad f(s)=\frac{Ts}{4(1+s)(1+Ts)^2}.
+\]
+
+\begin{proposition}\label{prop:H}
+Suppose $z\le2\cdot10^8$. Then
+\[
+ H\ge\sum_{q\le z}\frac{\mu^2(q)}{\varphi(q)}w\Big(\frac qz\Big)+\frac1z\sum_{q\le z}\mu^2(q)c_qf\Big(\frac qz\Big)-\frac{16250\,T}z,
+\]
+and also $H\ge\sum_{q\le z}\mu^2(q)\varphi(q)^{-1}w(q/z)-530T/z$.
+\end{proposition}
+\begin{proof}
+Every $q\le2\cdot10^8$ has at most eight prime factors, as $2\cdot3\cdots23>2\cdot10^8$, and so $q/\varphi(q)\le\prod_{p\le19}\frac p{p-1}<6$.
+
+For $q=1$ the nearest point to $0$ in $\cR$ is at distance at least $1/B$, so the weight is at least $(1+\Ka z/N)^{-1}=w(1/z)$-type bounds hold trivially; precisely, $\delta_{0,1}^{-1}\le B\le z$ and the bound of \Cref{lem:reduced} with $q=1$ is weaker than this. For squarefree $1<q\le z$ write $s=q/z$ and $\alpha_q=A(v)+\frac{c_q}{4(1+s)}-62e_q-\frac2q$. By \Cref{lem:reduced}, and since $\Ka z^2/N=T$, the weight of $q$ in $H$ is at least
+\[
+ W(s,\alpha_q),\qquad W(s,\alpha)=\frac1{1+Ts(1-s\alpha)} .
+\]
+The function $\alpha\mapsto W(s,\alpha)$ is increasing for $\alpha<1/s$, with derivative $Ts^2/(1+Ts(1-s\alpha))^2$. This derivative is at most $Ts^2$ for $\alpha\le1/s$, and at least $Ts^2/(1+Ts)^2$ for $0\le\alpha\le1$. Since $0\le A(v)\le A(v)+\frac{c_q}{4(1+s)}\le1$,
+\[
+ W(s,\alpha_q)\ge w(s)+\frac{c_q}{4(1+s)}\frac{Ts^2}{(1+Ts)^2}-\Big(62e_q+\frac2q\Big)Ts^2 .
+\]
+Multiply by $\mu^2(q)/\varphi(q)$ and sum. In the middle term use $1/\varphi(q)\ge1/q$, which gives $\frac1z\sum\mu^2(q)c_qf(q/z)$. The error term is
+\begin{align*}
+ \frac T{z^2}\sum_{q\le z}\mu^2(q)\Big(62\cdot2^{\omega(q)}\frac{q^2}{\varphi(q)^2}+2\frac q{\varphi(q)}\Big)&\le\frac T{z^2}\big(62\cdot13z(1+\log z)+12z\big)\\
+ &\le\frac{16250T}z .
+\end{align*}
+Here we used $q/\varphi(q)<6$ and
+\[
+ \sum_{q\le z}\mu^2(q)2^{\omega(q)}\Big(\frac q{\varphi(q)}\Big)^2\le13z(1+\log z).
+\]
+To see the last bound, note that on squarefree $q$ the function $2^{\omega(q)}(q/\varphi(q))^2$ equals $(\tau*g)(q)$, where $g$ is multiplicative, supported on squarefree integers, with $g(p)=2((1-1/p)^{-2}-1)\ge0$. Hence the sum is at most $\sum_{d\le z}g(d)\sum_{e\le z/d}\tau(e)\le z(1+\log z)\sum_dg(d)/d$, and $\sum_dg(d)/d=\prod_p(1+g(p)/p)<13$: the factors with $p\le47$ are computed exactly, and $\log$ of the remaining product is at most $\sum_{p>47}g(p)/p\le5\sum_{n>47}n^{-2}\le5/47$. Finally $62\cdot13(1+\log(2\cdot10^8))+12<16250$. The second statement is proved in the same way from the second part of \Cref{lem:reduced}: the error is at most $\frac T{z^2}(2\cdot13z(1+\log z)+6z)\le530T/z$.
+\end{proof}
+
+\begin{lemma}\label{lem:ramare}
+For $t\ge1$,
+\[
+ \Big|\sum_{q\le t}\frac{\mu^2(q)}{\varphi(q)}-\log t-\eta_1\Big|\le\frac{2.44}{\sqrt t},\qquad\eta_1=\gamma_0+\sum_p\frac{\log p}{p(p-1)}>\eta:=1.33252,
+\]
+where $\gamma_0$ is Euler's constant.
+\end{lemma}
+\begin{proof}
+The inequality is due to Ramar\'e \cite{Ramare}. For the lower bound on $\eta_1$ we use $\gamma_0>H_{500}-\log500-\frac1{1000}$ and the sum over $p\le20000$, evaluated with outward rounding.
+\end{proof}
+
+\begin{lemma}\label{lem:w-constants}
+Let $J_w=\int_0^1(w(s)-1)\frac{\dd s}s$. Then
+\begin{gather*}
+ C_0:=\log\lambda+2\eta+2J_w>1.1452,\qquad w(1)+\int_0^1|w'(s)|\frac{\dd s}{\sqrt s}<2.287,\\
+ \frac1z\sum_{q\le z}\mu^2(q)c_qf\Big(\frac qz\Big)\ge0.00491-0.11\Big(\frac2{\sqrt z}+\frac2z\Big).
+\end{gather*}
+\end{lemma}
+\begin{proof}
+On a cell $[s_0,s_1]$ let $\underline A$ be a lower bound for $A(v(s))$: if $2/s$ crosses no integer on the cell, $A(v)$ is at least its smaller endpoint value, as $v(1-v)$ is concave; otherwise $\underline A=\frac14$. The integrand $(w-1)/s=-u/(1+su)$ with $u=T(1-sA(v(s)))$ is decreasing in $u$ and increasing in $s$, so on the cell it is at least $-u_0/(1+s_0u_0)$ with $u_0=T(1-s_0\underline A)$. Summing these lower values over $32768$ equal cells gives $C_0>1.1452$.
+
+Away from the points where $2/s$ is an integer, $w'(s)=-2T(1-v-sA(v))/(1+Ts(1-sA(v)))^2$, because $\frac{d}{ds}(s-s^2A(\{2/s\}))=2(1-v-sA(v))$. Substitute $s=t^2$, so the integral is $2\int_0^1|w'(t^2)|\dd t$, and on $2048$ equal cells in $t$ bound $|1-v-sA|$ and the denominator using $\frac14\le A\le\frac38$ and the endpoint values of $v$. With $w(1)=1/(1+3T/4)$ the total is below $2.287$.
+
+For the last bound, $c_q\ge\sum_{p\in\cP,p\nmid q}c_p$ with $c_p=p^{-2}\prod_{r\in\cP,r<p}(1-r^{-2})$, since the union of the events $p^2\mid b$ has density $\sum_pp^{-2}\prod_{r<p}(1-r^{-2})$ over the primes of $\cP$ not dividing $q$. Fix $p\in\cP$. In a real interval of length $\ell\subset[0,z]$ the number of squarefree integers not divisible by $p$ is at least $\rho_p\ell-2\sqrt z-2$, where $\rho_p=(1-\frac1p)(1-\sum_rr^{-2}+p^{-2})$, the sum running over all primes: count the integers prime to $p$, then remove for each prime $r\ne p$ with $r^2\le z$ those divisible by $r^2$, each class costing at most $2$ beyond its density. We used $\sum_rr^{-2}<0.462$, from the primes up to $101$ and the tail $\sum_{n>101}n^{-2}<1/101$. The function $f$ is nonnegative and unimodal on $[0,1]$, as $f'$ has the sign of $1-Ts-2Ts^2$, so its superlevel sets are intervals, and $f\le T/4$. Integrating the count over the levels of $f$ gives
+\[
+ \frac1z\sum_{q\le z}\mu^2(q)c_qf\Big(\frac qz\Big)\ge\sum_{p\in\cP}c_p\Big(\rho_p\int_0^1f-\frac T4\Big(\frac2{\sqrt z}+\frac2z\Big)\Big).
+\]
+Lower rectangles on $4096$ cells give $\sum_pc_p\rho_p\int_0^1f>0.00491$, and $\frac T4\sum_pc_p<0.11$.
+\end{proof}
+
+\begin{proposition}\label{prop:count}
+Let $J$ be a real interval of length $t\ge10^{10}$ containing $N$ integers, with $\sqrt{\lambda N}\le2\cdot10^8$, and let $z_0$ be an integer with $10^4\le z_0\le\sqrt{\lambda N}$. Put
+$c(z_0)=\max\{c_1(z_0),c_2(z_0)\}$, where $\vartheta=2.44\cdot2.287$ and
+\begin{align*}
+ c_1(z_0)&=C_0-2\Big(\frac{\vartheta}{\sqrt{z_0}}+\frac{\eta T}{z_0}+\frac{530T}{z_0}\Big),\\
+ c_2(z_0)&=C_0+2\Big(0.00491-0.11\Big(\frac2{\sqrt{z_0}}+\frac2{z_0}\Big)-\frac{\vartheta}{\sqrt{z_0}}-\frac{\eta T}{z_0}-\frac{16250T}{z_0}\Big).
+\end{align*}
+Then the number of integers in $J$ with no prime factor at most $\sqrt{\lambda N}$ is at most $2t/(\log t+c(z_0))+1$.
+\end{proposition}
+\begin{proof}
+Put $z=\sqrt{\lambda N}$. By partial summation with \Cref{lem:ramare}, writing $\Sigma(u)=\sum_{q\le u}\mu^2(q)/\varphi(q)$,
+\[
+ \sum_{q\le z}\frac{\mu^2(q)}{\varphi(q)}w\Big(\frac qz\Big)=w(1)\Sigma(z)-\int_1^z\Sigma(u)\frac{d}{du}w\Big(\frac uz\Big)\dd u .
+\]
+The main terms $\log u+\eta_1$ give $\int_{1/z}^1w(s)\frac{\dd s}s+\eta_1w(1/z)\ge\log z+J_w+\eta(1-T/z)$, using $w\le1$ and $w(1/z)\ge1-T/z$. The error terms are at most $\frac{2.44}{\sqrt z}(w(1)+\int_0^1|w'(s)|s^{-1/2}\dd s)<\frac{\vartheta}{\sqrt z}$ by \Cref{lem:w-constants}. With \Cref{prop:H} and $2\log z=\log N+\log\lambda$ this gives $2H\ge\log N+c(z)$, and $c(z)\ge c(z_0)$ since $c$ is increasing. As $z_0\ge10^4$, $c(z_0)\ge c_1(10^4)>C_0-2(0.0559+0.0002+0.058)>0.9$, so $\log N+c(z_0)>1$ and the bounds below are positive. (Without a lower bound on $z_0$ the statement fails: for $z_0=1$ and $t=N=10^{10}$ one has $c(1)<-1169$, and $2t/(\log t+c(1))+1<0$.) By \Cref{lem:sifted} the count is at most $N/H\le2N/(\log N+c(z_0))$. As $N\le t+1$ and $u\mapsto2u/(\log u+c)$ is increasing for $\log u+c>1$, this is at most $2(t+1)/(\log(t+1)+c(z_0))\le2t/(\log t+c(z_0))+1$.
+\end{proof}
+
+\begin{remark}
+The expression $c_1(z_0)$ uses only the mean spacing of \Cref{lem:mean}; $c_2(z_0)$ also uses the saving from the discarded Farey neighbours in \Cref{lem:reduced}, and is the larger one once $z_0$ exceeds about $4\cdot10^6$. In the applications below $4.7\cdot10^5<z_0<6.8\cdot10^7$, and $c(z_0)$ ranges from about $1.127$ to $1.154$.
+\end{remark}
+
+\subsection{The shoulder charge}
+Fix a range $l\le x\le r$ of real bases, and positive numbers $p_-,e_-,L_-,L_+$ with $p_-\le P$, $e_-\le e^L$ and $L_-\le L\le L_+$ for every $x$ in the range. Since $P\ge\frac{11}{10}x^{1/10}\frac x{x+1}$ and $x^{11/10}\le\sqrt a\le(x+1)^{11/10}$, one may take $p_-=\frac{11l}{10(l+1)}\rho_-$, $e_-=l\rho_-$, $L_-=\frac{11}{10}[\log l]_-$ and $L_+=\frac{11}{10}[\log(r+1)]_+$ with $\rho_-=[l^{1/10}]_-$; this is what the computation does. Here and below $[y]_-$ and $[y]_+$ denote rational lower and upper bounds for a real number $y$, computed as described in \Cref{sec:arith}. For a strip $\kappa$ of log-width $v_\kappa$ and height $\eta_\kappa$ put
+\[
+ t_\kappa=p_-e_-v_\kappa/U,\qquad z_\kappa=\big\lfloor\sqrt{\lfloor\lambda(\lfloor t_\kappa\rfloor-1)\rfloor}\big\rfloor,
+\]
+let $\beta_\kappa$ be a real number with $\beta_\kappa\le\log(p_-v_\kappa)-\log U+c(z_\kappa)$ and $L_-+\beta_\kappa>0$, and put $L_\kappa=L_+$ if $\beta_\kappa\ge0$, $L_\kappa=L_-$ otherwise. (In the computations $\beta_\kappa$ is evaluated from below with outward rounding; see \Cref{sec:tests}.)
+
+\begin{proposition}\label{prop:charge}
+Let $G$, $g$ and the strips be as in \Cref{sec:shoulders}, with $v_\kappa<1$ and $t_\kappa\ge10^{10}$ for every $\kappa$, and with $\lambda(WU+1)\le4\cdot10^{16}$ on the range. Let $\cS$ be a set of composite integers $m$ with $1<|s_m|\le K$ whose prime factors all exceed $2\cdot10^8$. Then for $l\le x\le r$,
+\[
+ \frac{\Sigma_+}P\le\sum_\kappa\frac{8\eta_\kappa L_\kappa v_\kappa U^3}{L_\kappa+\beta_\kappa}+\frac{4U^2L_+\sum_\kappa\eta_\kappa}{e^{L}P}-\frac{2L}{W}\sum_{m\in\cS}g_-(|s_m|).
+\]
+\end{proposition}
+\begin{proof}
+Apply \Cref{lem:sigma-plus} with $\cA_\kappa^\pm$ the elements of $J_\kappa^\pm$ having no prime factor at most $\sqrt{\lambda N_\kappa^\pm}$, where $N_\kappa^\pm=|J_\kappa^\pm|$. By \Cref{lem:physical} the set $J_\kappa^\pm$ consists of the integers of a real interval of length between $Wv_\kappa/U\ge t_\kappa$ and $Wv_\kappa U$. Hence $N_\kappa^\pm\ge\lfloor t_\kappa\rfloor-1$, so $z_\kappa\le\sqrt{\lambda N_\kappa^\pm}$; also $z_\kappa\ge\lfloor\sqrt{\lfloor0.83(10^{10}-1)\rfloor}\rfloor=91{,}104\ge10^4$, as $t_\kappa\ge10^{10}$; and $N_\kappa^\pm\le Wv_\kappa U+1<WU+1$, so $\sqrt{\lambda N_\kappa^\pm}<2\cdot10^8$. In particular $\cS$ satisfies the hypothesis of \Cref{lem:sigma-plus}, and every prime of $J_\kappa^\pm$ exceeds $\sqrt{\lambda N_\kappa^\pm}$. By \Cref{prop:count},
+\[
+ |\cA_\kappa^\pm|\le\frac{2Wv_\kappa U}{\log(Wv_\kappa/U)+c(z_\kappa)}+1\le\frac{2e^LPv_\kappa U}{L+\beta_\kappa}+1,
+\]
+since $W=e^LP$ and so $\log(Wv_\kappa/U)+c(z_\kappa)\ge L+\log(p_-v_\kappa)-\log U+c(z_\kappa)\ge L+\beta_\kappa>0$. Multiply by $U^2\cdot2L/(e^LP)$ and by $2\eta_\kappa$ for the two shoulders. The function $L\mapsto L/(L+\beta)$ is increasing on $(\max(0,-\beta),\infty)$ if $\beta\ge0$ and decreasing there if $\beta<0$, which justifies $L_\kappa$. Finally $U^2\ge1$ and $2L/(e^LP)=2L/W$.
+\end{proof}
+\section{Semiprimes on the shoulders}\label{sec:semiprimes}
+In this section we construct the set $\cS$ of \Cref{prop:charge} and bound $\sum_{m\in\cS}g_-(|s_m|)$ from below. The elements of $\cS$ are products $pq$ of primes $2\cdot10^8<q<p$. For fixed $q$ they correspond to the primes $p$ in a shoulder divided by $q$. These primes lie at heights between about $4\times10^9$ and $1.3\times10^{20}$, where the gaps between consecutive primes have been tabulated exhaustively.
+
+\subsection{Prime-gap data}
+For an integer $b\ge1$ let $N(b)$ be the number of pairs of consecutive primes $p<p'\le4\cdot10^{18}$ with $p'-p=b$; thus $N(1)=1$, from the pair $(2,3)$, and $N(b)=0$ for odd $b\ge3$. We use two computations, of which only the first has appeared in a refereed journal.
+\begin{enumerate}
+\item[(G1)] Oliveira e Silva, Herzog and Pardi \cite{OeSHP} computed $N(b)$ for every $b$. In particular $N(b)=0$ for $b>1476$. We also use that $4\cdot10^{18}-113$ is prime; the program of \Cref{app:programs} checks a Pratt certificate for it \cite{Pratt}.
+\item[(G2)] For each row $(h_i,b_i)$ of \Cref{tab:records}, every pair of consecutive primes $p<p'$ with $p<h_i$ satisfies $p'-p\le b_i$. These bounds are read from the table of maximal prime gaps \cite{RecordGaps}. Above $4\cdot10^{18}$ they rest on the completeness of the exhaustive searches for maximal gaps summarised there, up to $2^{64}$ and from $2^{64}$ to $1.32\cdot10^{20}$, which have not appeared in a refereed journal. Only \Cref{thm:sharp}(b) uses (G2).
+\end{enumerate}
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{@{}rrr@{\qquad}rrr@{}}
+\toprule
+$i$ & $h_i$ & $b_i$ & $i$ & $h_i$ & $b_i$\\
+\midrule
+1 & 5\,733\,241\,593\,241\,196\,731 & 1476 & 7 & 18\,470\,057\,946\,260\,698\,231 & 1550\\
+2 & 6\,787\,988\,999\,657\,777\,797 & 1488 & 8 & 18\,571\,673\,432\,051\,830\,099 & 1552\\
+3 & 15\,570\,628\,755\,536\,096\,243 & 1510 & 9 & 20\,733\,746\,510\,561\,442\,863 & 1572\\
+4 & 17\,678\,654\,157\,568\,189\,057 & 1526 & 10 & 68\,068\,810\,283\,234\,182\,907 & 1676\\
+5 & 18\,361\,375\,334\,787\,046\,697 & 1530 & 11 & 101\,412\,319\,996\,363\,309\,069 & 1724\\
+6 & $2^{64}$ & 1550 & 12 & 132\,000\,000\,000\,000\,000\,000 & 1854\\
+\bottomrule
+\end{tabular}
+\caption{Bounds for gaps between consecutive primes: every gap whose smaller prime is below $h_i$ has length at most $b_i$. Except in rows $6$ and $12$, $h_i$ is the smaller prime of the first gap longer than $b_i$; row $12$ is the end of the exhaustive range.}\label{tab:records}
+\end{table}
+
+\subsection{Three lemmas on primes in short intervals}
+For a real interval $I$ we write $|I|$ for its length and $\pi(I)$ for the number of primes in $I$. For an open interval $I=(u,v)$ and $q>0$ we write $I/q=(u/q,v/q)$.
+
+For a finite family $\mathbf c=(c_g)$ of nonnegative reals indexed by positive reals $g$, put
+\begin{gather*}
+ \Phi_{\mathbf c}(t)=\sum_gc_g(t-g)_+,\\
+ \Psi_{\mathbf c}(t)=\min_{m\ge1}\big(m-1+m\Phi_{\mathbf c}(t/m)\big)=\min_{m\ge1}\Big(m-1+\sum_gc_g(t-mg)_+\Big),
+\end{gather*}
+for $t\ge0$, and $\Theta_{\mathbf c}=\sum_b\Phi_{\mathbf c}(b)N(b)=\sum_gc_g\sum_b(b-g)_+N(b)$. The minimum exists because the bracket is at least $m-1$. The function $\Psi_{\mathbf c}$ is nondecreasing, as each bracket is, and $\Psi_{\mathbf c}(0)=0$.
+
+\begin{lemma}[Convex gap costs]\label{lem:convex}
+Let $I_1,\dots,I_n$ be bounded open intervals contained in $(2,4\cdot10^{18}-1476)$, any two of which are at distance greater than $1476$. Then for every $\mathbf c$,
+\[
+ \sum_{i=1}^n\pi(I_i)\ge\sum_{i=1}^n\Psi_{\mathbf c}(|I_i|)-\Theta_{\mathbf c}.
+\]
+\end{lemma}
+\begin{proof}
+Write $I_i=(u_i,v_i)$ and $k_i=\pi(I_i)$. Let $p_i^-$ be the largest prime $\le u_i$ and $p_i^+$ the smallest prime $\ge v_i$. The primes in $[p_i^-,p_i^+]$ are $p_i^-$, the $k_i$ primes of $I_i$, and $p_i^+$, so $[p_i^-,p_i^+]$ is the union of $k_i+1$ \emph{covering gaps} $[p,p']$ between consecutive primes, of total length $p_i^+-p_i^-\ge v_i-u_i$. Each covering gap $[p,p']$ satisfies $p<v_i$ and $p'>u_i$, so it meets the closure of $I_i$. Every gap $[p,p']$ between consecutive primes with $p<4\cdot10^{18}-1476$ has length at most $1476$: since $4\cdot10^{18}-113$ is prime, $p'\le4\cdot10^{18}$, and then (G1) applies. Hence $p_i^+\le v_i+1476<4\cdot10^{18}$, so every covering gap is counted by $N$ (the gap $[2,3]$ by $N(1)$). Moreover a gap covering both $I_i$ and $I_{i'}$ with $i\ne i'$ would meet both closures and so have length greater than $1476$. Hence the covering gaps of different intervals are different gaps.
+
+Let $d_1,\dots,d_{k_i+1}$ be the lengths of the covering gaps of $I_i$. The function $\Phi=\Phi_{\mathbf c}$ is convex and nondecreasing, so by Jensen's inequality
+\[
+ \sum_{j=1}^{k_i+1}\Phi(d_j)\ge(k_i+1)\Phi\Big(\frac{d_1+\dots+d_{k_i+1}}{k_i+1}\Big)\ge(k_i+1)\Phi\Big(\frac{|I_i|}{k_i+1}\Big)\ge\Psi_{\mathbf c}(|I_i|)-k_i,
+\]
+the last step by the definition of $\Psi_{\mathbf c}$ with $m=k_i+1$. Summing over $i$, and using that the covering gaps are distinct gaps between consecutive primes not exceeding $4\cdot10^{18}$, we get $\sum_i\Psi_{\mathbf c}(|I_i|)-\sum_ik_i\le\sum_b\Phi(b)N(b)=\Theta_{\mathbf c}$.
+\end{proof}
+
+For integer $t$ and integer indices $g$, $\Psi_{\mathbf c}(t)$ is a finite minimum: if $0\le t\le t_{\max}$ and $g\ge g_{\min}>0$ for all $g$, the bracket at $m_*=\lfloor t_{\max}/g_{\min}\rfloor+2$ equals $m_*-1$, since $m_*g>t$, and every $m>m_*$ gives a bracket at least $m-1\ge m_*$. So $\Psi_{\mathbf c}(t)$ is the minimum over $1\le m\le m_*$.
+
+Let $M=2\cdot3\cdot5\cdot7\cdot11\cdot13=30030$. For an integer $b\ge100$ define $f_b$ on $\Z$ by
+\[
+ f_b(u)=\max\{v\le u+b:\ \gcd(v,M)=1\},\qquad B_b(k)=\max_{\substack{0\le s<M\\ \gcd(s,M)=1}}\big(f_b^{k}(s)-s\big),
+\]
+for $k\ge0$, where $f_b^k$ is the $k$th iterate. Consecutive integers prime to $M$ differ by at most $22$, so $f_b(u)>u+b-100$; also $f_b$ is nondecreasing and $f_b(u+M)=f_b(u)+M$. Hence $B_b$ is strictly increasing and $B_b(k)>k(b-100)$.
+
+\begin{lemma}[Bounded gaps]\label{lem:wheel}
+Let $(h,b)$ be a row of \Cref{tab:records} and $k\ge1$. Every open interval $(u,v)$ with $u>2000$, $v\le h$ and $v-u>B_b(k)$ contains at least $k$ primes.
+\end{lemma}
+\begin{proof}
+Suppose that $(u,v)$ contains fewer than $k$ primes. Let $s_0$ be the largest prime $\le u$ and $s_0<s_1<s_2<\cdots$ the subsequent primes. Then $s_k\ge v$, and we let $i_0\le k$ be least with $s_{i_0}\ge v$. For $i<i_0$ we have $s_i<v\le h$, so $s_{i+1}-s_i\le b$ by (G2). As $s_{i+1}>13$ is prime, it is prime to $M$, so $s_{i+1}\le f_b(s_i)$. Since $f_b$ is nondecreasing, induction gives $s_{i_0}\le f_b^{i_0}(s_0)$. Also $s_0\ge u-b>13$, so $s_0$ is prime to $M$, and by periodicity $f_b^{i_0}(s_0)-s_0\le B_b(i_0)\le B_b(k)$. Hence $v\le s_{i_0}\le s_0+B_b(k)\le u+B_b(k)$, a contradiction.
+\end{proof}
+
+\begin{lemma}\label{lem:buthe}
+For $2\le y\le10^{19}$,
+\[
+ 0<\li(y)-\pi(y)\le E(y):=\frac{\sqrt y}{\log y}\Big(1.95+\frac{3.9}{\log y}+\frac{19.5}{\log^2y}\Big).
+\]
+Consequently, for reals $10^8\le A\le y\le B\le10^{19}$,
+\[
+ \pi(y)-\pi(A)\ge\int_A^y\frac{\dd t}{\log t}-E(B).
+\]
+\end{lemma}
+\begin{proof}
+The first statement is \cite[Thm.~2]{Buthe}. For the second, $\pi(y)-\pi(A)>\li(y)-E(y)-\li(A)$, and $E$ is increasing on $[e^6,\infty)$ because $\sqrt y/\log^jy$ is increasing for $\log y>2j$.
+\end{proof}
+
+\subsection{The windows}
+Fix a range $l\le x\le r$ of real bases. Let $\rho_-=[l^{1/10}]_-$ and $\rho_+=[(r+1)^{1/10}]_+$, and put
+\[
+\begin{gathered}
+ A_-=0.999999\,(l\rho_-)^2,\qquad A_+=1.000001\,((r+1)\rho_+)^2,\\
+ W_-=\Big\lfloor0.999999\,\frac{11l}{10(l+1)}\,l\rho_-^2\Big\rfloor,\qquad W_+=\Big\lfloor\frac{11(r+1)}{10r}\,(r+1)\rho_+^2\Big\rfloor+1,
+\end{gathered}
+\]
+$Q=1.5\cdot10^{13}$, and let $q_0$ be the least multiple of $10^8$ exceeding $\lfloor A_+/(4\cdot10^{18}-1500)\rfloor$. Write $v_j=7j/(25\cdot3072)$ for $1\le j\le3072$, so $v_{3072}=0.28$, and for $x$ in the range let
+\[
+ J_j^+=(ae^D,ae^{D(1+v_j)}),\qquad J_j^-=(ae^{-D(1+v_j)},ae^{-D}).
+\]
+An integer $m$ satisfies $1<\pm s_m\le1+v_j$ if and only if $m\in J_j^\pm$ or $m$ is the right, respectively left, endpoint of $J_j^\pm$.
+
+\begin{lemma}\label{lem:windows}
+Let $l\le x\le r$ with $l\ge10^{13}$, $r\le10^{17}$. Then $W_-\le W/U$ and $W\le W_+$; $|J_j^\pm|\ge W_-v_j$; every $m$ with $1<|s_m|\le1.28$ lies in $(A_-,A_+)$; and $a(e^{1.28D}-e^{-1.28D})\le2.56001\cdot1.000001\,W_+$.
+\end{lemma}
+\begin{proof}
+Since $\log(1+1/x)\ge1/(x+1)$ we have $D\ge1.1/(x+1)$ and $W=aD\ge1.1x^{2.2}/(x+1)$, which is increasing in $x$, so $W\ge1.1\,l^{2.2}/(l+1)\ge W_-/0.999999>UW_-$. Since $\log(1+1/x)\le1/x$, $W\le1.1x^{0.1}(x+1)^{1.1}\le1.1(r+1)^{2.2}/r<W_+$. By \Cref{lem:physical}, $|J_j^\pm|\ge Wv_j/U\ge W_-v_j$. Every $m$ with $1<|s_m|\le1.28$ lies in $[ae^{-1.28D},ae^{1.28D}]\subset[a/U,aU]$, and $x^{2.2}\le a\le(x+1)^{2.2}$. Finally $2\sinh(1.28D)\le2.56001D$ as $D<10^{-12}$.
+\end{proof}
+
+\subsection{The deduction}\label{sec:deduction}
+Let $g_-$ be a function on $(1,K]$ of the form
+\begin{equation}\label{eq:gminus}
+ g_-=\sum_{j=1}^{3072}\delta_j\one_{(1,1+v_j]},\qquad\delta_j\ge0,
+\end{equation}
+with $0\le g_-\le G_+$; it is nonincreasing and vanishes on $(1.28,K]$. Its construction is in \Cref{sec:tests}. For each $j$ let $\mathbf c^{(j)}$ be a family as in \Cref{lem:convex} (in the computation, one of $48$ fixed families), and put
+\[
+ H_j=\lfloor W_-v_j\rfloor,\qquad H_j'=\lceil W_-v_j\rceil-1,
+\]
+so that $H_j'<W_-v_j$. Define record bands as follows. Put $u_0=q_0$. For $i=1,\dots,12$ let $q_i^-=\lceil A_+/(h_i-2000)\rceil$; if $q_i^-<u_{i-1}$ the $i$th band is $(q_i^-,q_i^+]$ with $q_i^+=u_{i-1}$, and we set $u_i=q_i^-$; otherwise the band is empty and $u_i=u_{i-1}$. Let $q_*=u_{12}$. Finally let $\pi_0^\flat$ and $\pi_i^\flat$ be nondecreasing functions on $[0,\infty)$ with
+\begin{equation}\label{eq:piflat}
+\begin{gathered}
+ 0\le\pi_0^\flat(y)\le\big[\pi(\min(y,Q))-\pi(q_0)\big]_+,\\
+ 0\le\pi_i^\flat(y)\le\big[\pi(\min(y,q_i^+))-\pi(q_i^-)\big]_+ .
+\end{gathered}
+\end{equation}
+
+(The right sides vanish for $y<q_0$, respectively $y<q_i^-$, so $\pi_0^\flat$ and $\pi_i^\flat$ vanish on $[0,1)$; this is how the arguments $\lfloor H_j/t\rfloor=0$ and $\lfloor H_j'/B_{b_i}(k)\rfloor=0$ below are treated. One may take $\pi_i^\flat=0$, and $\pi_0^\flat=0$ as well; then $\mathfrak d_{\mathrm{rec}}$, respectively $\mathfrak d_{\mathrm{hist}}$, below vanishes.)
+
+\begin{proposition}\label{prop:semiprimes}
+Suppose that $10^{13}\le l<r\le10^{17}$ and
+\begin{equation}\label{eq:semi-cond}
+\begin{gathered}
+ q_0<Q,\qquad \frac{2W_-}Q>1476,\qquad \frac{A_-}Q>Q+1476,\qquad \frac{A_+}{q_0}+1476<4\cdot10^{18},\\
+ 2A_--2.56001\cdot1.000001\,W_+Q>1476\,Q(Q+2),\\
+ q_i^->2\cdot10^8\ \text{for every nonempty band}.
+\end{gathered}
+\end{equation}
+Let $\cS$ be the set of products $pq$ of primes $q_*<q\le Q$ and $p>q$ with $1<|s_{pq}|\le1.28$. Then $\cS$ is a set of composite integers $m$ with $1<|s_m|\le K$ whose prime factors exceed $2\cdot10^8$, and for every $x\in[l,r]$
+\[
+ \frac{2L}W\sum_{m\in\cS}g_-(|s_m|)\ge\mathfrak d_{\mathrm{hist}}+\mathfrak d_{\mathrm{rec}},
+\]
+where, with $\nu=0.999999\cdot2.2\,[\log l]_-/W_+$ and $\Delta\Psi(t)=\Psi(t)-\Psi(t-1)$,
+\begin{align*}
+ \mathfrak d_{\mathrm{hist}}&=\nu\sum_{j=1}^{3072}\delta_j\max\Big(0,\ 2\sum_{t\ge1}\Delta\Psi_{\mathbf c^{(j)}}(t)\,\pi_0^\flat\big(\lfloor H_j/t\rfloor\big)-\Theta_{\mathbf c^{(j)}}\Big),\\
+ \mathfrak d_{\mathrm{rec}}&=\nu\sum_{j=1}^{3072}\delta_j\cdot2\sum_{i}\sum_{k\ge1}\pi_i^\flat\big(\lfloor H_j'/B_{b_i}(k)\rfloor\big),
+\end{align*}
+the sum over $i$ running over the nonempty bands. All the sums are finite.
+\end{proposition}
+
+\begin{proof}
+Every $q$ in the statement exceeds $q_*\ge\min_iq_i^->2\cdot10^8$ (or $q_0>2\cdot10^8$ if all bands are empty). For $pq\in\cS$, \Cref{lem:windows} gives $pq>A_-$, so $p>A_-/Q>Q\ge q$; thus $q$ is the least prime factor of $pq$, the map $(p,q)\mapsto pq$ is injective, and $\cS$ has the stated properties.
+
+By \eqref{eq:gminus}, $\sum_{m\in\cS}g_-(|s_m|)=\sum_j\delta_j\,\#\{m\in\cS:1<|s_m|\le1+v_j\}$. For fixed $j$ and a prime $q$ in $(q_*,Q]$, every prime $p\in J_j^\pm/q$ gives an element $pq$ of $\cS$ with $1<|s_{pq}|\le1+v_j$, because $pq\in J_j^\pm\subset(A_-,A_+)$ by \Cref{lem:windows}, so $p>A_-/Q>q$. Hence
+\begin{multline}\label{eq:count-split}
+ \#\{m\in\cS:1<|s_m|\le1+v_j\}\\
+ \ge\sum_\pm\sum_{q_0<q\le Q}\pi(J_j^\pm/q)+\sum_\pm\sum_i\sum_{q_i^-<q\le q_i^+}\pi(J_j^\pm/q).
+\end{multline}
+Since $2L=\log a\ge2.2\log l$ and $W\le W_+$, we have $2L/W\ge\nu$. It remains to bound the two parts of \eqref{eq:count-split}.
+
+\emph{Histogram band.} Consider the $2(\pi(Q)-\pi(q_0))$ open intervals $J_j^\pm/q$ with $q_0<q\le Q$ prime. By \Cref{lem:windows} each lies in $[A_-/Q,A_+/q_0]\subset(Q+1476,4\cdot10^{18}-1476)$. For one $q$, the two intervals are at distance at least $a(e^D-e^{-D})/q\ge2W/q\ge2W_-/Q>1476$. For primes $q<q'$ in the band, every point of $J_j^\pm/q$ is at least $a_1/q$ and every point of $J_j^\pm/q'$ is at most $a_2/q'$, where $a_1=ae^{-1.28D}$, $a_2=ae^{1.28D}$. Since $q'\ge q+2$,
+\begin{align*}
+ \frac{a_1}q-\frac{a_2}{q'}&=\frac{a_1(q'-q)-(a_2-a_1)q}{qq'}\\
+ &\ge\frac{2A_--2.56001\cdot1.000001\,W_+Q}{Q^2}>1476,
+\end{align*}
+by \Cref{lem:windows} and \eqref{eq:semi-cond}. So \Cref{lem:convex} applies, and since $\Psi$ is nondecreasing and $|J_j^\pm/q|\ge W_-v_j/q\ge\lfloor H_j/q\rfloor$,
+\[
+ \sum_\pm\sum_{q_0<q\le Q}\pi(J_j^\pm/q)\ge2\sum_{q_0<q\le Q}\Psi_{\mathbf c^{(j)}}\big(\lfloor H_j/q\rfloor\big)-\Theta_{\mathbf c^{(j)}} .
+\]
+Writing $\Psi(n)=\sum_{t=1}^n\Delta\Psi(t)$ with $\Delta\Psi\ge0$ and exchanging the sums,
+\begin{align*}
+ \sum_{q_0<q\le Q}\Psi\big(\lfloor H_j/q\rfloor\big)&=\sum_{t\ge1}\Delta\Psi(t)\,\#\{q_0<q\le Q:\ q\le\lfloor H_j/t\rfloor\}\\
+ &\ge\sum_{t\ge1}\Delta\Psi(t)\,\pi_0^\flat\big(\lfloor H_j/t\rfloor\big).
+\end{align*}
+The left side of the previous display is also nonnegative, which gives the term of $\mathfrak d_{\mathrm{hist}}$. Only $t\le H_j/q_0$ contribute.
+
+\emph{Record bands.} Let $q$ be a prime in the $i$th band. The interval $J_j^\pm/q$ has length at least $W_-v_j/q>H'_j/q$, its left end exceeds $A_-/Q>2000$, and its right end is at most $A_+/q<A_+/q_i^-\le h_i-2000$. By \Cref{lem:wheel}, it contains at least $k$ primes whenever $qB_{b_i}(k)\le H'_j$. Since $B_{b_i}$ is increasing,
+\begin{align*}
+ \sum_{q_i^-<q\le q_i^+}\pi(J_j^\pm/q)&\ge\sum_{k\ge1}\#\big\{q_i^-<q\le q_i^+:\ q\le\lfloor H'_j/B_{b_i}(k)\rfloor\big\}\\
+ &\ge\sum_{k\ge1}\pi_i^\flat\big(\lfloor H'_j/B_{b_i}(k)\rfloor\big).
+\end{align*}
+The terms vanish once $B_{b_i}(k)>H'_j/q_i^-$, which happens for $k>H'_j/(q_i^-(b_i-100))$. Summing over both signs and over the bands gives the term of $\mathfrak d_{\mathrm{rec}}$.
+\end{proof}
+
+\begin{remark}[Evaluation]\label{rem:semi-eval}
+In the computation $\rho_\pm$ are the enclosures of \Cref{sec:arith}, which are multiples of $2^{-200}$. The functions $\pi^\flat$ come from \Cref{lem:buthe}: $\pi_0^\flat(y)=\max\big(0,\lfloor S_0(\min(y,Q))\rfloor-\lceil E(Q)\rceil\big)$, where $S_0(y)$ is a lower Riemann sum for $\int_{q_0}^y\dd t/\log t$ on the mesh $q_0+10^9\Z$, with the value of $1/\log$ at the right end of each mesh cell rounded down to a multiple of $10^{-6}$; $\pi_i^\flat$ is defined in the same way on $[q_i^-,q_i^+]$ with mesh $10^7$, values rounded down to multiples of $10^{-10}$, and $\lceil E(q_i^+)\rceil$. Here $\lceil E(\cdot)\rceil$ is evaluated with $\sqrt y\le\lfloor\sqrt y\rfloor+1$ and a lower bound for $\log y$. The families $\mathbf c^{(j)}$ are taken from a list of $48$ families $\mathbf c_0,\dots,\mathbf c_{47}$, with $\mathbf c^{(j)}=\mathbf c_{\min(47,\lfloor48j/3072\rfloor)}$; every index $g$ is an integer in $[270,900]$, every $c_g$ is a nonnegative multiple of $10^{-6}$, and each family has at most six terms. They were found by linear programming, but \Cref{lem:convex} holds for any choice. With integer $t$ and $g$, all values of $\Psi_{\mathbf c}$ are multiples of $10^{-6}$ and are computed exactly from the remark after \Cref{lem:convex}. The numbers $\Theta_{\mathbf c}$ are computed exactly from the table (G1), and $B_b(k)$ exactly by iterating $f_b$ from each of the $\varphi(M)=5760$ residues. The conditions \eqref{eq:semi-cond} are checked for each range in \Cref{tab:slabs}; there $q_0$ lies between $1.345\cdot10^{11}$ and $1.988\cdot10^{11}$.
+\end{remark}
+\section{The twenty-mode test}\label{sec:tests}
+Let $G_{20}$ be the cosine test of support $K=\frac52$ with the twenty weights $w_j=\omega_j/10^9$ of \Cref{tab:twenty}, and $F_{20}=\widehat{G_{20}}$. Then $\sum|w_j|=0.761870883<1$ and $\|G_{20}\|_1\le2K\sum|w_j|<4$.
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{@{}rr@{\qquad}rr@{\qquad}rr@{\qquad}rr@{}}
+\toprule
+$j$ & $\omega_j$ & $j$ & $\omega_j$ & $j$ & $\omega_j$ & $j$ & $\omega_j$\\
+\midrule
+0 & 380\,707\,290 & 5 & $-1\,646\,098$ & 10 & 210\,054 & 15 & 1\,271\\
+1 & 249\,434\,692 & 6 & 6\,624\,743 & 11 & 19\,455 & 16 & $-226$\\
+2 & 84\,682\,233 & 7 & 1\,562\,594 & 12 & $-8\,325$ & 17 & 85\\
+3 & $-12\,031\,630$ & 8 & $-1\,500\,312$ & 13 & 1\,797 & 18 & $-52$\\
+4 & $-23\,007\,900$ & 9 & $-429\,738$ & 14 & $-2\,362$ & 19 & 26\\
+\bottomrule
+\end{tabular}
+\caption{The twenty-mode test: $G_{20}(s)=\one_{[-5/2,5/2]}(s)\sum_j10^{-9}\omega_j\cos(\pi(2j+1)s/5)$.}\label{tab:twenty}
+\end{table}
+
+\begin{lemma}\label{lem:twenty}
+With $N_{20}=0.761942143419865$ and $M_{20}=1.377680396761364$,
+\begin{gather*}
+ F_{20}(0)>1.000000000974554,\qquad\|F_{20}\|_1<N_{20},\qquad M_{F_{20}}+10^{-8}\le-M_{20},\\
+ V_0<514,\qquad V_1<1000,
+\end{gather*}
+and $F_{20}(y)\ge1$ for $|y|\le7\cdot10^{-9}$.
+\end{lemma}
+\begin{proof}
+Write $F=F_{20}$, $\kappa_r=\sum_jk_j^r|w_j|$, and recall $F(0)=\frac{4K}\pi\sum_j(-1)^jw_j/k_j$ from \eqref{eq:Fclosed}; the first bound follows from the enclosure of $\pi$. Since $F^{(n)}(y)=\int(2\pi is)^nG(s)e^{2\pi iys}\dd s$, we have $|F^{(n)}|\le(2\pi)^n\frac{2K^{n+1}}{n+1}\sum|w_j|$. For $n=1,2,4$ this gives $|F'|<32$, $|F''|<328$ and $|F^{(4)}|\le M_4:=(2\pi)^4\frac{2K^5}5\sum|w_j|$. In particular $F(y)\ge F(0)-164y^2>1$ for $|y|\le7\cdot10^{-9}$.
+
+\emph{Tails.} For $y\ge16$ put $X=4Ky\ge160$ and $\lambda_0=1-(39/160)^2$, so that $|k_j^2-X^2|\ge\lambda_0X^2$ for all $j$. Expanding $1/(k^2-X^2)=-\sum_{i=0}^2k^{2i}X^{-2i-2}-k^6X^{-6}(X^2-k^2)^{-1}$ in \eqref{eq:Fclosed} gives
+\begin{gather*}
+ |F(y)|\le\sum_{r\in\{1,3,5\}}\frac{c_r}{y^{r+1}}+\frac{c_7}{y^8},\\
+ c_r=\frac{|\sum_j(-1)^jk_j^rw_j|}{\pi(4K)^r}\quad(r\le5),\qquad c_7=\frac{\kappa_7}{\pi(4K)^7\lambda_0}.
+\end{gather*}
+Differentiating \eqref{eq:Fclosed} directly and using the same lower bound for $|k_j^2-X^2|$,
+\begin{gather*}
+ |F'(y)|\le\frac{4K}\pi\cdot\frac{\kappa_1}{(4K)^2}\Big(\frac{2\pi K}{\lambda_0y^2}+\frac2{\lambda_0^2y^3}\Big)\le\frac{C_1}{y^2},\\
+ C_1=\frac{4K}\pi\cdot\frac{\kappa_1}{(4K)^2}\Big(\frac{2\pi K}{\lambda_0}+\frac2{16\lambda_0^2}\Big)<2 .
+\end{gather*}
+Hence $V_0\le16\cdot32+C_1/16<514$ and $V_1\le32(16\log16-15)+C_1(\log16+1)/16<1000$.
+
+\emph{The integrals on $[0,16]$.} Let $h=1/256$. The values of $F$ at the points $i/768$, $0\le i\le12288$, are enclosed using \eqref{eq:Fclosed}, and the midpoints of the enclosures, rounded to multiples of $10^{-18}$, are within $10^{-14}$ of the true values. On each panel $[jh,(j+1)h]$ let $p_j$ be the cubic polynomial interpolating these rounded values at the four points $jh+ih/3$, and let $b_0,\dots,b_3$ be its Bernstein coefficients on the panel, so that $|p_j|\le\sum_i|b_i|B_i$ where $B_i$ is the $i$th Bernstein basis polynomial and $\int_{\text{panel}}B_i=h/4$. The interpolation error is at most $M_4(h/3)^4/24$, because $|\tau(\tau-1)(\tau-2)(\tau-3)|\le1$ on $[0,3]$. The rounding of the four values moves each $b_i$ by at most $\frac{34}6\cdot10^{-14}$. Hence, with $\varepsilon=M_4h^4/1944+10^{-13}$,
+\[
+ \int_{jh}^{(j+1)h}|F|\le\frac h4\sum_i|b_i|+\varepsilon h .
+\]
+For the logarithmic moment, on panels with $j\ge256$ (where $\log y\ge0$) we use $|F|\le\sum_i|b_i|B_i+\varepsilon$; on panels with $j<256$ (where $\log y<0$) we use $|F|\ge\sum_i|b_i|B_i-\varepsilon$ when all $b_i$ have the same sign, and $|F|\log y\le0$ otherwise. The integrals $\int B_i(y)\log y\,\dd y$ over each panel are evaluated in closed form from enclosures of $\log(jh)$ with error below $10^{-40}$; the closed forms amplify this error by less than $3(j+1)^4$, which is absorbed by adding $10^{-18}$. The interpolation error contributes at most $\varepsilon\int_0^{16}|\log y|\dd y\le\varepsilon(2+16\log16)$. Adding twice the integrals over $[0,16]$ (as $F$ is even) and twice the tail integrals $\int_{16}^\infty c/y^{r+1}=c/(r16^r)$ and $\int_{16}^\infty c\log y/y^{r+1}=c(\log16+1/r)/(r16^r)$ gives $\|F\|_1<0.76194214342$ and $M_F<-1.37768040676$. The last two digits displayed are enough: the program checks $\|F\|_1<N_{20}$ and $M_F+10^{-8}\le-M_{20}$ exactly.
+\end{proof}
+
+\begin{lemma}\label{lem:twenty-steps}
+There is a majorant $g\ge(G_{20})_+$ on $(1,\frac52]$ of the form considered in \Cref{sec:shoulders} with $M=65536$ cells per unit, whose strips satisfy $v_\kappa<1$ and $\sum_\kappa\eta_\kappa<0.14$. There is a minorant $g_-$ of the form \eqref{eq:gminus} with $0\le g_-\le(G_{20})_+$.
+\end{lemma}
+\begin{proof}
+Put $\kappa=\sum|w_j|(\pi k_j/(2K))^2$, an upper bound for $|G_{20}''|$. The values $G_{20}(1+i/65536)$, $0\le i\le98304$, are computed in fixed-point arithmetic with denominator $10^{22}$, generating $\cos(\pi k(1+i/65536)/(2K))$ and the corresponding sines for each mode by the rotation recurrence. The starting values and the rotation coefficients are rounded from enclosures with error below $3\cdot10^{-18}$, so a rotation step multiplies the existing error by at most $1+5\cdot10^{-18}$ and adds at most $6\cdot10^{-18}$; after $n\le98304$ steps the error is below $12\cdot10^{-18}(n+1)<2\cdot10^{-12}$, also after weighting by the $w_j$. On the cell between consecutive nodes $G_{20}$ is at most the larger computed endpoint value plus $\kappa/(8\cdot65536^2)+2\cdot10^{-12}$, the last term for the node error. Rounding these upper values up to multiples of $10^{-28}$, and replacing negative values by $0$, gives the heights $h_i$ of $g$. The strips are produced by the stack algorithm of \Cref{sec:shoulders}; the program checks \eqref{eq:strips}, that every strip has fewer than $65536$ cells, and that $\sum_\kappa\eta_\kappa=0.12675\ldots<0.14$.
+
+For $g_-$ use the $3072$ cells $(1+v_{j-1},1+v_j]$ of width $v_1=7/(25\cdot3072)$. On each, $G_{20}$ is at least the smaller endpoint value minus $\kappa v_1^2/8$; subtract a further $2\cdot10^{-12}$ for the node error, round down to a multiple of $10^{-12}$, and replace negative values by $0$. Let $\gamma_j$ be the minimum of these values over the first $j$ cells. Then $g_-=\gamma_j$ on the $j$th cell is nonincreasing, $0\le g_-\le(G_{20})_+$, and $g_-=\sum_j\delta_j\one_{(1,1+v_j]}$ with $\delta_j=\gamma_j-\gamma_{j+1}\ge0$ ($\gamma_{3073}=0$).
+\end{proof}
+
+\section{Proof of \Cref{thm:sharp}}\label{sec:outer}
+We show that no $x\in[\xo,3.9\cdot10^{13}]$ is a hole if (G2) holds (\Cref{prop:twenty}), and that no $x\in[32{,}746{,}701{,}927{,}355,\,3.9\cdot10^{13}]$ is a hole without (G2) (\Cref{prop:twenty-a}); with \Cref{thm:outer} this proves \Cref{thm:sharp}. The notation is that of \Cref{sec:twelve}; in particular \eqref{eq:PD} holds.
+
+In the rest of this section $G=G_{20}$, $K=\frac52$, $N_{20}$ and $M_{20}$ are as in \Cref{lem:twenty}, and for $k\ge0$ we put
+\[
+ J_k(x)=1.1\,k\,x^{1/10}\frac x{x+1}-N_{20}\log\frac{x+1}{1.1}+M_{20}.
+\]
+Let $\gamma_1<\gamma_2<\dots<\gamma_{1\,400\,000}$ be the first $1.4\times10^6$ positive ordinates in the list of Platt \cite{Platt,LMFDB}, all below $816{,}393$, and put
+\[
+ S(u)=\sum_{j=1}^{1\,400\,000}\big(1-\cos(\gamma_ju)\big),\qquad u(x)=\log a=1.1\log(x(x+1)).
+\]
+
+\begin{lemma}\label{lem:slab}
+Let $10^{13}\le l<r\le10^{14}$, let $x\in[l,r]$, and suppose that, with $\rho_\pm$, $A_\pm$, $W_\pm$, $q_0$ and $Q$ as in \Cref{sec:semiprimes},
+\begin{enumerate}[label=(\roman*)]
+\item $x\ge3.2\cdot10^{13}$ and $(a,D)$ satisfies \eqref{eq:H} with $K=\frac52$;
+\item at $x$, the sum $E_{\mathrm{pow}}+2D[(3+0.15\log\frac{2\pi}D)V_0+0.15V_1+4]+4U^2L_+\sum_\kappa\eta_\kappa/e^L+10^{-12}$ is less than $10^{-8}$;
+\item the hypotheses of \Cref{prop:charge} hold for the strips of \Cref{lem:twenty-steps} with $p_-,e_-,L_\pm$ as in \Cref{sec:sieve}; and either those of \Cref{prop:semiprimes} hold, or $\mathfrak d_{\mathrm{hist}}=\mathfrak d_{\mathrm{rec}}=0$;
+\item $0\le k\le F_{20}(0)-\mathfrak c+\mathfrak d_{\mathrm{hist}}+\mathfrak d_{\mathrm{rec}}$, where $\mathfrak c=\sum_\kappa8\eta_\kappa L_\kappa v_\kappa U^3/(L_\kappa+\beta_\kappa)$.
+\end{enumerate}
+If $x$ is a hole, then $J_k(x)<0$. If, moreover, $\gamma_1,\dots,\gamma_{1\,400\,000}$ are ordinates of zeros of $\zeta$, then $J_k(x)+2.2S(u(x))/(x+1)<0$.
+\end{lemma}
+\begin{proof}
+By (i) we may apply \Cref{prop:gap}, with $\cB=\emptyset$ for the first statement and with $\cB=\{\gamma_1,\dots,\gamma_{1\,400\,000}\}$ for the second. With $\cB=\emptyset$ the zero term in \eqref{eq:gap} vanishes; put $S^*=0$. In the second case $\Delta\gamma_j\le1.1\cdot816393/(2\pi x)<7\cdot10^{-9}$, so $F(\Delta\gamma_j)\ge1$ by \Cref{lem:twenty}, and the zero term is at most $-2DS(u(x))\le-2.2S^*/(x+1)$ with $S^*=S(u(x))$. If $\mathfrak d_{\mathrm{hist}}=\mathfrak d_{\mathrm{rec}}=0$ we apply \Cref{prop:charge} with $\cS=\emptyset$; otherwise we apply it with the set $\cS$ of \Cref{prop:semiprimes}, and then \Cref{prop:semiprimes}. In either case
+\[
+ \Sigma_+\le P\big(\mathfrak c-\mathfrak d_{\mathrm{hist}}-\mathfrak d_{\mathrm{rec}}\big)+4U^2L_+\sum_\kappa\eta_\kappa/e^L .
+\]
+With (ii), \eqref{eq:gap} becomes $Pk\le P(F(0)-\mathfrak c+\mathfrak d_{\mathrm{hist}}+\mathfrak d_{\mathrm{rec}})<\|F\|_1\log\frac1D+M_F+10^{-8}-2.2S^*/(x+1)$. By \Cref{lem:twenty} and \eqref{eq:PD} the left side is at least $1.1kx^{1/10}x/(x+1)$ and the right side is less than $N_{20}\log\frac{x+1}{1.1}-M_{20}-2.2S^*/(x+1)$.
+\end{proof}
+
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{@{}rrrr@{}}
+\toprule
+& $l$ & $r$ & $n_*$\\
+\midrule
+1 & 32\,654\,400\,000\,000 & 32\,654\,591\,400\,000 & 32\,654\,580\,892\,712\\
+2 & 32\,654\,000\,000\,000 & 32\,654\,728\,300\,000 & 32\,654\,591\,385\,176\\
+3 & 32\,650\,000\,000\,000 & 32\,657\,973\,000\,000 & 32\,654\,728\,287\,294\\
+4 & 32\,657\,900\,000\,000 & 32\,662\,000\,000\,000 & $l$\\
+5 & 32\,661\,000\,000\,000 & 32\,700\,000\,000\,000 & $l$\\
+6 & 32\,690\,000\,000\,000 & 32\,800\,000\,000\,000 & $l$\\
+7 & 32\,790\,000\,000\,000 & 33\,116\,944\,888\,557 & $l$\\
+8 & 33\,100\,000\,000\,000 & 33\,500\,000\,000\,000 & $l$\\
+9 & 33\,500\,000\,000\,000 & 35\,000\,000\,000\,000 & $l$\\
+10 & 35\,000\,000\,000\,000 & 39\,000\,000\,000\,000 & $l$\\
+\bottomrule
+\end{tabular}
+
+\medskip
+\begin{tabular}{@{}rllll@{}}
+\toprule
+& $\mathfrak c$ & $\mathfrak d_{\mathrm{rec}}$ & $\mathfrak d_{\mathrm{hist}}$ & $k$\\
+\midrule
+1 & 0.09958069 & 0.00016341 & 0.00040665 & 0.900989374141681\\
+2 & 0.09958069 & 0.00016340 & 0.00040664 & 0.900989355101264\\
+3 & 0.09958075 & 0.00016335 & 0.00040650 & 0.900989106668924\\
+4 & 0.09958071 & 0.00016339 & 0.00040650 & 0.900989189387311\\
+5 & 0.09958092 & 0.00016314 & 0.00040565 & 0.900987876087870\\
+6 & 0.09958130 & 0.00016266 & 0.00040375 & 0.900985113136582\\
+7 & 0.09958243 & 0.00016121 & 0.00039798 & 0.900976756964004\\
+8 & 0.09958221 & 0.00016067 & 0.00039518 & 0.900973639434988\\
+9 & 0.09958788 & 0.00015388 & 0.00036858 & 0.900934574830139\\
+10 & 0.09959798 & 0.00014072 & 0.00031735 & 0.900860090222618\\
+\bottomrule
+\end{tabular}
+\caption{The ten ranges of \Cref{prop:twenty}. The values of $\mathfrak c$, $\mathfrak d_{\mathrm{rec}}$, $\mathfrak d_{\mathrm{hist}}$ are rounded for display; $k$ is the exact value used, obtained by rounding $F_{20}(0)_--\mathfrak c+\mathfrak d_{\mathrm{rec}}+\mathfrak d_{\mathrm{hist}}$ down to a multiple of $10^{-15}$, where $F_{20}(0)_-$ is the computed lower bound for $F_{20}(0)$. The last column is the least integer $n_*\ge l$ with $J_k(n_*)>0$; for rows $4$--$10$ it is $l$ itself.}\label{tab:slabs}
+\end{table}
+
+\begin{proposition}\label{prop:twenty}
+Assume (G2). Then no $x\in[\xo,3.9\cdot10^{13}]$ is a hole.
+\end{proposition}
+\begin{proof}
+Put $l_*=32{,}654{,}400{,}000{,}000$ and $r_*=3.9\cdot10^{13}$. The program checks (i) and (ii) of \Cref{lem:slab} once for all $x\in[l_*,r_*]$. For (i), $\log a\ge2.2\log l_*>68$, and the program checks $KD\le2.75/l_*<(U-1)/U$ and $KP\le2.75(r_*+1)[(r_*+1)^{1/10}]_+/r_*<66$, using \eqref{eq:PD} and that $(x+1)^{11/10}/x$ is increasing. For (ii) it uses $V_0<514$, $V_1<1000$, $\ell<71$, $\ell/\log2<103$ and $1+KPU<67$, which give $E_{\mathrm{pow}}\le(103\cdot67+2)\cdot71U/(l_*[l_*^{1/10}]_-)$; it bounds the zero term using $D\le1.1/l_*$ and $\log(2\pi/D)\le\log(7(r_*+1)/1.1)$, and checks $4U^2L_+\cdot0.14/(l\rho_-)<10^{-9}$ for each row, which bounds the third term as $\sum_\kappa\eta_\kappa<0.14$ and $e^L\ge l\rho_-$; the four terms total less than $10^{-8}$. For each row it checks (iii) and (iv), and evaluates $\mathfrak c$, $\mathfrak d_{\mathrm{hist}}$, $\mathfrak d_{\mathrm{rec}}$ with outward rounding: $\beta_\kappa$ is computed as $[\log(p_-v_\kappa)]_-+c_-(z_\kappa)-[\log U]_+$, where $c_-(z)$ is the expression $c(z)$ of \Cref{prop:count} with $C_0$ replaced by the lower bound computed in \Cref{lem:w-constants} and $\sqrt z$ replaced by $\lfloor\sqrt z\rfloor$, and every term of $\mathfrak c$ is rounded up to a multiple of $10^{-21}$. It also checks that
+\begin{equation}\label{eq:slope}
+ 0.11\,k\,\rho_-\frac l{l+1}-N_{20}>1.4 .
+\end{equation}
+For $x\ge l$ we have $\frac{\dd}{\dd\log x}J_k(x)\ge0.11kx^{1/10}\frac x{x+1}-N_{20}x/(x+1)>1.4$ by \eqref{eq:slope}. The program finds the least integer $n_*\ge l$ with $J_k(n_*)>0$ (by bisection, checking $J_k(n_*-1)<0$ when $n_*>l$), so $J_k>0$ on $[n_*,\infty)$. Every $n_*$ is at least $l_*$, so by \Cref{lem:slab} no $x\in[n_*,r]$ is a hole. In \Cref{tab:slabs} each $n_*$ is at most the $r$ of the previous row, so the rows cover $[n_*^{(1)},r_*]$ with $n_*^{(1)}=32{,}654{,}580{,}892{,}712$.
+
+It remains to treat $[\xo,n_*^{(1)}]$, with the first row of \Cref{tab:slabs}, using the zeros. Put $r_0=n_*^{(1)}-2{,}100{,}000=32{,}654{,}578{,}792{,}712$ and $u_0=u(r_0)$. The program computes
+\[
+ 1{,}400{,}961.5773<S(u_0)<1{,}400{,}961.5922,\qquad|S'(u_0)|<205{,}964{,}368,
+\]
+as described below. Since $|u'(x)|\le2.2/x$, we have $|u(\xo)-u_0|\le\delta:=2.2(r_0-\xo)/\xo$, and $|S''|\le\sum_j\gamma_j^2\le1.4\cdot10^6\cdot816393^2$. By Taylor's theorem
+\[
+ S(u(\xo))\ge S(u_0)-|S'(u_0)|\delta-\tfrac12\cdot1.4\cdot10^6\cdot816393^2\,\delta^2>1{,}400{,}961.44 .
+\]
+Let $\Phi(x)=J_k(x)+2.2S(u(x))/(x+1)$. The program checks $\Phi(\xo)>2.99\cdot10^{-14}$ using a lower bound for $J_k(\xo)$. For $x\ge\xo$, as $0\le S\le2.8\cdot10^6$ and $|S'|\le1.4\cdot10^6\cdot816393$,
+\[
+ \Big|\frac{\dd}{\dd\log x}\frac{2.2S(u(x))}{x+1}\Big|\le\frac{2.2}{x}\cdot1.4\cdot10^6\,(2+2.2\cdot816393)<0.34,
+\]
+so $\Phi$ is increasing on $[\xo,\infty)$ by \eqref{eq:slope}, and $\Phi>0$ there. By \Cref{lem:slab} no $x\in[\xo,r]$ is a hole, where $r=32{,}654{,}591{,}400{,}000$ is the right end of the first row.
+
+\emph{Evaluation of $S(u_0)$ and $S'(u_0)$.} The archived list gives each $\gamma_j$ truncated to $11$ decimal places. Platt's ordinates are certified to within $2^{-102}$, and the LMFDB display retains at least $25$ decimals, so each archived value $\tilde\gamma_j$ satisfies $|\gamma_j-\tilde\gamma_j|<1.00001\cdot10^{-11}$; consecutive archived values differ by more than $2\cdot10^{-11}$, so they belong to distinct zeros, and all are below $816{,}393$. The phase $\tilde\gamma_ju_0/(2\pi)$ is reduced modulo $1$ in fixed point with denominator $2^{96}$, using an enclosure of $u_0/(2\pi)$; $\cos$ is evaluated by linear interpolation in a table of $32768$ rigorous upper bounds for $\cos(2\pi i/32768)$, rounded to a fixed denominator. The total error per term is at most
+\[
+ 10^{-16}+[u_0]_+\cdot1.00001\cdot10^{-11}+2\pi\cdot2\cdot816393\cdot10^{11}/2^{96}+(2\pi)^2/(8\cdot32768^2),
+\]
+from the table, the ordinates, the phase reduction and the interpolation; $S'(u_0)=\sum_j\gamma_j\sin(\gamma_ju_0)$ is bounded in the same way.
+\end{proof}
+
+\begin{proposition}\label{prop:twenty-a}
+No $x\in[32{,}746{,}701{,}927{,}355,\,3.9\cdot10^{13}]$ is a hole. Without (G1), the same holds for $x\in[32{,}971{,}281{,}678{,}698,\,3.9\cdot10^{13}]$. Neither statement uses (G2) or the zeros.
+\end{proposition}
+\begin{proof}
+We use the rows of \Cref{tab:slabs} and the first statement of \Cref{lem:slab}; its conditions (i) and (ii) were checked in the proof of \Cref{prop:twenty}. For the first statement take $\pi_i^\flat=0$ for every band, so that $\mathfrak d_{\mathrm{rec}}=0$, and keep $\pi_0^\flat$ and the families $\mathbf c^{(j)}$ of the remark on evaluation in \Cref{sec:deduction}; then \Cref{prop:semiprimes} uses only (G1), through \Cref{lem:convex}. For the second take $\mathfrak d_{\mathrm{hist}}=\mathfrak d_{\mathrm{rec}}=0$. For each row the program recomputes $k$ as in \Cref{tab:slabs}, now by rounding $F_{20}(0)_--\mathfrak c+\mathfrak d_{\mathrm{hist}}$, respectively $F_{20}(0)_--\mathfrak c$, down to a multiple of $10^{-15}$. It checks \eqref{eq:slope}, and finds the least integer $n_*\ge l$ with $J_k(n_*)>0$ whenever $J_k(r)>0$. In the first case rows $1$--$5$ give no $n_*$, row $6$ gives $k=0.900822450956687$ and $n_*=32{,}746{,}701{,}927{,}355$, and rows $7$--$10$ have $n_*=l$. In the second case rows $1$--$6$ give no $n_*$, row $7$ gives $k=0.900417566255251$ and $n_*=32{,}971{,}281{,}678{,}698$, and rows $8$--$10$ have $n_*=l$. In both cases each of these $n_*$ is at most the $r$ of the preceding row used, so, as in the proof of \Cref{prop:twenty}, the rows cover the stated ranges.
+\end{proof}
+
+\begin{proof}[Proof of \Cref{thm:sharp}]
+By \Cref{prop:twenty-a}, and by \Cref{prop:twenty} under (G2), no $x$ in the stated ranges up to $3.9\cdot10^{13}$ is a hole, and by \Cref{thm:outer} no $x\ge35\cdot10^{12}$ is a hole.
+\end{proof}
+
+\begin{remark}\label{rem:inputs}
+Without the zeros, \Cref{prop:twenty} would start at $32{,}654{,}580{,}892{,}712$, so the zeros lower the cutoff of \Cref{thm:sharp}(b) by $2{,}105{,}322$. Without the deductions of \Cref{sec:semiprimes}, the coefficient $k$ on the first row would be smaller by $5.7\cdot10^{-4}$. With only the rows of \Cref{tab:records} with $h_i\le2^{64}$ (those above $4\cdot10^{18}$ still rest on the search up to $2^{64}$), together with (G1) and without the zeros, the same slabs give $32{,}706{,}763{,}162{,}237$.
+\end{remark}
+
+\section{Programs and data}\label{app:programs}
+All programs and data are available at \coderepo. The analytic statements are checked by Python programs, run with assertions enabled.
+
+\emph{\Cref{thm:outer}.} One program, which uses only the Python standard library and takes about $20$ seconds on one core, checks \Cref{lem:twelve,lem:twelve-steps}, the error bounds and conditions (i)--(v) in the proof of \Cref{prop:twelve}, and the inequality in the proof of \Cref{cor:cms} at $x=6\cdot10^{14}$. The independent implementation mentioned after \Cref{prop:twelve} works in ball arithmetic with the python-flint library and takes about two seconds. It checks \Cref{lem:twelve}, both rows of \Cref{tab:twelve}, the error bounds in the proof of \Cref{prop:twelve} and the inequality in the proof of \Cref{cor:cms}.
+
+\emph{\Cref{thm:sharp}.} A second program, which uses the Python standard library and NumPy and takes about two minutes, checks \Cref{prop:twenty}, the Pratt certificate for $4\cdot10^{18}-113$ used in \Cref{lem:convex}, and all numerical statements of \Cref{lem:w-constants,lem:ramare,prop:H,lem:twenty,lem:twenty-steps}. It also checks that the charge it evaluates is the expression $\mathfrak c$ of \Cref{prop:charge} with $\beta_\kappa$ as in the proof of \Cref{prop:twenty}. It reads three data files: the table of \cite{OeSHP} as distributed by its authors, the $48$ families $\mathbf c_i$, and the first $1.4\times10^6$ ordinates of zeros of $\zeta$ from \cite{LMFDB}, truncated to $11$ decimals. Run without the zeros, in about three and a half minutes, it checks \Cref{prop:twenty-a} and the value for the rows $h_i\le2^{64}$ in the remark at the end of \Cref{sec:outer}, together with the constants and slab conditions these use.
+
+\emph{\Cref{thm:squares,prop:sweep}.} The retained certificates of \Cref{sec:sweep} and the program that replays them are published at \coderepo; \Cref{sec:status} says what this replay establishes. The programs of the 2026 computation, its schedule, the record of its audit and a ledger of all ranges are published there too. The witness verifier is a C\texttt{++} program using GMP, and Pratt certificates are checked by a separate Python program.
+
+\section{Formal verification in Lean}\label{app:lean}
+\Cref{thm:outer} has also been proved in the Lean~4 proof assistant \cite{Lean4} with the Mathlib library \cite{Mathlib}, from the Riemann hypothesis and five published results, which enter as explicit hypotheses. With the computation of \Cref{sec:sweep} as a further hypothesis, so have \Cref{thm:main,thm:squares}. The development uses version~4.29.1 of Lean and the matching release of Mathlib, and is available at \coderepo.
+
+\emph{Statements.} The formal statements state \Cref{thm:main,thm:squares,thm:outer} as written. The Riemann hypothesis enters as Mathlib's proposition \texttt{RiemannHypothesis}. The formal proof of the Riemann hypothesis cited in \cite{Alpoge} uses a later version of Lean and Mathlib, so it is not imported here. Five published results are stated as hypotheses: the computation of \cite{SW} as used in \Cref{prop:low}; \cite[Theorem~5]{CMS} under RH, as used in \Cref{lem:cms}; the truncated explicit formula of \cite[Ch.~17]{Davenport} quoted in the proof of \Cref{lem:explicit}; the bound of \cite[Cor.~1]{Trudgian} used in \Cref{lem:Nt}; and \cite[Thm.~2]{MV}. The two parts of the computation of \Cref{sec:sweep} that the proof uses are also stated as hypotheses: a prime in $(m^2,(m+1)^2)$ for $70{,}500{,}000{,}000{,}000<m\le10^{14}$, and a prime $p$ with $n^{11}<p^5<(n+1)^{11}$ for $n_2<n<35\cdot10^{12}$, where $n_2=5{,}336{,}699{,}231{,}206$. Lean proves \Cref{thm:outer} from RH and the five published results, \Cref{thm:squares} from the published results and the computation, and \Cref{thm:main} from all three. The formal statements were reviewed against the paper and then kept unchanged.
+
+\emph{Proof.} Every result of \Cref{sec:elementary,sec:explicit,sec:twelve}, and the proofs of \Cref{thm:main} and \Cref{prop:sweep}, has a Lean counterpart. \Cref{prop:gap} is proved for $\cB=\emptyset$, the only case used in \Cref{sec:twelve}. The appendices on \Cref{thm:sharp} and the primality certificates of \Cref{lem:bls} are not formalised. The formal proof follows the paper. The differences are minor: \Cref{lem:Nt} is proved for $t<e$ by monotonicity, \Cref{lem:zerosum} integrates from height $0$ and absorbs the boundary term in the existing error allowance, and the variation integrals of \Cref{lem:twelve} are bounded by a different splitting that gives the same constants. The formalisation also showed that \Cref{lem:explicit} needs $ae^{-KD}\ge2$, since the truncated explicit formula is valid only for $x\ge2$. Its previous hypotheses, $a>1$ and $KD<\log a$, did not ensure this. The applications in \Cref{prop:gap} satisfy it, since there $ae^{-KD}>e^{59}$, and the statement above has been corrected. The numerical inputs of \Cref{sec:twelve} are recomputed in Lean with directed rounding, using logarithm and cosine enclosures proved correct in Lean: the bounds of \Cref{lem:twelve} for $F_{12}$, the majorant of \Cref{lem:twelve-steps}, and the entries of \Cref{tab:twelve}. Lean proves the bounds as printed here.
+
+\emph{Trust.} Five checkers are evaluated with Lean's \texttt{native\_decide} tactic, which runs compiled code, so accepting the formal proof means trusting the Lean compiler for these evaluations as well as the Lean kernel. The proofs of \Cref{thm:outer,thm:main} use these five evaluations, which take about five minutes in all; the proof of \Cref{thm:squares} uses none. Apart from these evaluations, the proofs use only the three standard axioms of Lean: propositional extensionality, the axiom of choice and the soundness of quotients. They contain no unproved steps and declare no further axioms.
+
+\begin{thebibliography}{99}\small
+\bibitem{Alpoge} L.~Alp\"oge, \emph{Remark}, 20 November 2026, \url{https://alpo.ge/remark.pdf}. Formal Lean proof of the Riemann hypothesis and of GRH for Dirichlet $L$-functions: \url{https://github.com/leanprover-community/riemann-hypothesis}. Independent verification: A.\,V.~Sutherland, \url{https://math.mit.edu/~drew/grh/}; M.~Rubinstein, \url{https://www.math.uwaterloo.ca/~mrubinst/alpoge_claude_grh/}.
+\bibitem{BHP} R.\,C.~Baker, G.~Harman and J.~Pintz, \emph{The difference between consecutive primes, II}, Proc.\ London Math.\ Soc.\ (3) \textbf{83} (2001), 532--562.
+\bibitem{Buthe} J.~B\"uthe, \emph{An analytic method for bounding $\psi(x)$}, Math.\ Comp.\ \textbf{87} (2018), 1991--2009.
+\bibitem{CMS} E.~Carneiro, M.\,B.~Milinovich and K.~Soundararajan, \emph{Fourier optimization and prime gaps}, Comment.\ Math.\ Helv.\ \textbf{94} (2019), 533--568.
+\bibitem{CS} M.~Chamberland and A.~Straub, Amer.\ Math.\ Monthly (2026), doi:10.1080/00029890.2026.2694309.
+\bibitem{Cramer} H.~Cram\'er, \emph{Some theorems concerning prime numbers}, Ark.\ Mat.\ Astr.\ Fys.\ \textbf{15} (1920), no.~5, 1--33.
+\bibitem{Davenport} H.~Davenport, \emph{Multiplicative Number Theory}, 3rd ed., Graduate Texts in Mathematics 74, Springer, 2000.
+\bibitem{HW} G.\,H.~Hardy and E.\,M.~Wright, \emph{An Introduction to the Theory of Numbers}, 6th ed., Oxford University Press, 2008.
+\bibitem{Lean4} L.~de~Moura and S.~Ullrich, \emph{The Lean~4 theorem prover and programming language}, in: Automated Deduction -- CADE~28, Lecture Notes in Comput.\ Sci.\ \textbf{12699}, Springer, 2021, 625--635.
+\bibitem{LMFDB} The LMFDB Collaboration, \emph{The $L$-functions and modular forms database}, zeros of $\zeta(s)$, \url{https://www.lmfdb.org/zeros/zeta/}, data of D.\,J.~Platt.
+\bibitem{Mathlib} The mathlib Community, \emph{The Lean mathematical library}, in: Proceedings of the 9th ACM SIGPLAN International Conference on Certified Programs and Proofs (CPP 2020), ACM, 2020, 367--381.
+\bibitem{MV} H.\,L.~Montgomery and R.\,C.~Vaughan, \emph{The large sieve}, Mathematika \textbf{20} (1973), 119--134.
+\bibitem{MVH} H.\,L.~Montgomery and R.\,C.~Vaughan, \emph{Hilbert's inequality}, J.\ London Math.\ Soc.\ (2) \textbf{8} (1974), 73--82.
+\bibitem{OeSHP} T.~Oliveira e Silva, S.~Herzog and S.~Pardi, \emph{Empirical verification of the even Goldbach conjecture and computation of prime gaps up to $4\cdot10^{18}$}, Math.\ Comp.\ \textbf{83} (2014), 2033--2060; gap tables at \url{https://sweet.ua.pt/tos/gaps.html}.
+\bibitem{Platt} D.\,J.~Platt, \emph{Isolating some non-trivial zeros of zeta}, Math.\ Comp.\ \textbf{86} (2017), 2449--2467.
+\bibitem{Pratt} V.\,R.~Pratt, \emph{Every prime has a succinct certificate}, SIAM J.\ Comput.\ \textbf{4} (1975), 214--220.
+\bibitem{Preissmann} E.~Preissmann, \emph{Sur une in\'egalit\'e de Montgomery--Vaughan}, Enseign.\ Math.\ (2) \textbf{30} (1984), 95--113.
+\bibitem{Ramare} O.~Ramar\'e, \emph{Explicit average orders: news and problems}, in: Number Theory Week 2017, Banach Center Publ.\ \textbf{118} (2019), 153--176.
+\bibitem{RecordGaps} \emph{Record gaps between primes}, table of maximal prime gaps, \url{https://pzktupel.de/RecordGaps/GAP01.php}, accessed November 2026.
+\bibitem{SW} J.~Sorenson and J.~Webster, \emph{An algorithm and computation to verify Legendre's conjecture up to $7\cdot10^{13}$}, Res.\ Number Theory, doi:10.1007/s40993-024-00589-4.
+\bibitem{Trudgian} T.\,S.~Trudgian, \emph{An improved upper bound for the argument of the Riemann zeta-function on the critical line II}, J.\ Number Theory \textbf{134} (2014), 280--292.
+\end{thebibliography}
+\end{document}
+

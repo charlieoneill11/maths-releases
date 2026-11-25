@@ -1,0 +1,30 @@
+# Ten papers, November 2026
+
+Charles O'Neill, Max Kirkby, Astra and Fable, 24–25 November 2026.
+
+Each folder holds one paper: the PDF, its LaTeX source in `paper/`, the programs and data its proofs rely on, and, for seven of the ten, a Lean 4 formalisation in `lean/`, with replay instructions in the folder's README. Each paper's section "Formal verification in Lean" says what the formalisation covers and which published results it takes as hypotheses. The papers also have pages at https://charlieoneill11.github.io/maths-releases/.
+
+| Paper | Main result | Links |
+| --- | --- | --- |
+| [Sixth moment of the Riemann zeta function](zeta-sixth-moment/) | liminf M_6(T) / (c_3 T (log T)^(9)) ≥ 41.6406, with c_3 = a_3/9! (previous record 41.008; conjectured 42) | [PDF](zeta-sixth-moment/zeta-sixth-moment.pdf) · [page](https://charlieoneill11.github.io/maths-releases/zeta-sixth-moment/) |
+| [Central values of quadratic Dirichlet L-functions](chowla-nonvanishing/) | L(1/2, χ_d) ≠ 0 for more than 94.53419890% of fundamental discriminants (previous 94.2730%); the numerical certificate also proved in Lean | [PDF](chowla-nonvanishing/chowla-nonvanishing.pdf) · [page](https://charlieoneill11.github.io/maths-releases/chowla-nonvanishing/) |
+| [Primes between consecutive 11/5-th powers](legendre/) | a prime in (n^(11/5), (n+1)^(11/5)) for every n ≥ 1; Legendre’s conjecture checked by computation for every m ≤ 10^(14) (independently replayed in part) | [PDF](legendre/legendre.pdf) · [page](https://charlieoneill11.github.io/maths-releases/legendre/) |
+| [Least prime in every residue class](least-prime-ap/) | for more than 58.7% of moduli n, every reduced class mod n has a prime below C n^(2−δ); the density computation also proved in Lean | [PDF](least-prime-ap/least-prime-ap.pdf) · [page](https://charlieoneill11.github.io/maths-releases/least-prime-ap/) |
+| [Unit-distance graphs and six colours](hadwiger-nelson/) | every unit-distance graph with at most 10,689 vertices, or at most 245,510 edges, is 6-colourable (previous 6,992 and 232,645); the edge bound also proved in Lean | [PDF](hadwiger-nelson/hadwiger-nelson.pdf) · [page](https://charlieoneill11.github.io/maths-releases/hadwiger-nelson/) |
+| [Zero-error codes for the seven-cycle](seven-cycle-five/) | α(C_7^(⊠4)) ≤ 112 and α(C_7^(⊠5)) ≤ 392 (previous 115 and 401); both also proved in Lean | [PDF](seven-cycle-five/seven-cycle-five.pdf) · [page](https://charlieoneill11.github.io/maths-releases/seven-cycle-five/) |
+| [Packing cubes in odd tori](cube-packing/) | α(C_N^(⊠3)) = N(mN−1)/2 for every N = 4m+1 ≡ 5 (mod 8): the conjecture of Baumert et al. (1971) for this family, previously known when N or m is prime and within 2 in general; computer-assisted | [PDF](cube-packing/cube-packing.pdf) · [page](https://charlieoneill11.github.io/maths-releases/cube-packing/) |
+| [Conjugate pairs and the prime spectrum](conjugate-generation/) | every finite group G has conjugate elements a, b with π(⟨a, b⟩) = π(G), answering Shumyatsky’s Question 17.125 in the Kourovka Notebook (previously known when all maximal subgroups are Hall subgroups); the deduction from four cited theorems also proved in Lean | [PDF](conjugate-generation/conjugate-generation.pdf) · [page](https://charlieoneill11.github.io/maths-releases/conjugate-generation/) |
+| [A Hadamard matrix of order 4792](hadamard-4792/) | an explicit Hadamard matrix of order 4792 = 8·599, an order for which none was known before (twice 2396, the smallest open order); HH^(T) = 4792I checked by three independent programs | [PDF](hadamard-4792/hadamard-4792.pdf) · [page](https://charlieoneill11.github.io/maths-releases/hadamard-4792/) |
+| [Four-colour quadratic van der Waerden numbers](quadratic-differences/) | W(ex^(2)+fx; 4) ≤ 57|e|+39|f|+1 for all e, f, so the optimal constant C_4 asked for by Kumthekar, Gasarch, Regli and Whitehouse is 57 (they proved 57 ≤ C_4 ≤ 64); six new exact values of W(x^(2)+jx; 4); computer-assisted, with checked DRAT proofs | [PDF](quadratic-differences/quadratic-differences.pdf) · [page](https://charlieoneill11.github.io/maths-releases/quadratic-differences/) |
+
+## AI use
+
+The mathematical arguments and computer programs in six of these papers were developed by Astra (GPT-6.2 Astra, OpenAI). Fable (Fable 5.2, Anthropic) worked throughout as a second model: it proposed alternative approaches, reviewed arguments and raised objections. The manuscripts were prepared from the project's research records with Claude (Anthropic). All computations were re-run before release, and the programs and certificates are available at https://github.com/charlieoneill11/maths-releases. Charles O'Neill has checked the arguments and takes full responsibility for the correctness of the results. Each paper's opening section, "AI use and author contributions", describes the human authors' contributions to it. The papers on packing cubes, on conjugate pairs, on the Hadamard matrix of order 4792 and on quadratic van der Waerden numbers were produced differently. The cube-packing arguments and programs were developed by GPT-6.2 Astra and GPT-6.2 Sol in Codex, the conjugate-pair argument by GPT-6.2 Astra, the Hadamard construction and search by GPT-6.2 Astra, starting from Kishan Kumar’s public search programs, and the quadratic van der Waerden arguments and programs by GPT-6.2 Astra; each of their pages gives its own statement. Open-weight models, Kimi K3.1 Pro and DeepSeek V4.1 Flash, were able to derive a significant proportion of the results in four of these papers when given guidance. We will report the details separately.
+
+## Citing
+
+Each paper folder has a BibTeX entry in `CITATION.bib`, which is also shown on the paper's page. GitHub's "Cite this repository" button gives a citation for the repository as a whole, from `CITATION.cff`.
+
+## Licence
+
+The programs are released under the MIT licence ([LICENSE](LICENSE)). The papers (PDF and LaTeX source) are released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Data files taken from other sources keep their original terms; see [legendre/research/DATA.md](legendre/research/DATA.md).

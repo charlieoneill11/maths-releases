@@ -1,0 +1,1212 @@
+\documentclass[11pt,colorlinks]{charlie}
+\input{preamble}
+\usepackage{amssymb}
+
+\newcommand{\cR}{\mathcal{R}}
+\newcommand{\cD}{\mathcal{D}}
+\newcommand{\cE}{\mathcal{E}}
+\newcommand{\pos}[1]{\left[#1\right]_+}
+\newcommand{\area}{\operatorname{area}}
+\newcommand{\cro}{\operatorname{cr}}
+\newcommand{\cred}{\operatorname{cred}}
+\newcommand{\pilo}{\pi_{\mathrm{lo}}}
+\newcommand{\pihi}{\pi_{\mathrm{hi}}}
+\newcommand{\up}[1]{\lceil #1\rceil_{18}}
+\newcommand{\dn}[1]{\lfloor #1\rfloor_{18}}
+
+\title{Six colours suffice for every unit-distance graph with at most 10{,}689 vertices or 245{,}510 edges}
+\author{Charles O'Neill, Max Kirkby, Astra and Fable}
+\date{24 November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The chromatic number of the plane is known to be $6$ or $7$, so a finite unit-distance graph of chromatic number $7$, if one exists, must be large. We prove that every unit-distance graph in the Euclidean plane with at most $10{,}689$ vertices is properly $6$-colourable; the previous bound of this kind, due to Parts, covered graphs with at most $6{,}992$ vertices. We also prove that every finite unit-distance graph with at most $245{,}510$ edges is properly $6$-colourable, whatever its number of vertices; the previous edge bound, $232{,}645$, follows from numerical estimates of de Grey and Parts. Equivalently, a seven-chromatic unit-distance graph, if one exists, has at least $10{,}690$ vertices and at least $245{,}511$ edges. Both results come from placing a fixed periodic six-colouring of the plane at random and then repairing what little goes wrong. For the edge bound we construct an everywhere-defined measurable periodic six-colouring in which a uniformly random unit segment is monochromatic with probability less than $4.07715\times10^{-6}$, and we show that a single monochromatic edge can be removed by recolouring one endpoint unless both endpoints see all six colours. A Fourier argument that is uniform over all stars shows that, at every vertex, the expected number of neighbours sharing its colour exceeds the probability that it sees all six colours by a fixed multiple of its degree. For the vertex bound we use a partial colouring with small blank holes. The cost of blank vertices is partly recovered by a forest of pairs of vertices that are blank together, chosen after the placement: nearby vertices, pairs whose difference is close to a vertical unit vector, and pairs of centres of two unit circles on each of which the same two common neighbours are consecutive. Crossing-number bounds control the degree variance of a minimal counterexample and force many such pairs of circles. Every numerical inequality is reduced to a finite computation in exact integer, rational or ball arithmetic, and the programs are published with the paper. The edge bound has also been proved in Lean~4 with Mathlib, and so has the vertex bound, from four published facts about crossing numbers taken as hypotheses.
+\end{abstract}
+\mscandkeywords{05C15; 52C10, 05C10}{chromatic number of the plane, Hadwiger--Nelson problem, unit-distance graphs, measurable colourings}
+
+\section*{AI use and author contributions}
+\aiusestatement
+
+Open-weight models, Kimi~K3.1~Pro (Moonshot AI) and DeepSeek~V4.1~Flash (DeepSeek), were able to derive a significant proportion of these results when given guidance. We will report the details separately.
+
+Charles O'Neill proposed the problem after the proof that the plane is not five-colourable \cite{five} left six colours as the open case, and framed it through random placement of a periodic partial six-colouring: if the uncoloured fraction is $\varepsilon$, a random translate properly six-colours any configuration of fewer than $1/\varepsilon$ points. That reduction underlies both theorems. Max Kirkby set up and ran the experiments with open-weight models. \responsibilitystatement
+
+\section{Introduction}
+
+The \emph{chromatic number of the plane} $\chi(\R^2)$ is the least number of colours with which the points of the Euclidean plane can be coloured so that no two points at distance one receive the same colour. The hexagonal colouring of Isbell gives $\chi(\R^2)\le7$. De Grey~\cite{deGrey} proved $\chi(\R^2)\ge5$, and the exclusion of five colours~\cite{five} leaves $\chi(\R^2)\in\{6,7\}$.
+
+By the de Bruijn--Erd\H{o}s theorem~\cite{dBE}, $\chi(\R^2)=7$ if and only if some finite unit-distance graph has chromatic number $7$. It is therefore natural to ask how large such a graph must be. All bounds below are inclusive: a bound of $N$ vertices means that every unit-distance graph with at most $N$ vertices is $6$-colourable, so that a seven-chromatic one has at least $N+1$ vertices; the same convention applies to edges. Pritikin~\cite{Pritikin} proved that every unit-distance graph with at most $6{,}197$ vertices is $6$-colourable. Parts~\cite{Parts} constructed a periodic partial six-colouring of the plane with no monochromatic unit pairs whose uncoloured part has density $1/6992.1655\ldots$; a random translation then colours any $6{,}992$ given points properly, and Parts states the resulting bound of $6{,}992$ vertices. This is the vertex bound that \Cref{thm:points} improves. De Grey and Parts~\cite{dGP} considered instead complete colourings with a small probability of monochromatic unit segments, and obtained in this way the estimates that a seven-chromatic unit-distance graph has at least $232{,}646$ edges and at least $6{,}456$ vertices. The corresponding inclusive six-colour bounds are $232{,}645$ edges and $6{,}455$ vertices; the vertex bound is weaker than Parts's, and the edge bound is the one that \Cref{thm:edges} improves. De Grey and Parts describe these values as estimates: the relevant integrals were evaluated numerically with Mathematica, and no interval certificate is published there. We prove the following.
+
+\begin{theorem}\label{thm:points}
+Every set of at most $10{,}689$ points in $\R^2$ has a colouring with six colours in which no two points at distance one have the same colour.
+\end{theorem}
+
+\begin{theorem}\label{thm:edges}
+Let $G$ be a finite graph whose vertices are distinct points of $\R^2$ and whose edges are pairs of vertices at distance one. If $G$ has at most $245{,}510$ edges then $G$ is properly $6$-colourable. There is no restriction on the number of vertices.
+\end{theorem}
+
+Equivalently, a seven-chromatic finite unit-distance graph has at least $10{,}690$ vertices and at least $245{,}511$ edges. These are lower bounds for the size of a smallest seven-chromatic unit-distance graph, not estimates of it: whether such a graph exists at all is open. In particular, the failure of our final check at $10{,}690$ vertices (\Cref{sec:remarks}) only marks where this certificate stops. \Cref{thm:edges} rests on the following construction. For a measurable colouring $c$ of $\R^2$ that is periodic under a lattice $\Lambda$, we say that a unit segment is \emph{placed at random} if its direction is uniform on the circle and, independently, one endpoint is uniform on $\R^2/\Lambda$.
+
+\begin{theorem}\label{thm:wave}
+There is an everywhere-defined measurable six-colouring $c:\R^2\to\{1,\dots,6\}$, periodic under a lattice, such that the two endpoints of a randomly placed unit segment receive the same colour with probability at most
+\[
+ p_E=\frac{2038573446989}{500000000000000000}=4.077146893978\times10^{-6}.
+\]
+\end{theorem}
+
+By itself, \Cref{thm:wave} gives \Cref{thm:edges} for at most $245{,}269$ edges: rotate the graph uniformly and translate it uniformly modulo the period lattice, so that each edge becomes a randomly placed unit segment, and note that $245{,}269\,p_E<1$. The last $241$ edges come from a repair. If a placement has exactly one monochromatic edge, one of its endpoints can be recoloured unless both endpoints see all six colours among their neighbours (\Cref{lem:onebad}). We show that, for every vertex of degree $d$ and whatever the directions of its $d$ edges, the expected number of neighbours sharing its colour exceeds the probability that it sees all six colours by at least $8\cdot10^{-9}d$ (\Cref{prop:stars}). The proof bounds the angular Fourier coefficients of the colouring seen from a vertex and uses Fej\'er's kernel to show that no configuration of directions can make all of them small.
+
+\Cref{thm:points} needs more. The colouring used there leaves a set of density $q\approx7.12\times10^{-5}$ uncoloured, and has monochromatic probability at most $p\approx7.09\times10^{-7}$ (\Cref{prop:pbar}). A minimal counterexample on $10{,}689$ vertices has at most $403{,}078$ edges (\Cref{cor:ceiling}). The union-bound estimate for the expected number of blank vertices and monochromatic edges is then at most $10{,}689\,q+403{,}078\,p=1.046268485\ldots$, which exceeds $1$. So these two estimates alone do not prove the theorem. We recover the missing $5\%$ in three ways. First, after the placement we choose a forest of pairs of blank vertices, and subtract the expected number of its edges (\Cref{lem:onebad,lem:head}). Its edges join nearby vertices, which tend to fall into the same hole; pairs of vertices whose difference is close to a vertical unit vector, which tend to fall into vertically adjacent holes; and pairs of centres of two unit circles on each of which the same two common neighbours are consecutive marked points; the distance between such centres is close to $2$ (\Cref{sec:centres}). Second, the same recolouring credit as for \Cref{thm:edges} applies to the partial colouring. Third, crossing-number bounds control the degree variance of a minimal counterexample, which limits the loss from vertices that cannot serve as forest tails, and they force many such pairs of circles.
+
+\subsection*{Organisation and verification}
+\Cref{sec:wave} defines the family of periodic \emph{wave colourings} and reduces their blank density, their monochromatic probability and their double-blank probabilities to one-dimensional integrals of piecewise-linear functions. \Cref{sec:stars} proves the recolouring credit for stars. \Cref{sec:edges} proves \Cref{thm:wave,thm:edges}. \Cref{sec:crossing} bounds the number of edges and the degree variance of a minimal counterexample using crossing numbers. \Cref{sec:packing} proves packing lemmas. \Cref{sec:forest} constructs the forest of short and vertical edges, and \Cref{sec:centres} adds the edges between circle centres. \Cref{sec:certificate} lists the certified constants and completes the proof of \Cref{thm:points}.
+
+Every constant is defined by an explicit finite formula, which is evaluated in exact integer or rational arithmetic or, where transcendental functions enter (the quadrature for the complete wave in \Cref{sec:edges} and the Fourier enclosures in \Cref{sec:angular}), in rigorous ball arithmetic, always with rounding in the safe direction. We state each formula so that the computation can be reimplemented from the paper. The computations are carried out by the programs listed in \Cref{app:replay}. The final finite check has two implementations written separately. \Cref{app:lean} describes a formal proof of both theorems in Lean, with an independent implementation of every computation it uses.
+
+\subsection*{Notation}
+Throughout, $H=\tfrac12$. For a measurable set $K\subset\R^2$ write $\area(K)$ for its Lebesgue measure, and for $v\in\R^2$ write $\gamma_K(v)=\area\big(K\cap(K+v)\big)$ for its covariogram. We write $\pos{z}=\max(z,0)$. For a real number $z$ we write $\dn{z}$ and $\up{z}$ for $z$ rounded down and up to a multiple of $10^{-18}$. We use the rational bounds
+\[
+ \pilo=\tfrac{333}{106}<\pi<\tfrac{355}{113}=\pihi .
+\]
+Points of the plane are written $(u,y)$, with $y$ the vertical coordinate.
+
+\section{Wave colourings}\label{sec:wave}
+
+\subsection{Definition}
+A \emph{wave datum} is a triple $(x,\ell,r)$ in which $x\in(\tfrac9{10},1)$ is rational and $\ell,r:[0,H]\to\R$ are continuous piecewise-linear functions with finitely many rational knots, such that:
+\begin{enumerate}
+\item[(W1)] $\ell(H-y)=\ell(y)$ and $r(H-y)=r(y)$ for $0\le y\le H$;
+\item[(W2)] $r(y)+r(y+H/2)=2x$ for $0\le y\le H/2$;
+\item[(W3)] $\ell$ is nonincreasing on $[0,H/2]$, and there is $y_0<H/4$ with $\ell=0$ on $[y_0,H/2]$;
+\item[(W4)] $0\le\ell<\tfrac15$ and $\tfrac45<r<1$ on $[0,H]$.
+\end{enumerate}
+By (W1) we may extend $\ell$ and $r$ to $H$-periodic functions on $\R$, and then $\ell(-y)=\ell(y)$. Moreover (W2) holds for every $y\in\R$: for $y\in[H/2,H]$ apply (W2) at $y-H/2$ and use periodicity.
+
+\begin{definition}[Wave colouring]\label{def:wave}
+Let $(x,\ell,r)$ be a wave datum. For $i\in\Z$, the \emph{$i$-th column} is the strip $2xi\le u<2x(i+1)$. For $z=(u,y)$ in the $i$-th column put $u'=u-2xi$ and $y'=y-\tfrac32Hi$. The colour $c(z)$ is:
+\begin{itemize}
+\item $(1,\lfloor y'/H\rfloor\bmod3)$ if $y'\notin H\Z$ and $\ell(y')<u'<r(y')$;
+\item $(2,\lfloor (y'+H/2)/H\rfloor\bmod3)$ if $y'+H/2\notin H\Z$ and $\ell(y'+H/2)<2x-u'<r(y'+H/2)$;
+\item \emph{blank} otherwise.
+\end{itemize}
+\end{definition}
+
+By (W2), $2x-r(y'+H/2)=r(y')$, so the first case requires $u'<r(y')$ and the second requires $u'>r(y')$. The two cases are disjoint and $c$ is well defined. The six colours are $\{1,2\}\times\Z/3$.
+
+Let $T=\{(u,y):0<y<H,\ \ell(y)<u<r(y)\}$ be the open \emph{tile}, $T^*=\{(-u,y):(u,y)\in T\}$ its mirror image, and
+\[
+ \Lambda=\Z(2x,\tfrac32H)+\Z(0,3H),\qquad \Gamma=\Z(2x,\tfrac32H)+\Z(0,H).
+\]
+Let $O=\{(u,y):|y|\le y_0,\ |u|\le\ell(y)\}$ be the \emph{hole}.
+
+\begin{lemma}[Structure]\label{lem:structure}
+Let $c$ be the wave colouring of a wave datum.
+\begin{enumerate}
+\item $c$ is $\Lambda$-periodic, and $\Lambda$ has covolume $6xH$.
+\item Each colour class is a disjoint union $\tau_\kappa+T_\kappa+\Lambda$ for some $\tau_\kappa\in\R^2$ and $T_\kappa\in\{T,T^*\}$; three colour classes use $T$ and three use $T^*$.
+\item The blank set is the disjoint union of the translates $\zeta+O$, $\zeta\in\Gamma$, together with a null set (a locally finite union of segments). The lattice $\Gamma$ has covolume $2xH$ and contains $(0,1)$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(1) Translation by $(2x,\tfrac32H)$ maps column $i$ to column $i+1$ and leaves $(u',y')$ unchanged, and translation by $(0,3H)$ changes $y'$ by $3H$, which changes neither $\ell(y')$, $r(y')$ nor the row indices modulo $3$.
+
+(2) In column $i$, the points of colour $(1,k)$ with $\lfloor y'/H\rfloor=k+3j$ form the set $(2xi,\tfrac32Hi+(k+3j)H)+T$. As $(i,j)$ ranges over $\Z^2$ the offsets $(2xi,\tfrac32 Hi+3jH)$ range over $\Lambda$, so the colour class is $(0,kH)+T+\Lambda$. Similarly, writing $y'+H/2=(k+3j)H+y''$ and $u'=2x-u''$ with $(u'',y'')\in T$, the class of $(2,k)$ is $(2x,kH-H/2)+T^*+\Lambda$. These translates are disjoint because $c$ is a function.
+
+(3) In column $i$ the non-tile points with $y'\notin H\Z$, $y'+H/2\notin H\Z$ and $u'\ne r(y')$ are those with $u'\le\ell(y')$ or $2x-u'\le\ell(y'+H/2)$. Near the boundary $u=2x(i+1)$ between columns $i$ and $i+1$, the first condition for column $i+1$ reads $u-2x(i+1)\le\ell\big(y-\tfrac32H(i+1)\big)$, and the second condition for column $i$ reads $2x(i+1)-u\le\ell\big(y-\tfrac32Hi+\tfrac H2\big)$. Since $-\tfrac32H\equiv\tfrac H2\pmod H$ these involve the same function of $y$. By (W1) and (W3) this function equals $\ell(y-\eta)$ when $|y-\eta|\le y_0$ for some $\eta\in\tfrac32H(i+1)+H\Z$, and vanishes otherwise. Hence the blank set near this boundary is $\bigcup_\eta\big((2x(i+1),\eta)+O\big)$ up to segments, and the points $(2xi,\eta)$ obtained in this way form $\Gamma$. The translates are disjoint since $2y_0<H$ and $2\max\ell<2x$. The excluded points lie on the lines $y'\in H\Z$, $y'+H/2\in H\Z$, the seams $u'=r(y')$ and the lines $u\in2x\Z$, a locally finite union of segments. Finally $(0,1)=2(0,H)\in\Gamma$.
+\end{proof}
+
+\begin{lemma}[Symmetries]\label{lem:symmetry}
+Let $c$ be the wave colouring of a wave datum, and put $T_{\rm low}=\{(u,y)\in T:y<H/2\}$ and $T_{\rm high}=\{(u,y)\in T:y>H/2\}$. Let $\sigma_1(u,y)=(u,H-y)$, $\sigma_2(u,y)=(-u,y)$ and $\tau_k(u,y)=(u,y+kH)$.
+\begin{enumerate}
+\item For $\gamma\in\{\sigma_1,\sigma_2,\tau_1\}$, and hence for every $\gamma$ in the group they generate, there is a permutation $\pi_\gamma$ of the six colours such that $c(\gamma(w))=\pi_\gamma(c(w))$ for every $w\in\R^2$, where we put $\pi_\gamma(\text{blank})=\text{blank}$.
+\item The twelve sets $\tau_k(T_{\rm low})$, $\tau_k(T_{\rm high})$, $\sigma_2\tau_k(T_{\rm low})$, $\sigma_2\tau_k(T_{\rm high})$ $(k=0,1,2)$ are images of $T_{\rm low}$ under isometries in the group generated by $\sigma_1,\sigma_2,\tau_1$, and they are pairwise disjoint modulo $\Lambda$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+By the proof of \Cref{lem:structure}(2), the class of $(1,k)$ is exactly $(0,kH)+T+\Lambda$ and the class of $(2,k)$ is exactly $(2x,kH-\tfrac H2)+T^*+\Lambda$; the blank set is the complement of the union of the six classes. So it suffices to show that each of $\sigma_1,\sigma_2,\tau_1$ maps every class onto a class.
+
+Let $R=\operatorname{diag}(1,-1)$ and $S=\operatorname{diag}(-1,1)$. Both preserve $\Lambda$, since $R(2x,\tfrac32H)=(2x,\tfrac32H)-(0,3H)$ and $S(2x,\tfrac32H)=-(2x,\tfrac32H)+(0,3H)$. By (W1), $(u,y)\in T$ if and only if $(u,H-y)\in T$, so $RT=T-(0,H)$, and likewise $RT^*=T^*-(0,H)$. Since $\sigma_1(w)=Rw+(0,H)$,
+\begin{gather*}
+ \sigma_1\big((0,kH)+T+\Lambda\big)=(0,-kH)+T+\Lambda,\\
+ \sigma_1\big((2x,kH-\tfrac H2)+T^*+\Lambda\big)=(2x,(1-k)H-\tfrac H2)+T^*+\Lambda,
+\end{gather*}
+which are the classes of $(1,-k)$ and $(2,1-k)$. Next, $\sigma_2\big((0,kH)+T+\Lambda\big)=(0,kH)+T^*+\Lambda$, and $(0,kH)-(2x,(k+2)H-\tfrac H2)=(-2x,-\tfrac32H)\in\Lambda$, so this is the class of $(2,k+2)$. As $\sigma_2$ is an involution, it maps the class of $(2,k+2)$ onto that of $(1,k)$. Finally $\tau_1$ maps the class of $(i,k)$ onto that of $(i,k+1)$. This proves (1).
+
+For (2), $\tau_k(T_{\rm high})=\tau_k\sigma_1(T_{\rm low})$ up to the segment $y=H/2$; since $T$ is open and symmetric about $y=H/2$, in fact $\sigma_1(T_{\rm low})=T_{\rm high}$ exactly. The set $\tau_k(T)=(0,kH)+T$ lies in the class of $(1,k)$, and $\sigma_2\tau_k(T)=(0,kH)+T^*$ lies in the class of $(2,k+2)$. These six classes are distinct, hence disjoint, and each is invariant under $\Lambda$. Within one class, $T_{\rm low}$ and $T_{\rm high}$ are disjoint subsets of one tile, and distinct translates of a tile by $\Lambda$ are disjoint by \Cref{lem:structure}(2). So the twelve sets are pairwise disjoint modulo $\Lambda$.
+\end{proof}
+
+\subsection{Random placement}
+Let $c$ be a wave colouring and $X\subset\R^2$ finite. A \emph{random placement} of $X$ is the colouring $x\mapsto c(\rho_\vartheta x+\tau)$, where $\vartheta$ is uniform on $[0,2\pi)$, $\tau$ is uniform on a fundamental domain of $\Lambda$, and the two are independent. A vertex is \emph{blank} if its colour is blank, and a pair $\{x,y\}$ is \emph{monochromatic} if both colours are equal and not blank. For fixed $\vartheta$, each point $\rho_\vartheta x+\tau$ is uniform on $\R^2/\Lambda$.
+
+\begin{definition}\label{def:qp}
+For a wave colouring let $q$ be the density of the blank set, and for a unit vector $e$ let $P(e)$ be the probability that $z$ and $z+e$ receive the same non-blank colour when $z$ is uniform on $\R^2/\Lambda$. Put $\bar p=\frac1{2\pi}\int_0^{2\pi}P(e_\theta)\dd\theta$, where $e_\theta=(\cos\theta,\sin\theta)$.
+\end{definition}
+
+So in a random placement each vertex is blank with probability $q$, and each unit pair is monochromatic with probability exactly $\bar p$.
+
+\begin{lemma}\label{lem:q}
+$q=\dfrac{1}{xH}\displaystyle\int_0^H\ell(y)\dd y$.
+\end{lemma}
+\begin{proof}
+By \Cref{lem:structure}(3), $q=\area(O)/(2xH)$, and $\area(O)=\int_{-y_0}^{y_0}2\ell(y)\dd y=2\int_0^H\ell$ by (W1) and (W3).
+\end{proof}
+
+\subsection{Monochromatic probability}
+Write $\gamma=\gamma_T$ for the covariogram of the tile.
+
+\begin{lemma}\label{lem:gamma-even}
+$\gamma(v_1,v_2)=\gamma(-v_1,v_2)=\gamma(v_1,-v_2)$, and $\gamma(v)=0$ unless $|v_1|<\max r$ and $|v_2|<H$.
+\end{lemma}
+\begin{proof}
+Always $\gamma(-v)=\gamma(v)$. The tile is invariant under $(u,y)\mapsto(u,H-y)$ by (W1), and this map sends $T\cap(T+v)$ onto $T\cap\big(T+(v_1,-v_2)\big)$. The last claim holds because $T\subset(0,\max r)\times(0,H)$.
+\end{proof}
+
+\begin{lemma}\label{lem:mono}
+For $0\le\theta\le\pi/2$,
+\[
+ P(e_\theta)=\frac{1}{xH}\Big[\gamma(\cos\theta,\sin\theta)+\gamma\big(2x-\cos\theta,\,|\tfrac34-\sin\theta|\big)\Big],
+\]
+and $\bar p=\dfrac{2}{\pi}\displaystyle\int_0^{\pi/2}P(e_\theta)\dd\theta$.
+\end{lemma}
+
+\begin{proof}
+Let $C=\tau_\kappa+T_\kappa+\Lambda$ be a colour class. Unfolding the torus, $\Pr(z\in C,\ z+e\in C)=\frac{1}{6xH}\sum_{\lambda\in\Lambda}\gamma_{T_\kappa}(\lambda-e)$. Since $\gamma_{T^*}(v_1,v_2)=\gamma(-v_1,v_2)=\gamma(v)$ by \Cref{lem:gamma-even}, summing over the six classes gives $P(e)=\frac{1}{xH}\sum_{\lambda\in\Lambda}\gamma(e-\lambda)$.
+
+Now let $e=e_\theta$ with $0\le\theta\le\pi/2$, and $\lambda=(2xi,\tfrac32Hi+3Hj)$. By \Cref{lem:gamma-even} a nonzero term needs $|\cos\theta-2xi|<\max r<1$. Since $2x>\tfrac95$ this forces $i\in\{0,1\}$. If $i=0$ we need $|\sin\theta-\tfrac32j|<\tfrac12$, so $j=0$. If $i=1$ we need $|\sin\theta-\tfrac34-\tfrac32j|<\tfrac12$, so $j=0$. The two remaining terms are $\gamma(e_\theta)$ and $\gamma(\cos\theta-2x,\sin\theta-\tfrac34)$, and the latter equals $\gamma(2x-\cos\theta,|\tfrac34-\sin\theta|)$ by \Cref{lem:gamma-even}.
+
+Finally, $\Lambda$ is invariant under both coordinate reflections, since $(-2x,\tfrac32H)=-(2x,\tfrac32H)+(0,3H)$. With \Cref{lem:gamma-even} this shows that $P(e)$ is invariant under $e\mapsto(-e_1,e_2)$ and $e\mapsto(e_1,-e_2)$, so the average over the circle equals the average over the first quadrant.
+\end{proof}
+
+\begin{lemma}[Enclosure of the tile covariogram]\label{lem:enclosure}
+Let $D\ge D_0\ge0$ and $0\le\delta_0\le\delta\le\delta_1$. If $\delta_0\ge H$ then $\gamma(D,\delta)=0$. Suppose now that $\delta_0<H$, and define $\ell^\flat(y)=\min\{\ell(y-\delta'):\delta'\in[\delta_0,\delta_1],\ \delta'\le y\}$ for $\delta_0\le y\le H$. Then
+\begin{equation}\label{eq:lflat}
+ \ell^\flat(y)=\begin{cases}\ell(y-\delta_0),& y-\delta_0\le H/2,\\ \ell(H/2),& y-\delta_1\le H/2\le y-\delta_0,\\ \ell(y-\delta_1),& y-\delta_1\ge H/2,\end{cases}
+\end{equation}
+and
+\[
+ \gamma(D,\delta)\le\int_{\delta_0}^{H}\pos{r(y)-\ell^\flat(y)-D_0}\dd y .
+\]
+\end{lemma}
+
+\begin{proof}
+If $\delta\ge H$, in particular if $\delta_0\ge H$, then $\gamma(D,\delta)=0$ by \Cref{lem:gamma-even}. Otherwise, slicing horizontally, $\gamma(D,\delta)=\int_\delta^H\big|(\ell(y),r(y))\cap(\ell(y-\delta)+D,\,r(y-\delta)+D)\big|\dd y$. The intersection of two open intervals $(a_1,b_1)$ and $(a_2,b_2)$ has length at most $\pos{b_1-a_2}$, so the integrand is at most $\pos{r(y)-\ell(y-\delta)-D}\le\pos{r(y)-\ell^\flat(y)-D_0}$. Extending the range of integration to $[\delta_0,H]$ only adds a nonnegative quantity. Formula~\eqref{eq:lflat} holds because the argument $y-\delta'$ ranges over an interval contained in $[0,H]$, and $\ell$ is nonincreasing on $[0,H/2]$ and nondecreasing on $[H/2,H]$ by (W1) and (W3).
+\end{proof}
+
+The function $\ell^\flat$ is piecewise linear: it is $\ell|_{[0,H/2]}$ translated by $\delta_0$, followed by a constant piece, followed by $\ell|_{[H/2,H]}$ translated by $\delta_1$. Hence the integrand $r-\ell^\flat-D_0$ is linear between consecutive points of the union of the knots of $r$ and of $\ell^\flat$ in $[\delta_0,H]$, and its positive part can be integrated exactly. If a linear function on an interval of length $\omega$ has endpoint values $z_0\le z_1$, then the integral of its positive part is $0$ if $z_1\le0$, $\omega(z_0+z_1)/2$ if $z_0\ge0$, and $\omega z_1^2/(2(z_1-z_0))$ otherwise. This is nondecreasing in $z_0$ and in $z_1$.
+
+\begin{proposition}[Certified upper bound for $\bar p$]\label{prop:pbar}
+Let $N\ge1$ and put $\tau_j=j/N$. For $0\le j<N$ let
+\[
+ c^-_j\le\frac{1-\tau_{j+1}^2}{1+\tau_{j+1}^2},\quad c^+_j\ge\frac{1-\tau_j^2}{1+\tau_j^2},\quad s^-_j\le\frac{2\tau_j}{1+\tau_j^2},\quad s^+_j\ge\frac{2\tau_{j+1}}{1+\tau_{j+1}^2}
+\]
+be these values rounded outward to multiples of $10^{-12}$. Let $A_j$ be the sum of the bounds of \Cref{lem:enclosure} for the two parameter choices
+\begin{gather*}
+ (D_0,\delta_0,\delta_1)=(c^-_j,\,s^-_j,\,s^+_j),\\
+ (D_0,\delta_0,\delta_1)=\big(2x-c^+_j,\ \max(0,\tfrac34-s^+_j,s^-_j-\tfrac34),\ \max(\tfrac34-s^-_j,s^+_j-\tfrac34)\big),
+\end{gather*}
+where the bound is $0$ if $\delta_0\ge H$ and is otherwise the integral of \Cref{lem:enclosure}, evaluated with the values of $r$ and of $-\ell^\flat$ at the integration knots rounded up to multiples of $10^{-12}$, and with each piece rounded up to a multiple of $10^{-24}$. (In the second choice $\delta_0=\tfrac34-s^+_j$ can exceed $H$.) Then
+\[
+ \bar p\le\frac{2}{\pi'\,xH}\sum_{j=0}^{N-1}A_j\cdot\frac{2N}{N^2+j^2},\qquad \pi'=\tfrac{314159}{100000}.
+\]
+\end{proposition}
+
+\begin{proof}
+If $\tan(\theta/2)\in[\tau_j,\tau_{j+1}]$ then $\cos\theta\in[c^-_j,c^+_j]$ and $\sin\theta\in[s^-_j,s^+_j]$, by monotonicity of $\tau\mapsto\frac{1-\tau^2}{1+\tau^2}$ and $\tau\mapsto\frac{2\tau}{1+\tau^2}$ on $[0,1]$. For such $\theta$, the first offset in \Cref{lem:mono} has horizontal component $\cos\theta\ge c^-_j$ and vertical component in $[s^-_j,s^+_j]$; the second has horizontal component $2x-\cos\theta\ge2x-c^+_j$ and vertical component $|\tfrac34-\sin\theta|$ in the stated interval. By \Cref{lem:enclosure} and the monotonicity of the positive-part integrals, $xH\,P(e_\theta)\le A_j$ throughout the bin. The bin has angular length $2(\arctan\tau_{j+1}-\arctan\tau_j)\le 2/(N(1+\tau_j^2))=2N/(N^2+j^2)$. Summing and applying \Cref{lem:mono} with $1/\pi<1/\pi'$ gives the claim.
+\end{proof}
+
+The bound of \Cref{prop:pbar} is computed in integer arithmetic. Heights and widths are integers in units of $10^{-12}$, the knots of the profiles are such integers, and $A_j$ is an integer in units of $10^{-24}$. Each term $A_j\cdot2N/(N^2+j^2)$ is rounded up to an integer in these units. All intermediate quantities are below $10^{37}$ and are held in signed $128$-bit integers. A term with $\delta_0\ge H$, or with $D_0\ge\max r$ (when the integrand vanishes because $\ell^\flat\ge0$), is set to zero without integrating. For speed, the bins are processed in $4{,}096$ consecutive blocks: the enclosure is first evaluated with the parameters of a whole block, and if the result is zero, which certifies that the integrand vanishes on the whole block, the fine bins of the block are skipped.
+
+\subsection{A height-integral bound for complete waves}\label{sec:heightint}
+When $\ell\equiv0$ there is a sharper way to bound $\bar p$: bound the overlap at each height, and integrate first over the angle.
+
+\begin{proposition}[Height integral]\label{prop:heightbound}
+Let $(x,0,r)$ be a wave datum with $\max r\le\tfrac{99}{100}$. For $0\le y\le H$ put
+\begin{gather*}
+ u=\arcsin y,\qquad v=\arcsin(\tfrac34-y),\\
+ a=\arccos r(y),\qquad b=\arccos\big(2x-r(y)\big),
+\end{gather*}
+and
+\begin{align*}
+ F_1(y)&=\begin{cases}\displaystyle\int_a^u\big(r(y)-\cos\theta\big)\dd\theta,&u>a,\\[1ex] 0,&u\le a,\end{cases}\\
+ F_2(y)&=\begin{cases}\displaystyle\int_v^b\big(\cos\theta-2x+r(y)\big)\dd\theta,&b>v,\\[1ex] 0,&b\le v.\end{cases}
+\end{align*}
+Then
+\[
+ \bar p\le\frac{2}{\pi xH}\int_0^H\big(F_1(y)+F_2(y)\big)\dd y .
+\]
+\end{proposition}
+
+\begin{proof}
+The quantities are well defined: $0\le y\le\tfrac12$, $\tfrac14\le\tfrac34-y\le\tfrac34$, and $2x-r(y)=r(y+H/2)\in(\tfrac45,1)$ by (W2) and (W4).
+
+Let $D\ge0$ and $\delta\ge0$. If $\delta\ge H$ then $\gamma(D,\delta)=0$ by \Cref{lem:gamma-even}. Otherwise, slicing horizontally as in the proof of \Cref{lem:enclosure} with $\ell=0$,
+\begin{align*}
+ \gamma(D,\delta)&=\int_\delta^H\big|(0,r(y))\cap(D,D+r(y-\delta))\big|\dd y\\
+ &\le\int_0^H\one[\delta\le y]\,\pos{r(y)-D}\dd y .
+\end{align*}
+Apply this to the two terms of \Cref{lem:mono}. For $0\le\theta\le\pi/2$ it gives
+\begin{multline*}
+ xH\,P(e_\theta)\le\int_0^H\Big(\one[\sin\theta\le y]\pos{r(y)-\cos\theta}\\
+ +\one\big[|\tfrac34-\sin\theta|\le y\big]\pos{r(y)-2x+\cos\theta}\Big)\dd y .
+\end{multline*}
+Integrate over $\theta\in[0,\pi/2]$ and exchange the order of integration, which is allowed since the integrand is nonnegative. Fix $y$. On $[0,\pi/2]$ the sine increases and the cosine decreases. So $\sin\theta\le y$ and $\cos\theta<r(y)$ hold together exactly for $a<\theta\le u$, which gives $\int_0^{\pi/2}\one[\sin\theta\le y]\pos{r(y)-\cos\theta}\dd\theta=F_1(y)$. For the second term, $\cos\theta>2x-r(y)>\tfrac45$ forces $\sin\theta<\tfrac35<\tfrac34$, so on the support of $\pos{r(y)-2x+\cos\theta}$ the condition $|\tfrac34-\sin\theta|\le y$ reads $\theta\ge v$, and $\cos\theta>2x-r(y)$ reads $\theta<b$. This gives $F_2(y)$. Therefore $\int_0^{\pi/2}P(e_\theta)\dd\theta\le\frac{1}{xH}\int_0^H(F_1+F_2)$, and \Cref{lem:mono} gives the claim.
+\end{proof}
+
+Evaluating the integrals in $\theta$,
+\begin{equation}\label{eq:G12}
+\begin{aligned}
+ G_1(y)&:=\int_a^u\big(r-\cos\theta\big)\dd\theta=r(u-a)-y+\sqrt{1-r^2},\\
+ G_2(y)&:=\int_v^b\big(\cos\theta-c\big)\dd\theta=\sqrt{1-c^2}-(\tfrac34-y)-c(b-v),\qquad c=2x-r,
+\end{aligned}
+\end{equation}
+where $r=r(y)$, and we use these expressions for every $y$, whatever the order of the limits.
+
+\begin{lemma}\label{lem:heightint}
+Under the hypotheses of \Cref{prop:heightbound}, suppose further that $|r'|\le1$ on every linear piece of $r$. Then:
+\begin{enumerate}
+\item $G_1\ge F_1\ge0$ and $G_2\ge F_2\ge0$ on $[0,H]$;
+\item on every closed interval $I\subseteq[0,H]$ on which $r$ is affine, $F_1+F_2$ is continuously differentiable and its derivative is Lipschitz with constant $38$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(1) If $u>a$ then $F_1=G_1=\int_a^u(r-\cos\theta)\dd\theta\ge0$, because $\cos\theta\le\cos a=r$ on $[a,u]$. If $u\le a$ then $F_1=0$ and $G_1=\int_u^a(\cos\theta-r)\dd\theta\ge0$, because $\cos\theta\ge\cos a=r$ on $[u,a]$. Similarly, if $b>v$ then $F_2=G_2\ge0$, and if $b\le v$ then $F_2=0$ and $G_2=\int_b^v(c-\cos\theta)\dd\theta\ge0$, because $\cos\theta\le\cos b=c$ on $[b,v]$.
+
+(2) On $I$ write $r'$ for the constant slope; then $c'=-r'$ by (W2). On $I$ we have $0\le y\le\tfrac12$ and $\tfrac45<r,c\le\tfrac{99}{100}$, so $G_1$ and $G_2$ are smooth. Differentiating \eqref{eq:G12}, and using $a'=-r'/\sqrt{1-r^2}$, $b'=-c'/\sqrt{1-c^2}$, $u'\cos u=1$ and $v'\cos v=-1$,
+\[
+ G_1'=r'(u-a)+(r-\cos u)\,u',\qquad G_2'=r'(b-v)-(\cos v-c)\,v',
+\]
+and
+\begin{align*}
+ G_1''&=r'(u'-a')+(r'+u'\sin u)\,u'+(r-\cos u)\,u'',\\
+ G_2''&=r'(b'-v')+(v'\sin v-r')\,v'-(\cos v-c)\,v''.
+\end{align*}
+Here $u'=(1-y^2)^{-1/2}\le2/\sqrt3<2$, $u''=y(1-y^2)^{-3/2}<1$, $|v'|=(1-(\tfrac34-y)^2)^{-1/2}\le4/\sqrt7<2$, $|v''|\le\tfrac34(\tfrac7{16})^{-3/2}<3$, and $|a'|,|b'|\le(1-0.99^2)^{-1/2}<8$. Since $|r'|\le1$, $|r-\cos u|\le1$ and $|\cos v-c|\le1$, we get $|G_1''|,|G_2''|\le(2+8)+(1+2)\cdot2+3=19$ on $I$.
+
+Now $F_1=G_1\one[u>a]$, and $u>a$ if and only if $y^2+r^2>1$. On $I$ the function $y^2+r(y)^2-1$ is a quadratic polynomial with leading coefficient $1+r'^2>0$, so $I$ splits into at most three intervals on each of which $F_1$ is either $G_1$ or $0$. At a point where $u=a$ we have $G_1=0$ and, since $\cos u=\cos a=r$, also $G_1'=0$. Hence $F_1$ is continuously differentiable on $I$, and $F_1'$ is continuous and piecewise Lipschitz with constant $19$, hence Lipschitz with constant $19$. The same argument applies to $F_2=G_2\one[b>v]$, since $b>v$ if and only if $c^2+(\tfrac34-y)^2<1$, again a quadratic condition with leading coefficient $1+r'^2$, and at $b=v$ we have $G_2=0$ and $G_2'=0$.
+\end{proof}
+
+\begin{lemma}[Midpoint rule]\label{lem:midpoint}
+If $f$ is continuously differentiable on $[\alpha,\beta]$ and $f'$ is Lipschitz with constant $\Lambda_0$, then $\big|\int_\alpha^\beta f-(\beta-\alpha)f(\tfrac{\alpha+\beta}2)\big|\le\Lambda_0(\beta-\alpha)^3/24$.
+\end{lemma}
+
+\begin{proof}
+Write $\mu=\tfrac{\alpha+\beta}2$ and $f(y)=f(\mu)+f'(\mu)(y-\mu)+\rho(y)$ with $|\rho(y)|\le\Lambda_0(y-\mu)^2/2$. The linear term integrates to zero, and $\int_\alpha^\beta\Lambda_0(y-\mu)^2/2\dd y=\Lambda_0(\beta-\alpha)^3/24$.
+\end{proof}
+
+\begin{corollary}\label{cor:heightquad}
+Under the hypotheses of \Cref{lem:heightint}, suppose that every knot of $r$ is a multiple of $H/N$ for an integer $N$, and let $y_i=(i+\tfrac12)H/N$ for $0\le i<N$. Let $\tilde F_i$ be any number with $\tilde F_i\ge F_1(y_i)+F_2(y_i)$. Then, with $\omega=H/N$,
+\[
+ \bar p\le\frac{2}{\pi x}\Big(\frac1N\sum_{i=0}^{N-1}\tilde F_i+\frac{64\,\omega^2}{24}\Big).
+\]
+\end{corollary}
+
+\begin{proof}
+Each cell $[i\omega,(i+1)\omega]$ lies in an interval on which $r$ is affine. Apply \Cref{lem:midpoint} with $\Lambda_0=38\le64$ on each cell, sum over the cells, divide by $H$, and use \Cref{prop:heightbound}.
+\end{proof}
+
+By \Cref{lem:heightint}(1), we may take $\tilde F_i=\tilde G_{1,i}+\tilde G_{2,i}$, where $\tilde G_{1,i}=0$ if a ball computation certifies $y_i^2+r(y_i)^2<1$, and otherwise $\tilde G_{1,i}$ is the upper endpoint of a ball containing $G_1(y_i)$; similarly $\tilde G_{2,i}=0$ if $c^2+(\tfrac34-y_i)^2>1$ is certified, and otherwise it is an upper bound for $G_2(y_i)$. So the comparisons that decide the cases never need to be resolved exactly.
+
+\subsection{Double-blank probability and the hole covariogram}
+Write $\kappa=\gamma_O$ for the covariogram of the hole, and $\hat\ell(y)=\ell(y)$ for $|y|\le y_0$, so that $O=\{|y|\le y_0,\ |u|\le\hat\ell(y)\}$.
+
+\begin{lemma}\label{lem:kappa}
+\begin{enumerate}
+\item $\kappa(v_1,v_2)$ is even in each coordinate and nonincreasing in $|v_1|$ and in $|v_2|$.
+\item For $X\ge0$ and $0\le Y\le2y_0$,
+\[
+ \kappa(X,Y)=\int_{Y-y_0}^{y_0}\pos{\min\big(2\hat\ell(y),\ 2\hat\ell(y-Y),\ \hat\ell(y)+\hat\ell(y-Y)-X\big)}\dd y ,
+\]
+and $\kappa(X,Y)=0$ for $X\ge0$ and $Y>2y_0$.
+\item If $z$ is uniform on $\R^2/\Lambda$, then for every $v\in\R^2$
+\[
+ \Pr\big(z\text{ and }z+v\text{ are both blank}\big)\ge\frac{1}{2xH}\max\Big(\kappa(v),\ \kappa\big(v-(0,1)\big)\Big).
+\]
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(1) The horizontal slice of $O$ at height $y$ is $[-\hat\ell(y),\hat\ell(y)]$, an interval centred at $0$. For two intervals of half-lengths $a,b$ centred at $0$ and at $X$, the length of the intersection is $\pos{\min(2a,2b,a+b-|X|)}$, which is even and nonincreasing in $|X|$. Integrating over $y$ gives the claims for $v_1$. Since $\hat\ell$ is even and nonincreasing in $|y|$ by (W1) and (W3), the vertical slice of $O$ at abscissa $u$ is also an interval centred at $0$, and the same argument applies to $v_2$.
+
+(2) This is the slice formula used in (1). The slices of $O$ and of $O+(X,Y)$ at height $y$ are both nonempty only if $|y|\le y_0$ and $|y-Y|\le y_0$, that is, for $Y\ge0$, only if $Y-y_0\le y\le y_0$. For $Y>2y_0$ this range is empty and the overlap is zero.
+
+(3) By \Cref{lem:structure}(3), the events $\{z\in\zeta+O,\ z+v\in\zeta+O\}$ for $\zeta\in\Gamma$ are disjoint, and each implies that both points are blank. Their total probability is $\kappa(v)/(2xH)$. For the second bound use the events $\{z\in\zeta+O,\ z+v\in\zeta+(0,1)+O\}$, which have total probability $\kappa(v-(0,1))/(2xH)$ because $(0,1)\in\Gamma$.
+\end{proof}
+
+\begin{definition}[Lower enclosure $\Omega$]\label{def:Omega}
+For $X,Y\ge0$ define $\Omega(X,Y)\ge0$ as follows. Round $X$ and $Y$ up to multiples of $10^{-12}$. If now $Y\ge2y_0$ or $X\ge2\hat\ell(0)$, put $\Omega(X,Y)=0$. Otherwise partition the nonempty interval $[Y-y_0,y_0]$ at the knots of $\hat\ell$ and of $\hat\ell(\cdot-Y)$. At each partition point evaluate $\hat\ell$ and $\hat\ell(\cdot-Y)$ rounded down to multiples of $10^{-12}$, and from these the value of $\min(2a,2b,a+b-X)$. On each piece integrate the positive part of the linear function with these endpoint values, rounding down. Divide the sum by $2xH$.
+\end{definition}
+
+\begin{lemma}\label{lem:Omega}
+If $|X'|\le X$ and $|Y'|\le Y$, then $\kappa(X',Y')/(2xH)\ge\Omega(X,Y)$.
+\end{lemma}
+
+\begin{proof}
+By \Cref{lem:kappa}(1) it suffices to take $(X',Y')$ equal to $(X,Y)$ rounded up. If $\Omega(X,Y)=0$ there is nothing to prove, since $\kappa\ge0$. Otherwise, on each piece, $\hat\ell$ and $\hat\ell(\cdot-Y)$ are linear, so the minimum of the three affine functions in \Cref{lem:kappa}(2) is concave and lies above its chord. The positive part is monotone, and the chord computed from rounded-down endpoint values lies below the exact chord.
+\end{proof}
+
+\section{Locked stars}\label{sec:stars}
+
+In this section $c$ is either the wave colouring of a wave datum or the complete colouring constructed in the proof of \Cref{thm:wave}, and $G$ is a finite graph whose vertices are points of $\R^2$ and whose edges are pairs of vertices at distance one. We place $G$ at random as in \Cref{sec:wave}. For a placement, a vertex $v$ and its colour $\kappa_v$, let
+\begin{itemize}
+\item $C_v$ be the number of neighbours of $v$ with colour $\kappa_v$, if $\kappa_v$ is not blank, and $C_v=0$ if $v$ is blank;
+\item $L_v=1$ if $v$ is not blank and its neighbours carry all six colours, and $L_v=0$ otherwise;
+\item $X$ be the number of \emph{monochromatic} edges, whose ends have the same non-blank colour.
+\end{itemize}
+Each monochromatic edge is counted twice in $\sum_vC_v$, so $\sum_vC_v=2X$. If $L_v=1$ then $C_v\ge1$, so $C_v-L_v\ge0$ always.
+
+\begin{lemma}[One bad edge]\label{lem:onebad}
+Suppose that $G$ has no proper $6$-colouring. Fix a placement and let $F$ be any forest on the vertex set of $G$. Let $Y$ be the number of blank vertices minus the number of edges of $F$ whose two ends are blank. Then $Y\ge0$, and
+\[
+ 1\le Y+\frac X2+\frac14\sum_vL_v .
+\]
+\end{lemma}
+
+\begin{proof}
+The blank vertices and the edges of $F$ joining two of them form a forest, and $Y$ is its number of components. So $Y\ge0$, and $Y\ge1$ if some vertex is blank. Suppose no vertex is blank. If $X=0$ the placement is a proper $6$-colouring, which is impossible. If $X\ge2$ the claim holds. If $X=1$, let $vw$ be the monochromatic edge. If $L_v=0$, some colour $\kappa$ is carried by no neighbour of $v$; in particular $\kappa$ differs from the colour of $w$, which is the colour of $v$. Recolouring $v$ with $\kappa$ makes every edge at $v$ proper and changes no other edge, so it gives a proper $6$-colouring, which is impossible. Hence $L_v=1$, and likewise $L_w=1$, so $\frac X2+\frac14\sum_uL_u\ge\frac12+\frac12$.
+\end{proof}
+
+Since $X=\frac12\sum_vC_v$, taking expectations in \Cref{lem:onebad} gives
+\begin{equation}\label{eq:onebad}
+ 1\le\E Y+\E X-\frac14\sum_v\E\,(C_v-L_v).
+\end{equation}
+
+For a vertex $v$ of degree $d\ge1$ write its neighbours as $v+e_{\varphi_1},\dots,v+e_{\varphi_d}$, and put
+\[
+ s_k=\frac1d\sum_{j=1}^de^{ik\varphi_j}\qquad(k\in\Z).
+\]
+These \emph{power sums} satisfy $|s_k|\le1$ and $|s_{-k}|=|s_k|$, and $|s_k|$ is unchanged if all the $\varphi_j$ are replaced by $\varphi_j+\varphi$ or by $\varphi-\varphi_j$. For a bounded measurable function $g$ on $\R/2\pi\Z$ write $\hat g(k)=\frac1{2\pi}\int_0^{2\pi}g(t)e^{-ikt}\dd t$.
+
+The image of $v$ in a random placement is $z=\rho_\vartheta v+\tau$, and its neighbours go to $z+e_{\vartheta+\varphi_j}$. For fixed $\vartheta$ the point $z$ is uniform on $\R^2/\Lambda$, so $(\vartheta,z)$ is uniform on $[0,2\pi)\times\R^2/\Lambda$. For $z\in\R^2$ let $A_v(z)$ be the average over $\vartheta\in[0,2\pi)$ of $C_v-L_v$, computed from the colours $c(z)$ and $c(z+e_{\vartheta+\varphi_j})$. Then
+\begin{equation}\label{eq:Av}
+ \E\,(C_v-L_v)=\frac1{6xH}\int_{\R^2/\Lambda}A_v(z)\dd z,\qquad A_v\ge0 .
+\end{equation}
+
+\begin{lemma}[Star bounds]\label{lem:starfourier}
+Let $v$ have degree $d\ge1$, and let $z\in\R^2$ with $\kappa=c(z)$ not blank.
+\begin{enumerate}
+\item Let $b\ne\kappa$ be a colour, and let $g$ be a bounded measurable function on $\R/2\pi\Z$ with $g(t)\le\one[c(z+e_t)=\kappa]-\one[c(z+e_t)=b]$ for almost every $t$. Then for every $k\ge1$,
+\[
+ A_v(z)\ge\frac d2\pos{\hat g(0)+|\hat g(k)|\,|s_k|}.
+\]
+\item If $c(z+e_t)=\kappa$ for all $t$ in a measurable set $\mathcal S\subseteq\R/2\pi\Z$ of measure $2\pi f$, then $A_v(z)\ge d\,\pos{f-1/d}$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(1) For fixed $\vartheta$ let $N_b$ be the number of neighbours of colour $b$. We claim $C_v-L_v\ge\pos{C_v-N_b}$. If $L_v=0$ this holds since $C_v,N_b\ge0$. If $L_v=1$ then $N_b\ge1$ and $C_v\ge1$, so $C_v-1\ge\max(0,C_v-N_b)$. Next, for each $j$ and almost every $\vartheta$,
+\[
+ \one[c(z+e_{\vartheta+\varphi_j})=\kappa]-\one[c(z+e_{\vartheta+\varphi_j})=b]\ge g(\vartheta+\varphi_j),
+\]
+so $C_v-N_b\ge D(\vartheta):=\sum_jg(\vartheta+\varphi_j)$ for almost every $\vartheta$. Hence $A_v(z)\ge\frac1{2\pi}\int D_+=\frac1{4\pi}\int(D+|D|)$. Now $\frac1{2\pi}\int D=d\,\hat g(0)$, and
+\begin{align*}
+ \frac1{2\pi}\int_0^{2\pi}|D(\vartheta)|\dd\vartheta&\ge\Big|\frac1{2\pi}\int_0^{2\pi}D(\vartheta)e^{-ik\vartheta}\dd\vartheta\Big|\\
+ &=\Big|\sum_je^{ik\varphi_j}\hat g(k)\Big|=d\,|s_k|\,|\hat g(k)| .
+\end{align*}
+So $A_v(z)\ge\frac d2(\hat g(0)+|\hat g(k)||s_k|)$, and $A_v(z)\ge0$.
+
+(2) The number $C_v$ is at least the number of $j$ with $\vartheta+\varphi_j\in\mathcal S$, whose average over $\vartheta$ is $df$, and $L_v\le1$. So $A_v(z)\ge df-1$, and $A_v(z)\ge0$.
+\end{proof}
+
+\begin{lemma}[Fej\'er]\label{lem:fejer}
+For all real $\varphi_1,\dots,\varphi_d$ and every $K\ge1$,
+\[
+ \sum_{k=1}^K2\Big(1-\frac k{K+1}\Big)|s_k|^2\ge\frac{K+1}d-1 .
+\]
+\end{lemma}
+
+\begin{proof}
+The Fej\'er kernel $\Phi_K(t)=\frac1{K+1}\big|\sum_{j=0}^Ke^{ijt}\big|^2=\sum_{|k|\le K}\big(1-\frac{|k|}{K+1}\big)e^{ikt}$ is nonnegative and $\Phi_K(0)=K+1$. Hence
+\[
+ \sum_{|k|\le K}\Big(1-\frac{|k|}{K+1}\Big)|s_k|^2=\frac1{d^2}\sum_{i,j=1}^d\Phi_K(\varphi_i-\varphi_j)\ge\frac1{d^2}\cdot d(K+1),
+\]
+keeping only the diagonal terms. The left side is $1+\sum_{k=1}^K2(1-\frac k{K+1})|s_k|^2$.
+\end{proof}
+
+\subsection{Source boxes}
+Let $T_{\rm low}$ be as in \Cref{lem:symmetry}; it lies in the tile $T$, of colour $(1,0)$. A \emph{Fourier box} is a closed rectangle $\mathfrak b\subset\overline{T_{\rm low}}$ together with a colour $b\ne(1,0)$ and numbers $\mu_{\mathfrak b}$ and $h_{\mathfrak b,k}\ge0$ $(1\le k\le K)$ such that for almost every $z\in\mathfrak b$ there is a function $g$ as in \Cref{lem:starfourier}(1) with $\hat g(0)\ge\mu_{\mathfrak b}$ and $|\hat g(k)|\ge h_{\mathfrak b,k}$ for all $k\le K$. A \emph{native box} is a closed rectangle $\mathfrak b\subset\overline{T_{\rm low}}$ with a number $f_{\mathfrak b}$ such that for almost every $z\in\mathfrak b$ there is a set $\mathcal S$ as in \Cref{lem:starfourier}(2) with $|\mathcal S|\ge2\pi f_{\mathfrak b}$.
+
+\begin{lemma}\label{lem:boxsum}
+Let $\mathcal F$ be a family of Fourier boxes and $\mathcal N$ a family of native boxes, all with pairwise disjoint interiors. Let $v$ be a vertex of degree $d\ge1$ with power sums $s_k$. Then for every $1\le k\le K$,
+\[
+ \frac{\E\,(C_v-L_v)}d\ge\sum_{\mathfrak b\in\mathcal F}\frac{\area(\mathfrak b)}{xH}\pos{\mu_{\mathfrak b}+h_{\mathfrak b,k}|s_k|}+\sum_{\mathfrak b\in\mathcal N}\frac{2\area(\mathfrak b)}{xH}\pos{f_{\mathfrak b}-\tfrac1d}.
+\]
+\end{lemma}
+
+\begin{proof}
+Suppose first that $c$ is a wave colouring. Let $\gamma$ be one of the twelve isometries of \Cref{lem:symmetry}(2), write $\gamma(w)=Mw+\zeta$ with $M\in\{I,R,S,RS\}$, and let $\pi$ be the permutation of colours with $c\circ\gamma=\pi\circ c$, from \Cref{lem:symmetry}(1). Define $t\mapsto t'$ by $e_{t'}=M^{-1}e_t$; it is one of $t$, $-t$, $\pi-t$, $\pi+t$. Let $\mathfrak b$ be a Fourier box, $z\in\mathfrak b$ and $g$ as in the definition, and put $z'=\gamma(z)$ and $g'(t)=g(t')$. Then $c(z')=\pi(1,0)$, $\gamma(z+e_{t'})=z'+e_t$, and
+\[
+ g'(t)\le\one[c(z'+e_t)=\pi(1,0)]-\one[c(z'+e_t)=\pi(b)]
+\]
+for almost every $t$. Also $\hat g'(0)=\hat g(0)$ and $|\hat g'(k)|=|\hat g(k)|$. So \Cref{lem:starfourier}(1) gives $A_v(z')\ge\frac d2\pos{\mu_{\mathfrak b}+h_{\mathfrak b,k}|s_k|}$ for almost every $z'\in\gamma(\mathfrak b)$. In the same way \Cref{lem:starfourier}(2) gives $A_v(z')\ge d\pos{f_{\mathfrak b}-1/d}$ for almost every $z'\in\gamma(\mathfrak b)$ when $\mathfrak b$ is a native box. By \Cref{lem:symmetry}(2), the sets $\gamma(\mathfrak b)$, for the twelve isometries and all boxes, have pairwise disjoint interiors modulo $\Lambda$. Insert these bounds into \eqref{eq:Av}, using $A_v\ge0$ elsewhere: each box contributes $12\area(\mathfrak b)/(6xH)$ times its bound.
+
+If $c$ is the complete colouring of \Cref{thm:wave}, it agrees with the wave colouring $c_0$ of $W_E$ off a locally finite union $\mathcal N_0$ of segments. A unit circle meets $\mathcal N_0$ in a finite set. So for every $z\notin\mathcal N_0$, the colours $c(z+e_t)$ and $c_0(z+e_t)$ agree for almost every $t$, and $A_v(z)$ is the same for $c$ and $c_0$. Hence the bound for $c_0$ applies.
+\end{proof}
+
+\begin{lemma}[Threshold test]\label{lem:threshold}
+Let $\mathcal F,\mathcal N$ be as in \Cref{lem:boxsum}, let $d\ge1$ and $\beta'>0$, and put $\mathcal Z=\sum_{\mathfrak b\in\mathcal N}\frac{2\area(\mathfrak b)}{xH}\pos{f_{\mathfrak b}-1/d}$. For $1\le k\le K$ let $t_k\in[0,1]$ be such that either $t_k=1$ or
+\[
+ \mathcal Z+\sum_{\mathfrak b\in\mathcal F}\frac{\area(\mathfrak b)}{xH}\pos{\mu_{\mathfrak b}+h_{\mathfrak b,k}t_k}\ge\beta' .
+\]
+If $\mathcal Z\ge\beta'$, or if $\sum_{k=1}^K2(1-\frac k{K+1})t_k^2<\frac{K+1}d-1$, then $\E(C_v-L_v)\ge\beta'd$ for every vertex $v$ of degree $d$.
+\end{lemma}
+
+\begin{proof}
+If $\mathcal Z\ge\beta'$, use \Cref{lem:boxsum} with $\mathcal F$ empty. Otherwise suppose that $\E(C_v-L_v)<\beta'd$. The bound of \Cref{lem:boxsum} is nondecreasing in $|s_k|$, so $|s_k|<t_k$ whenever $t_k<1$, and $|s_k|\le1=t_k$ otherwise. Then $\sum_k2(1-\frac k{K+1})|s_k|^2\le\sum_k2(1-\frac k{K+1})t_k^2<\frac{K+1}d-1$, contradicting \Cref{lem:fejer}.
+\end{proof}
+
+\begin{proposition}[Locked stars]\label{prop:stars}
+Let $\beta_E=8\cdot10^{-9}$ and $\beta_V=901\cdot10^{-12}$. In a random placement in the complete colouring $c$ of \Cref{thm:wave}, every vertex $v$ of every finite unit-distance graph satisfies $\E\,(C_v-L_v)\ge\beta_E\deg v$. In a random placement in the wave colouring of the datum $W_V$ of \Cref{sec:certificate}, every vertex satisfies $\E\,(C_v-L_v)\ge\beta_V\deg v$.
+\end{proposition}
+
+The proof is a finite computation, described in the rest of this section, which verifies the hypotheses of \Cref{lem:threshold} for every degree. For $d=0$ there is nothing to prove.
+
+\subsection{Angular enclosures}\label{sec:angular}
+Let $N_a=2^{17}$. For $q\in\{0,1,2,3\}$ and $0\le i\le N_a$ put $\alpha_{q,i}=q\pi/2+2\arctan(i/N_a)$, so that
+\[
+ e_{\alpha_{0,i}}=\Big(\frac{N_a^2-i^2}{N_a^2+i^2},\,\frac{2N_ai}{N_a^2+i^2}\Big)
+\]
+and $e_{\alpha_{q,i}}$ is obtained by rotating this through $q\pi/2$. For $i<j$, both coordinates of $e_t$ are monotone on $[\alpha_{q,i},\alpha_{q,j}]$, so $e_t$ lies in the rectangle with opposite corners $e_{\alpha_{q,i}}$ and $e_{\alpha_{q,j}}$. If $z$ lies in a box $\mathfrak b$, then $z+e_t$ lies in the \emph{target rectangle} $\mathfrak b+[e_{\alpha_{q,i}},e_{\alpha_{q,j}}]$, which the programs enlarge outward to coordinates that are multiples of $10^{-12}$.
+
+For a rectangle $Q$ and a colour $\kappa$ the programs compute a status: \emph{in} only if $Q$ lies in the closure of a single tile of colour $\kappa$, and \emph{out} only if $Q$ meets no tile of colour $\kappa$. They enumerate the columns and rows of \Cref{def:wave} that meet $Q$, and compare $Q$ with lower and upper bounds for $\ell$ and $r$ on the range of heights of $Q$ in each row. Both profiles used below have $\ell$ nonincreasing and $r$ nondecreasing on $[0,H/2]$, which the programs verify, so by (W1) the extreme values of $\ell$ and $r$ on an interval of heights are attained at its endpoints or at $H/2$. Values of $\ell$ and $r$ between knots are rounded outward to multiples of $10^{-12}$.
+
+Fix a box $\mathfrak b$ in $T_{\rm low}$ and an alternate colour $b$. In each quadrant, the programs classify index intervals $[i,j]$, starting from $[0,N_a]$, using the target rectangle. If the status of $(1,0)$ is \emph{in}, the interval receives the value $+1$; otherwise, if the status of $b$ is \emph{in}, the value $-1$; otherwise, if both statuses are \emph{out}, the value $0$; otherwise the interval is bisected at $\lfloor(i+j)/2\rfloor$, unless $j=i+1$, in which case it is \emph{terminal}. This produces a partition of the circle into arcs $I=[\alpha_{q,i},\alpha_{q,j}]$.
+
+\emph{Complete wave.} Here $g_z(t)=\one[c(z+e_t)=(1,0)]-\one[c(z+e_t)=b]$ itself is used in \Cref{lem:starfourier}(1). On a non-terminal arc with value $\epsilon$ we have $g_z=\epsilon$ for every $z\in\mathfrak b$ and almost every $t\in I$. On a terminal arc put $(m_I,\varrho_I)=(0,1)$ if neither status is \emph{out}, $(\tfrac12,\tfrac12)$ if only the status of $b$ is \emph{out}, and $(-\tfrac12,\tfrac12)$ if only that of $(1,0)$ is \emph{out}. On non-terminal arcs put $(m_I,\varrho_I)=(\epsilon,0)$. Then $|g_z(t)-m(t)|\le\varrho(t)$ for every $z\in\mathfrak b$ and almost every $t$, where $m$ and $\varrho$ are the step functions with values $m_I$ and $\varrho_I$. Hence
+\[
+ \hat g_z(0)\ge\hat m(0)-\hat\varrho(0),\qquad |\hat g_z(k)|\ge|\hat m(k)|-\hat\varrho(0),
+\]
+and these right-hand sides, with $\hat m(k)=\frac1{2\pi}\sum_Im_I\frac{e^{-ik\alpha}-e^{-ik\alpha'}}{ik}$ for $I=[\alpha,\alpha']$, are computed in ball arithmetic with $100$-bit precision. Their lower endpoints, rounded down to multiples of $10^{-10}$ (and replaced by $0$ if negative, for $h$), are $\mu_{\mathfrak b}$ and $h_{\mathfrak b,k}$.
+
+\emph{Partial wave.} Here the terminal arcs receive the value $-1$ if the status of $b$ is not \emph{out}, and $0$ otherwise. The resulting step function $g$ satisfies $g(t)\le\one[c(z+e_t)=(1,0)]-\one[c(z+e_t)=b]$ for every $z\in\mathfrak b$ and almost every $t$, and it does not depend on $z$. Its coefficients are computed in integer arithmetic with denominator $S=10^{12}$. The length $2\arctan\frac{N_a}{N_a^2+i(i-1)}$ of the arc from $\alpha_{q,i-1}$ to $\alpha_{q,i}$ lies between $\lfloor2S\eta\rfloor/S-1/S$ and $\lceil2S\eta\rceil/S$, where $\eta=N_a/(N_a^2+i(i-1))$, since $0\le2\eta-2\arctan\eta\le2\eta^3/3<1/S$. Positive arcs use the lower bound and negative arcs the upper bound. For the Fourier coefficients, the $k$-th powers of the rounded points $e_{\alpha_{q,i}}$ are computed by repeated multiplication with truncation to $S^{-1}\Z[\mathrm i]$. Each truncation, and the initial rounding, costs less than $\sqrt2/S$, and if the $k$-th power is within $6k/S$ of $e^{\mathrm ik\alpha_{q,i}}$ then the next is within $(1+\sqrt2/S)6k/S+2\sqrt2/S<6(k+1)/S$; we use $k\le512$. So each arc's term $(e^{ik\alpha'}-e^{ik\alpha})/k$ is computed with error at most $12/S$. The modulus is bounded below by an integer square root, the total error $12/S$ per arc is subtracted, and the results are divided by $2\pi$ using $3.1415926<\pi<3.1415927$ and rounded down to multiples of $10^{-10}$.
+
+\emph{Native boxes.} Only the arcs with value $+1$ are used: $\mathcal S$ is their union, and $f_{\mathfrak b}$ is a lower bound for its measure divided by $2\pi$, computed as above.
+
+\subsection{The certificate for the complete wave}\label{sec:starE}
+All coordinates in this subsection are in units of $10^{-6}$, and boxes are written $[u_0,u_1]\times[y_0,y_1]$. Put $r_y=\lfloor10^6r_E(10^{-6}y)\rfloor$. The Fourier boxes are:
+\begin{itemize}
+\item $[a',a'']\times[y,y+20]$ for $y=0,20,\dots,5980$, with alternate colour $(2,2)$, the colour of the tile across the left wall $u=0$;
+\item $[u,u+20]\times[a',a'']$ for $u=80,100,\dots,5980$ and for $u=866000,866020,\dots,876380$, with alternate colour $(1,2)$, the colour of the tile below;
+\item $[r_y-a'',r_y-a']\times[y,y+100]$ for $y=0,100,\dots,249900$, with alternate colour $(2,0)$, the colour of the tile across the seam $u=r(y)$;
+\end{itemize}
+where in the first two families $(a',a'')$ runs over $(0,5)$, $(5,15)$, $(15,35)$, $(35,65)$, and in the third over $(0,10)$, $(10,30)$, $(30,60)$, $(60,95)$. There are $14{,}464$ of them. The three families are disjoint, since their abscissae lie in $[0,65]$, $[80,876400]$ and $(876400,10^6)$ respectively, and the program checks that every box lies in $\overline{T_{\rm low}}$. The native boxes are the $252$ squares $[u,u+50]\times[y,y+50]$ with $u\in\{0,50,\dots,550\}$ and $y\in\{0,50,\dots,1000\}$; they tile $[0,600]\times[0,1050]$. Exactly $14{,}148$ Fourier boxes have interiors disjoint from this rectangle.
+
+We use $K=56$, $\beta'=\beta_E$, and thresholds $t_k$ that are multiples of $10^{-5}$ found by bisection.
+\begin{itemize}
+\item For $d\le23$ we take $\mathcal N=\emptyset$ and all $14{,}464$ Fourier boxes. Then $\sum_k2(1-\frac k{57})t_k^2=\frac{386575250753}{285000000000}<1.357$, while $\frac{57}d-1\ge\frac{34}{23}>1.478$.
+\item For $24\le d\le27$ we take the $252$ native boxes and the $14{,}148$ Fourier boxes disjoint from them. Then $\mathcal Z<\beta_E$, and the Fej\'er test passes with the following values.
+\begin{center}\small
+\begin{tabular}{@{}rrrr@{}}
+\toprule
+$d$ & $\mathcal Z$ & $\sum_k2(1-\frac k{57})t_k^2$ & $\frac{57}d-1$\\
+\midrule
+$24$ & $3.334\times10^{-10}$ & $1.36446$ & $1.37500$\\
+$25$ & $1.715\times10^{-9}$ & $1.05445$ & $1.28000$\\
+$26$ & $4.315\times10^{-9}$ & $0.56097$ & $1.19231$\\
+$27$ & $7.676\times10^{-9}$ & $0.08319$ & $1.11111$\\
+\bottomrule
+\end{tabular}
+\end{center}
+\item For $d\ge28$ we take $\mathcal F=\emptyset$ and the native boxes. At $d=28$, $\mathcal Z=\frac{10356541361}{923677693607000000}>1.12\times10^{-8}>\beta_E$, and $\mathcal Z$ is nondecreasing in $d$.
+\end{itemize}
+The program computes all these quantities exactly as rationals from the integers $\mu_{\mathfrak b},h_{\mathfrak b,k},f_{\mathfrak b}$. This proves the first statement of \Cref{prop:stars}.
+
+\subsection{The certificate for the partial wave}\label{sec:starV}
+Again coordinates are in units of $10^{-6}$. Put $r_y=\lfloor10^6r_V(10^{-6}y)\rfloor$ and $\ell_y=\lfloor10^6\ell_V(10^{-6}y)\rfloor+1$. The Fourier boxes are:
+\begin{itemize}
+\item $[r_y-a'',r_y-a']\times[y,y+10]$ for $y=1,11,\dots,249981$ and $(a',a'')$ in $(1,4)$, $(4,10)$, $(10,20)$, $(20,40)$, $(40,70)$, with alternate colour $(2,0)$;
+\item $[\ell_y+a',\ell_y+a'']\times[y,y+20]$ for $y=9170,9190,\dots,17990$ and $(a',a'')$ in $(0,2)$, $(2,5)$, $(5,12)$, $(12,25)$, $(25,45)$, $(45,80)$, $(80,135)$, $(135,200)$, with alternate colour $(2,2)$;
+\item $[u,u+25]\times[a',a'']$ for $u=4300,4325,\dots,10975$ and for $u=861000,861025,\dots,874725$, and $(a',a'')$ in $(1,4)$, $(4,10)$, $(10,20)$, $(20,40)$, $(40,75)$, with alternate colour $(1,2)$.
+\end{itemize}
+There are $132{,}621$ of them. The native boxes are $[\ell_y+a',\ell_y+a'']\times[y,y+20]$ for $y=5,25,\dots,9145$ and $(a',a'')$ in $(0,5)$, $(5,15)$, $(15,30)$, $(30,55)$, $(55,90)$, $(90,150)$, $(150,240)$, $(240,360)$, $(360,540)$; there are $4{,}122$ of them, beside the hole. The program verifies that every box lies in $T_{\rm low}$ (strictly), and verifies by a sweep over the horizontal edges that all $136{,}743$ boxes have pairwise disjoint interiors.
+
+We use all boxes, $\beta'=\beta_V$, thresholds that are multiples of $10^{-4}$, and for each degree $d$ the least $K=K_d\le512$ for which the Fej\'er test of \Cref{lem:threshold} passes. For instance $K_d=d$ for $d\le8$, $K_{20}=24$, $K_{40}=71$, $K_{60}=145$, the largest is $K_{79}=309$, and $K_{88}=100$. For $d\ge89$ the native boxes alone give $\mathcal Z\ge\beta_V$, and $\mathcal Z$ is nondecreasing in $d$. The value $901$ is the largest integer $\beta$ for which the test passes at every degree with $\beta'=\beta\cdot10^{-12}$. This proves the second statement of \Cref{prop:stars}.
+
+\section{The complete colouring: proof of \Cref{thm:wave,thm:edges}}\label{sec:edges}
+
+Let $W_E=(x_E,0,r_E)$ be the wave datum with
+\[
+ x_E=\frac{923677693607}{10^{12}},\qquad \ell\equiv0,
+\]
+and $r_E$ the piecewise-linear function with knots at the $2{,}049$ heights $kH/2048$, $0\le k\le2048$, whose values, integers in units of $10^{-12}$, are published with the programs (\Cref{app:replay}). Its values lie in $[0.876497,0.970859]$. A program checks exactly that $r_E(H-y)=r_E(y)$ and $r_E(y+H/2)=2x_E-r_E(y)$ at all knots, which gives (W1) and (W2) since both sides are piecewise linear with the same knots; that $\tfrac45<r_E<\tfrac{99}{100}$ at all knots, which gives (W4) and the hypothesis of \Cref{prop:heightbound}; that consecutive knot values differ by at most $H/2048$, so $|r_E'|\le1$; and that $r_E$ is nondecreasing on $[0,H/2]$. (W3) holds with $y_0=0$. Here the hole is a segment, so $q=0$ and the blank set is null.
+
+\begin{proof}[Proof of \Cref{thm:wave}]
+Let $c_0$ be the wave colouring of $W_E$. Here $y_0=0$, so the hole $O$ is the single point $(0,0)$, and by \Cref{lem:structure}(3) and its proof the blank set of $c_0$ is contained in the set $\mathcal N_0$ formed by the horizontal lines $y'\in H\Z$ and $y'+H/2\in H\Z$, the vertical lines $u\in2x\Z$, and the polygonal seams $u'=r_E(y')$; this is a locally finite union of segments. The blank set is a proper subset of $\mathcal N_0$: for instance the point $(\tfrac32,0)$ of column $0$ lies on the line $y'=0$ but receives the colour $(2,0)$. The boundary of every open tile lies in $\mathcal N_0$, and the open tiles are disjoint and cover $\R^2\setminus\mathcal N_0$, so every component of $\R^2\setminus\mathcal N_0$ lies in a single open tile. Fix a unit vector $\nu$ that is neither horizontal, vertical, nor parallel to any of the finitely many segments of the seams. For $z\in\R^2$ the open segment $\{z+\varepsilon \nu:0<\varepsilon<\varepsilon_z\}$ avoids $\mathcal N_0$ for some $\varepsilon_z>0$, because only finitely many segments of $\mathcal N_0$ meet a neighbourhood of $z$, and each meets the line $z+\R \nu$ in at most one point. This open segment is connected, so it lies in one open tile. Let $c(z)$ be the colour of that tile. Then $c$ is defined everywhere, agrees with $c_0$ off the null set $\mathcal N_0$, and is therefore measurable and $\Lambda$-periodic.
+
+A randomly placed unit segment has an endpoint in $\mathcal N_0$ with probability zero, so its probability of being monochromatic under $c$ equals $\bar p$ for $c_0$. We apply \Cref{cor:heightquad} with $N=2048\cdot256=524{,}288$, so that $\omega=2^{-20}$ and $64\omega^2/24=1/412316860416$. The program evaluates $\tilde F_i$ at the $524{,}288$ midpoints as described after \Cref{cor:heightquad}, in ball arithmetic with $100$-bit precision, and rounds the upper endpoint of the resulting ball for the right side of \Cref{cor:heightquad} up to a multiple of $10^{-18}$. The result is $p_E$.
+\end{proof}
+
+\begin{proof}[Proof of \Cref{thm:edges}]
+Let $G$ have $m$ edges and suppose it has no proper $6$-colouring. Place $G$ at random in the complete colouring $c$ of \Cref{thm:wave}. No vertex is blank, so with $F=\emptyset$ we have $Y=0$ in \Cref{lem:onebad}. Each edge is monochromatic with probability $\bar p\le p_E$, so $\E X\le mp_E$. By \eqref{eq:onebad} and \Cref{prop:stars},
+\[
+ 1\le mp_E-\frac14\sum_v\beta_E\deg v=m\Big(p_E-\frac{\beta_E}2\Big)=m\cdot\frac{2036573446989}{500000000000000000}.
+\]
+But $245{,}510\cdot2036573446989<5\cdot10^{17}$, so $m>245{,}510$.
+\end{proof}
+
+Without \Cref{prop:stars}, the same argument gives $1\le mp_E$, and $245{,}269\,p_E<1$. The computations of $p_E$ and of \Cref{prop:stars} for $c$ are reproduced by the programs of \Cref{app:replay}.
+
+\begin{remark}
+The profile $r_E$ was found as follows; the proof does not use this. At height $y$ with $r=r_E(y)$, the integrand of \Cref{prop:heightbound} is $F_1(y)+F_2(y)$. By (W1) and (W2), the heights $t$, $H-t$, $H/2-t$, $H/2+t$ carry widths $r,r,2x-r,2x-r$, so for fixed $x$ the objective decouples into convex one-dimensional problems, one for each $t\in[0,H/4]$. These were solved by bisection at the heights $t\in\frac{1}{4096}\Z\cap[0,\tfrac18]$, the widths were rounded to multiples of $10^{-12}$, and the symmetries (W1) and (W2) were imposed exactly.
+\end{remark}
+
+\section{Crossings and the degree variance}\label{sec:crossing}
+
+A \emph{drawing} of a multigraph without loops represents vertices by distinct points of the plane and edges by Jordan arcs joining their endpoints and containing no other vertex. If any two edges of a drawing $\mathcal D$ have finitely many common points, let $\cro(\mathcal D)$ be the number of triples $(e,f,z)$ with $\{e,f\}$ an unordered pair of distinct edges and $z$ a common interior point of $e$ and $f$. The crossing number $\cro(G)$ is the minimum number of crossings in a drawing of $G$. By local redrawing near each common point (removing touchings and separating points where several edges meet), $\cro(G)\le\cro(\mathcal D)$ for every such drawing~\cite{Schaefer}.
+
+\begin{theorem}[Büngener--Kaufmann; Büngener--Franz--Kaufmann--Pfister]\label{thm:BFKP}
+Every simple graph $G$ with $N\ge3$ vertices and $M$ edges satisfies $\cro(G)\ge6M-\tfrac{266}{9}(N-2)$.
+\end{theorem}
+
+Büngener and Kaufmann~\cite{BK} prove that every graph with $N\ge3$ vertices and $M$ edges satisfies $\cro(G)\ge5M-\tfrac{203}{9}(N-2)$; this is Theorem~4(b) of the journal version and Theorem~6(b) of arXiv:2409.01733v2. For $M\le7(N-2)$ it implies \Cref{thm:BFKP}, since the two right-hand sides agree at $M=7(N-2)$. For $M>7(N-2)$ we use the density theorem of Büngener, Franz, Kaufmann and Pfister~\cite[Theorem~7]{BFKP}: a simple graph on $N\ge3$ vertices with a simple drawing in which every edge has at most five crossings has at most $7(N-2)$ edges. Fix a drawing of $G$ with $\cro(G)$ crossings. It is simple, that is, adjacent edges do not cross and two edges cross at most once~\cite{Schaefer}, and so are its subdrawings. Delete edges one at a time, each with at least six crossings in the current subdrawing, until at most $7(N-2)$ edges remain; this is possible by the density theorem. If $M'$ edges remain, then $M'\le7(N-2)$ and
+\begin{align*}
+ \cro(G)&\ge6(M-M')+5M'-\tfrac{203}{9}(N-2)\\
+ &\ge6M-7(N-2)-\tfrac{203}9(N-2)=6M-\tfrac{266}{9}(N-2).
+\end{align*}
+This is the argument in the proof of Theorem~17 of~\cite{BFKP}.
+
+\begin{lemma}[Sampling]\label{lem:sampling}
+Let $G$ be a simple graph with $n$ vertices and $m$ edges, and let $4\le k\le n$. Put $P_2=\frac{(k)_2}{(n)_2}$ and $P_4=\frac{(k)_4}{(n)_4}$, where $(a)_i=a(a-1)\cdots(a-i+1)$. Then
+\[
+ \cro(G)\ge c_k(m):=\frac{6mP_2-\tfrac{266}{9}(k-2)}{P_4}.
+\]
+\end{lemma}
+
+\begin{proof}
+Fix a drawing of $G$ with $\cro(G)$ crossings. In a drawing with the minimum number of crossings, adjacent edges do not cross~\cite{Schaefer}, so each crossing involves four distinct vertices. Let $S$ be a uniformly random $k$-subset of the vertices and keep the induced subdrawing. An edge survives with probability $P_2$ and a crossing survives with probability $P_4$. Since $k\ge4$, $P_4>0$. Applying \Cref{thm:BFKP} to $G[S]$, which has $k\ge3$ vertices, and taking expectations gives $P_4\cro(G)\ge6mP_2-\tfrac{266}{9}(k-2)$.
+\end{proof}
+
+\begin{lemma}[Halving]\label{lem:halving}
+Let $\mathcal H$ be a multigraph without loops on $n\ge k\ge4$ vertices, with $2m$ edges and every pair of vertices joined by at most two edges. Let $\mathcal D$ be a drawing of $\mathcal H$ in which any two edges have finitely many common points. Then $\cro(\mathcal D)\ge4c_k(m)$.
+\end{lemma}
+
+\begin{proof}
+Let $b$ be the number of pairs of parallel edges and $a$ the number of remaining edges, so $a+2b=2m$. Form a random simple spanning subgraph $G$ by keeping one edge of each parallel pair, chosen uniformly, and keeping each remaining edge independently with probability $\tfrac12$. Every edge of $\mathcal H$ is kept with probability exactly $\tfrac12$, edges from different classes are kept independently, and two edges of the same parallel pair are never both kept. Hence $\E[\cro(\mathcal D|_G)]\le\tfrac14\cro(\mathcal D)$, where $\mathcal D|_G$ is the subdrawing. Also $\E[e(G)]=b+a/2=m$. Since $c_k$ is an affine function of $m$, \Cref{lem:sampling} gives
+\[
+ \tfrac14\cro(\mathcal D)\ge\E[\cro(\mathcal D|_G)]\ge\E[\cro(G)]\ge\E[c_k(e(G))]=c_k(m).\qedhere
+\]
+\end{proof}
+
+\begin{lemma}[Degree variance]\label{lem:variance}
+Let $X\subset\R^2$ be a set of $n\ge k\ge4$ points whose unit-distance graph has $m$ edges and degrees $d_v$, and suppose that every non-isolated vertex has degree at least $3$. Then
+\[
+ \sum_{v\in X}\Big(d_v-\frac{2m}{n}\Big)^2\le2V_k(m),\qquad V_k(m)=n(n-1)-4c_k(m)-\frac{2m^2}{n}+m .
+\]
+\end{lemma}
+
+\begin{proof}
+For each non-isolated $v$ let $S_v$ be the unit circle centred at $v$. The points of $X$ on $S_v$ are exactly the $d_v\ge3$ neighbours of $v$, and they divide $S_v$ into $d_v$ arcs, each joining two distinct points of $X$. Let $\mathcal H$ be the multigraph on $X$ whose edges are these $\sum_vd_v=2m$ arcs, drawn as the arcs themselves; call this drawing $\mathcal D$. No arc contains a point of $X$ in its interior. Two distinct points lie on at most two unit circles, and on a circle with at least three marked points at most one arc joins two given marked points, so $\mathcal H$ has edge multiplicity at most two.
+
+Arcs of the same circle have disjoint interiors, and two distinct circles meet in at most two points. Count the pairs $(\{v,v'\},z)$ with $v\ne v'$ non-isolated and $z\in S_v\cap S_{v'}$. There are at most $2\binom n2=n(n-1)$ of them. A point $u\in X$ lies on $S_v$ if and only if $v$ is a neighbour of $u$, so the pairs with $z\in X$ number $\sum_u\binom{d_u}{2}$. Each pair with $z\notin X$ contributes at most one crossing of $\mathcal D$, since $z$ lies in the interior of exactly one arc of each of the two circles. Therefore $\cro(\mathcal D)\le n(n-1)-\sum_u\binom{d_u}2$, and by \Cref{lem:halving},
+\[
+ \sum_u\binom{d_u}{2}\le n(n-1)-4c_k(m).
+\]
+Since $\sum_u\binom{d_u}2=\tfrac12\sum_u(d_u-2m/n)^2+2m^2/n-m$, the lemma follows.
+\end{proof}
+
+The use of the unit circles about the points to bound unit distances by the crossing lemma is due to Székely~\cite{Szekely}. Subtracting the intersections at the points themselves is due to Ágoston and Pálvölgyi~\cite{AP}, who also give a multiplicity-two reduction of the kind proved in \Cref{lem:halving}.
+
+We use $k=2090$ throughout. Then $4c_k(m)=\sigma m-\kappa_0$ with
+\[
+ \sigma=\frac{24(n-2)(n-3)}{(k-2)(k-3)},\qquad \kappa_0=\frac{4\cdot266\,n(n-1)(n-2)(n-3)}{9k(k-1)(k-3)},
+\]
+so $V(m):=V_{2090}(m)=n(n-1)+\kappa_0+(1-\sigma)m-2m^2/n$ is a concave quadratic. Since $\sigma>1$, $V$ is strictly decreasing on $[0,\infty)$.
+
+\begin{corollary}[Edge ceiling]\label{cor:ceiling}
+Let $n=10{,}689$ and $m^*=403{,}078$. Then $V(m^*)>0>V(m^*+1)$. Consequently, under the hypotheses of \Cref{lem:variance}, $m\le m^*$.
+\end{corollary}
+\begin{proof}
+For $n=10{,}689$ we have $\sigma=38067094/60523\approx628.97$, and exact evaluation gives $V(403{,}078)\approx107.1$ and $V(403{,}079)\approx-671.7$. The left side of \Cref{lem:variance} is nonnegative, so $V(m)\ge0$, and $V$ is decreasing.
+\end{proof}
+
+\section{Packing lemmas}\label{sec:packing}
+
+In this section $P$ is a finite set of points with pairwise distances greater than $2\varrho$, for some $\varrho>0$, and $t>0$. Write $\nu_P(z,t)=\#\{z'\in P\setminus\{z\}:|z-z'|\le2t\}$.
+
+\begin{lemma}[Pointwise bound]\label{lem:pointwise}
+For every $z\in P$, $\nu_P(z,t)\le k_\varrho(t)$, where $k_\varrho(t)=0$ if $t\le\varrho$ and otherwise
+\[
+ k_\varrho(t)=\min\Big(\big\lfloor(1+2t/\varrho)^2\big\rfloor-1,\ \mathcal A\big(\lceil100t/\varrho\rceil\big)\Big),
+\]
+with $\mathcal A$ defined in the proof.
+\end{lemma}
+
+\begin{proof}
+If $t\le\varrho$ the count is zero by separation. The open discs of radius $\varrho$ about the points counted and about $z$ are disjoint and lie in the disc of radius $2t+\varrho$ about $z$, which gives the first bound.
+
+For the second, scale by $1/(2\varrho)$. The counted points then have pairwise distances greater than $1$ and distances from $z$ in $(1,\varpi]$ with $\varpi=t/\varrho$. For $1\le\varpi_1\le\varpi_2$ put $C(\varpi_1,\varpi_2)=\max\frac{a^2+b^2-1}{2ab}$ over $a,b\in\{\varpi_1,\varpi_2\}$. If two points at distances $a,b\in[\varpi_1,\varpi_2]$ from $z$ subtend an angle $\phi$ at $z$, then $a^2+b^2-2ab\cos\phi>1$, so $\cos\phi<\frac{a^2+b^2-1}{2ab}\le C(\varpi_1,\varpi_2)$. The last inequality holds because $a\mapsto\frac{a^2+b^2-1}{2ab}$ is convex on $a>0$ when $b\ge1$, and symmetrically in $b$, so its maximum over the square $[\varpi_1,\varpi_2]^2$ is attained at a corner. Let $N(\varpi_1,\varpi_2)$ be the least integer $k\in[4,127]$ with
+\[
+ 1-\tfrac{\psi^2}{2}+\tfrac{\psi^4}{24}-\tfrac{\psi^6}{720}>C(\varpi_1,\varpi_2),\qquad \psi=\tfrac{44}{7(k+1)},
+\]
+and $N=\infty$ if there is none or $C\ge1$. Suppose $k+1$ points lie at distances in $[\varpi_1,\varpi_2]$. Two of them are angularly consecutive about $z$ and subtend an angle $\phi\le2\pi/(k+1)\le\psi\le\pi$, so $\cos\phi\ge\cos\psi\ge1-\psi^2/2+\psi^4/24-\psi^6/720$, a contradiction. So at most $N(\varpi_1,\varpi_2)$ points lie in the annulus. Finally put
+\[
+ \mathcal A(M)=\min\Big(N(1,\tfrac M{100}),\ \min_{c}\big[N(1,\tfrac c{100})+N(\tfrac c{100},\tfrac M{100})\big]\Big),
+\]
+the inner minimum over $c\in\{110,120,130,\dots\}$ with $c<M$. Since $\varpi\le\lceil100t/\varrho\rceil/100$, every counted point lies in one of the annuli used.
+\end{proof}
+
+\begin{lemma}[Average degree]\label{lem:average}
+Let $G_t$ be the graph on $P$ joining pairs at distance at most $2t$, and put $\varpi=t/\varrho$. If $\varpi^2\le2$ then the degrees in $G_t$ sum to at most $6|P|$. If $\varpi\le\tfrac{39}{25}$ then they sum to at most $8|P|$.
+\end{lemma}
+
+\begin{proof}
+Scale by $1/(2\varrho)$, so that points are more than $1$ apart and edges have length at most $\varpi$. Consider the straight-line drawing of $G_t$. No edge passes through a third point, since that edge would then have length greater than $2$.
+
+Let $\varpi^2\le2$, and suppose that edges $pq$ and $p'q'$ cross. Their endpoints form a convex quadrilateral with diagonals $pq$ and $p'q'$, and one of its angles is at least $\pi/2$, say the angle at $p$. By the cosine rule $|p'q'|^2\ge|pp'|^2+|pq'|^2>2$, a contradiction. So the drawing is plane, $G_t$ is planar, and it has at most $3|P|-6$ edges if $|P|\ge3$ and at most one edge otherwise. In both cases the degrees sum to at most $6|P|$.
+
+Let $\varpi\le\tfrac{39}{25}$. By the first part we may assume $\varpi^2>2$. Put $h=\tfrac58$. Place an edge on $[0,\varpi']\times\{0\}$ with $\varpi'\le\varpi$. Every other point $(X,Y)$ is at distance more than $1$ from both endpoints. If $0\le X\le\varpi'$ then $Y^2>1-(\varpi'/2)^2\ge1-(39/50)^2>h^2$; otherwise its distance to the segment exceeds $1$. So every other point has distance more than $h$ from the segment. Suppose an edge $pp'$ crosses the segment at $o$. Then $|po|\le\varpi-|op'|<\varpi-h<1$. If $p$ projected outside $[0,\varpi']$, say $X_p<0$, then $|po|\ge|p|>1$; so $p$ projects inside, its height satisfies $h<|Y_p|<\varpi-h$, and from $X_p^2+Y_p^2>1$ we get $X_p>(1-(\varpi-h)^2)^{1/2}>\tfrac7{20}$, and likewise $\varpi'-X_p>\tfrac7{20}$. Hence $p$ lies in one of the two boxes $[\tfrac7{20},\varpi'-\tfrac7{20}]\times\pm[h,\varpi-h]$, each of diameter at most $\big((\varpi-\tfrac{7}{10})^2+(\varpi-\tfrac54)^2\big)^{1/2}<1$. Each box contains at most one point, and a crossing edge has one endpoint in each box. So every edge is crossed by at most one other edge.
+
+It follows that $G_t$ has at most $4|P|-8$ edges when $|P|\ge3$. This is the case of the bound $4N-8$ for graphs on $N\ge3$ vertices drawn with at most one crossing per edge~\cite{BSW,PachToth}; we give a direct proof in the present setting. Let $ab$ and $pp'$ be crossing edges, meeting at $o$, and let $Q$ be the convex quadrilateral with diagonals $ab$ and $pp'$. By the argument above, applied to the edge $ab$, the points $p,p'$ lie in the two boxes for $ab$, so that, for instance, $|p-a|^2<(\varpi-\tfrac7{20})^2+(\varpi-h)^2\le\varpi^2$; the last inequality holds because $\varpi^2-\tfrac{39}{20}\varpi+\tfrac{3284}{6400}<0$ for $\sqrt2<\varpi\le\tfrac{39}{25}$. In the same way $|p-b|,|p'-a|,|p'-b|<\varpi$, so the four sides of $Q$ are edges of $G_t$. The argument above also gives $|po|,|p'o|<1$, and, applied to $pp'$ in place of $ab$, $|ao|,|bo|<1$. Every point $z$ of the closed triangle $apo$ satisfies $|z-a|<1$ or $|z-p|<1$: on the part of the triangle nearer to $a$ than to $p$, the convex function $|z-a|$ is maximal at a vertex of that part, and these vertices are $a$, the midpoint of $ap$, possibly $o$, and a point of $ao$ or $op$ equidistant from $a$ and $p$, all at distance less than $1$ from $a$ (because $|ap|<2$, $|ao|<1$ and $|po|<1$); symmetrically for the part nearer to $p$. Hence the triangle $apo$ contains no point of $P$ other than $a$ and $p$, and likewise for the other three triangles into which the diagonals cut $Q$. Next, no edge $f$ crosses the side $ap$. Otherwise $f$ is not incident to $a$ or $p$, and the part of $f$ that runs from the crossing point into the triangle $apo$ ends at a point of $P$ outside that triangle, so it leaves the triangle through the segment $ao$ or $op$. Then $f$ also crosses $ab$ or $pp'$, which contradicts the fact that $f$ is crossed by at most one edge. The same holds for the other three sides of $Q$.
+
+Let $c$ be the number of crossing pairs of edges, and let $G''$ be the plane graph obtained from $G_t$ by deleting the $2c$ edges that are crossed. For a crossing pair as above, no edge of $G''$ meets the interior of $Q$: it would have an endpoint there, or cross a side of $Q$, or join two vertices of $Q$ through its interior, and the only such segments are the deleted diagonals. As the sides of $Q$ are edges of $G''$, the interior of $Q$ is a face of $G''$ whose boundary walk has length $4$. Distinct crossing pairs give distinct faces, because the face determines its four vertices and hence the two diagonals. If $c=0$ then $G_t$ is plane and has at most $3|P|-6$ edges. If $c\ge1$ then $G''$ contains a cycle, so each of its $F$ faces has a boundary walk of length at least $3$, while $c$ of them have length $4$. With $e''=e(G_t)-2c$, this gives $2e''\ge3F+c$ and $2e''\ge4c$, and Euler's formula gives $F\ge e''-|P|+2$. Hence $e''\le3|P|-6-c$, so $2c\le e''\le3|P|-6-c$ and $c\le|P|-2$. Therefore $e(G_t)=e''+2c\le3|P|-6+c\le4|P|-8$. In all cases with $|P|\ge3$ the degrees sum to less than $8|P|$, and for $|P|\le2$ they sum to at most $2$.
+\end{proof}
+
+For a separation radius $\varrho$ define
+\[
+ g_\varrho(t)=\begin{cases}\min(k_\varrho(t),6),&(t/\varrho)^2\le2,\\ \min(k_\varrho(t),8),&(t/\varrho)^2>2\text{ and }t/\varrho\le\tfrac{39}{25},\\ k_\varrho(t),&\text{otherwise.}\end{cases}
+\]
+By \Cref{lem:pointwise,lem:average}, $\sum_{z\in P}\nu_P(z,t)\le|P|\,g_\varrho(t)$, where both sides vanish if $P$ is empty. So $P$ has at most $|P|\,g_\varrho(t)/2$ unordered pairs at distance at most $2t$.
+
+\begin{lemma}[Close pairs]\label{lem:shortpairs}
+Let $0<\delta_R<\delta$, let $\cD\subseteq\cR\subseteq X$ be finite sets such that points of $\cR$ are more than $\delta_R$ apart and points of $\cD$ more than $\delta$ apart, and put $s=|X\setminus\cR|$ and $j=|\cR\setminus\cD|$. Suppose that $\lfloor(1+2\delta/\delta_R)^2\rfloor=14$ and that $(u'-v')^2+u'v'(\tfrac{2\pi}9)^2<\delta_R^2$ for all $u',v'\in\{\delta_R,\delta\}$.
+\begin{enumerate}
+\item Every point not in $\cR$ is at distance less than $\delta_R$ from at most five points of $\cR$, and every point not in $\cD$ is at distance less than $\delta$ from at most five points of $\cD$.
+\item The number of unordered pairs of points of $X$ at distance less than $\delta_R$ is at most $5s+\binom s2$.
+\item The number of unordered pairs of points of $X$ at distance less than $\delta$ is at most $14s+8j+\binom s2$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(1) Let $(\varrho,P)$ be $(\delta_R,\cR)$ or $(\delta,\cD)$, and let $z\notin P$. If six points of $P$ were at distance less than $\varrho$ from $z$, two of them, at distances $u',v'<\varrho$ from $z$, would subtend an angle $\phi\le\pi/3$ at $z$. Their squared distance would be $u'^2+v'^2-2u'v'\cos\phi\le u'^2+v'^2-u'v'\le\max(u',v')^2<\varrho^2$, contradicting the separation of $P$.
+
+(2) A pair at distance less than $\delta_R$ has a point outside $\cR$. At most $\binom s2$ pairs have both points outside $\cR$, and by (1) at most $5s$ have exactly one.
+
+(3) A pair at distance less than $\delta$ is not contained in $\cD$. At most $\binom s2$ pairs lie outside $\cR$. For $z\notin\cR$, the open discs of radius $\delta_R/2$ about the points of $\cR$ within distance $\delta$ of $z$ are disjoint and lie in the disc of radius $\delta+\delta_R/2$ about $z$, so there are at most $\lfloor(1+2\delta/\delta_R)^2\rfloor=14$ such points; this bounds the pairs with exactly one point outside $\cR$ by $14s$. The remaining pairs lie in $\cR$ and have a point $z\in\cR\setminus\cD$. The other points of $\cR$ within distance $\delta$ of $z$ lie in the annulus $\delta_R<|z'-z|\le\delta$. If there were nine of them, two would subtend an angle $\phi\le2\pi/9$ at $z$, at distances $u',v'\in[\delta_R,\delta]$, and their squared distance would be $(u'-v')^2+2u'v'(1-\cos\phi)\le(u'-v')^2+u'v'(\tfrac{2\pi}9)^2$. This is a convex function of each of $u'$ and $v'$ separately, so on the square $[\delta_R,\delta]^2$ it is maximal at a corner, where it is less than $\delta_R^2$ by hypothesis. This contradicts the separation of $\cR$. So there are at most $8j$ such pairs.
+\end{proof}
+
+For $\delta_R=0.0053$ and $\delta=0.007348$, the two hypotheses are checked in exact rational arithmetic, using $\pi<\frac{355}{113}$.
+
+\section{The forest argument}\label{sec:forest}
+
+\subsection{Parameters}
+From now on the wave datum is the datum $W_V=(x_V,\ell_V,r_V)$ of \Cref{sec:certificate}, and $q$ and $p\ge\bar p$ are its blank density and its certified monochromatic bound. We fix
+\[
+ a=\tfrac{53}{20000},\qquad d=\tfrac{1837}{500000},\qquad w=\tfrac{73}{10000},\qquad N_u=16384,\qquad N_s=8192,
+\]
+and put $\delta_R=2a=0.0053$ and $\delta=2d=0.007348$.
+\paragraph{Unit credit.} Put $\Delta=w/N_u$, $t_k=k\Delta$ and $h_0=1$, and for $1\le k\le N_u$ let
+\[
+ h_k=\min\big(h_{k-1},\ \Omega(t_k,t_k^2/2)\big).
+\]
+Define the step function $h(t)=h_k$ for $t\in(t_{k-1},t_k]$, with $h(0)=h_1$. It is nonincreasing.
+\paragraph{Short credits.} Put $\tau_i=i/N_s$ for $0\le i\le N_s$. For a radius $\varrho\in\{a,d\}$ and $0\le i<N_s$ let
+\[
+ \omega_\varrho(i)=\Omega\Big(2\varrho\,\frac{1-\tau_i^2}{1+\tau_i^2},\ 2\varrho\,\frac{2\tau_{i+1}}{1+\tau_{i+1}^2}\Big),
+\]
+and set $M_1=\tfrac34\max_i\omega_a(i)$, $M_2=\tfrac3{10}\max_i\omega_d(i)$, $c_1(i)=\min(\omega_a(i),M_1)$ and $c_2(i)=\min(\omega_d(i),M_2)$. Put $M_0=0$.
+
+For a nonzero vector $v$ let $\varphi(v)\in[0,\pi/2]$ be the angle with $(|v_1|,|v_2|)=|v|(\cos\varphi,\sin\varphi)$, and let $i(v)$ be the index with $\tan(\varphi(v)/2)\in[\tau_i,\tau_{i+1})$ (with $i=N_s-1$ if $\varphi=\pi/2$).
+
+\begin{lemma}\label{lem:credits-valid}
+Let $z$ be uniform on $\R^2/\Lambda$.
+\begin{enumerate}
+\item If $0<|v|\le2\varrho$ then $\Pr(z,z+v\text{ both blank})\ge\omega_\varrho(i(v))$.
+\item If $v=(\sin t,\cos t)$ with $|t|\le w$ then $\Pr(z,z+v\text{ both blank})\ge h(|t|)$.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+(1) With $\varphi=\varphi(v)\in[2\arctan\tau_i,2\arctan\tau_{i+1}]$ we have $|v_1|\le2\varrho\cos\varphi\le2\varrho\frac{1-\tau_i^2}{1+\tau_i^2}$ and $|v_2|\le2\varrho\sin\varphi\le2\varrho\frac{2\tau_{i+1}}{1+\tau_{i+1}^2}$. Apply \Cref{lem:Omega} and \Cref{lem:kappa}(3).
+(2) If $|t|\in(t_{k-1},t_k]$, or $t=0$ and $k=1$, then $v-(0,1)=(\sin t,\cos t-1)$ has $|\sin t|\le t_k$ and $1-\cos t\le t_k^2/2$. By \Cref{lem:kappa}(3) and \Cref{lem:Omega} the probability is at least $\Omega(t_k,t_k^2/2)\ge h_k$.
+\end{proof}
+
+\subsection{The candidate graph}\label{sec:forest-def}
+Let $X$ be a finite set of $n$ points, with $m$ unit pairs, all of which we regard as edges. Choose a maximal subset $\cR\subseteq X$ with pairwise distances greater than $2a$, and a maximal subset $\cD\subseteq\cR$ with pairwise distances greater than $2d$. Put $s=|X\setminus\cR|$ and $j=|\cR\setminus\cD|$. By maximality each $x\in X\setminus\cR$ has a \emph{parent} $\pi(x)\in\cR$ with $|x-\pi(x)|\le2a$, and each $x\in\cR\setminus\cD$ has a parent $\pi(x)\in\cD$ with $|x-\pi(x)|\le2d$. Iterating $\pi$ at most twice from $x$ reaches a \emph{root} $\operatorname{rt}(x)\in\cD$; let $\operatorname{dp}(x)\in\{0,1,2\}$ be the number of steps. Then
+\begin{equation}\label{eq:rootdist}
+ |x-\operatorname{rt}(x)|\le2d\ \ (x\in\cR),\qquad |x-\operatorname{rt}(x)|\le2a+2d\ \ (x\in X).
+\end{equation}
+The sets $\cR,\cD$ and the parents are fixed once and for all. Define the \emph{layer} $\lambda(x)$ to be $1$ if $x\notin\cR$, $2$ if $x\in\cR\setminus\cD$, and $0$ if $x\in\cD$.
+
+Consider a random placement with rotation $\vartheta$ and write $\hat x=\rho_\vartheta x+\tau$. Let $\cE\in\{\cR,\cD\}$ be the set of \emph{eligible tails}; the two choices are called \emph{mode~$\cR$} and \emph{mode~$\cD$}. For each $\vartheta$, the \emph{candidate edges} are directed pairs $(x,y)$, from a \emph{tail} $x$ to a \emph{head} $y$, of three kinds:
+\begin{itemize}
+\item the \emph{short edge} $(\pi(y),y)$, for each $y\notin\cD$, with credit $c_{\lambda(y)}\big(i(\hat y-\widehat{\pi(y)})\big)$;
+\item each \emph{unit edge} $(x,y)$ with $x\in\cE$, $|x-y|=1$ and $\hat y-\hat x=(\sin t,\cos t)$ for some $|t|\le w$, with credit $h(|t|)$; we write $t=t_{xy}$;
+\item the \emph{centre edges} defined in \Cref{sec:centres}, whose heads lie in $\cD$.
+\end{itemize}
+Short and unit edges are \emph{ordinary}. Candidate edges depend on $\vartheta$ but not on $\tau$. Assign to $x$ the pair $\Phi(x)=\big(\text{height of }\rho_\vartheta\operatorname{rt}(x),\ \operatorname{dp}(x)\big)$, ordered lexicographically, using the rotated but untranslated root; it depends on $\vartheta$ but not on $\tau$. Since translation by $\tau$ raises all heights by the same amount, the height of $\widehat{\operatorname{rt}(y)}$ exceeds that of $\widehat{\operatorname{rt}(x)}$ exactly when the first coordinate of $\Phi(y)$ exceeds that of $\Phi(x)$.
+
+\begin{lemma}\label{lem:acyclic}
+For every $\vartheta$, $\Phi$ strictly increases from tail to head along every candidate edge. Consequently, every set of candidate edges in which each vertex is the head of at most one edge is a forest.
+\end{lemma}
+
+\begin{proof}
+A short edge $(\pi(y),y)$ preserves the root and increases the depth by one. For a unit edge $(x,y)$, the tail lies in $\cE\subseteq\cR$ and the height of $\hat y$ exceeds that of $\hat x$ by $\cos t\ge\cos w$, so by~\eqref{eq:rootdist} the height of $\widehat{\operatorname{rt}(y)}$ exceeds that of $\widehat{\operatorname{rt}(x)}$ by at least
+\[
+ \cos w-2d-(2a+2d)=\cos w-4d-2a>0.9999-0.0200>0 .
+\]
+For centre edges see \Cref{lem:centre-basic}(3). So there is no directed cycle. A cycle of the underlying undirected graph, including a pair of opposite edges, has as many edges as vertices; if each vertex is the head of at most one edge, every vertex of the cycle receives its incoming edge from the cycle, giving a directed cycle. Hence the set is a forest.
+\end{proof}
+
+The centre edges depend on the choice of one of two profiles, made in \Cref{sec:centres}; we fix a profile. We also use a third variant, with no ordinary edges at all, in which the centre edges are the only candidates. For each placement let $F$ consist of one candidate edge entering $y$ whose two ends are blank, for each vertex $y$ that is the head of such an edge, chosen by a fixed rule. By \Cref{lem:acyclic}, $F$ is a forest, and it depends on the placement. This is the forest to which we apply \Cref{lem:onebad}.
+
+\begin{lemma}[Two tails in $\cD$]\label{lem:dtails}
+Let $x\ne x'$ be points of $\cD$ such that $(x,y)$ and $(x',y)$ are unit candidate edges for the same $\vartheta$. Then, for almost every $\tau$, the points $\hat x$ and $\hat x'$ are not both blank.
+\end{lemma}
+
+\begin{proof}
+Write $\hat y-\hat x=(\sin t,\cos t)$ and $\hat y-\hat x'=(\sin t',\cos t')$ with $|t|,|t'|\le w$. Then $\hat x'-\hat x$ has horizontal component of modulus $|\sin t-\sin t'|\le2w$ and vertical component of modulus $|\cos t-\cos t'|\le1-\cos w\le w^2/2$. Up to a null set of $\tau$, both points are blank only if each lies in a translate $\zeta+O$, $\zeta\in\Gamma$, by \Cref{lem:structure}(3). These translates lie in vertical columns centred on the lines $u\in2x\Z$, each of width at most $W=2\ell_V(0)=0.007347530728$. Since $2w+W<2x$, both points lie in the same column, so $|\hat x-\hat x'|^2\le W^2+w^4/4<\delta^2$. This contradicts $|x-x'|>2d=\delta$. Both inequalities are checked in exact arithmetic.
+\end{proof}
+
+\subsection{Accounting at a head}
+\begin{lemma}\label{lem:maxsum}
+Let $0\le c\le M$, let $h_1,\dots,h_r\ge0$, and let $\varepsilon\ge0$. Then
+\[
+ \max\Big(c,\ \sum_ih_i-\varepsilon\Big)\ge c+\sum_{i}\pos{h_i-M}-\varepsilon .
+\]
+\end{lemma}
+\begin{proof}
+If $\sum_i\pos{h_i-M}\le\varepsilon$ the right side is at most $c$. Otherwise some $h_i$ exceeds $M$, so $\sum_i\min(h_i,M)\ge M\ge c$, and $\sum_ih_i-\varepsilon=\sum_i\min(h_i,M)+\sum_i\pos{h_i-M}-\varepsilon$.
+\end{proof}
+
+\begin{lemma}[Accounting at a head]\label{lem:head}
+Fix $\vartheta$ and a vertex $y$. Let $c$ be the credit of the short edge entering $y$ ($c=0$ if $y\in\cD$), let $h_1,\dots,h_r$ be the credits of the unit candidate edges entering $y$, and let $P_o$ be the probabilities, over $\tau$, of the events $\mathcal E_o$ attached in \Cref{sec:centres} to the centre candidate edges $o$ entering $y$. (In the variant without ordinary edges, take $c=0$ and $r=0$.) Then
+\begin{multline*}
+ \Pr_\tau\big(F\text{ has an edge entering }y\bigm|\vartheta\big)\\
+ \ge c+\sum_i\pos{h_i-M_{\lambda(y)}}-\sum_{\{i,i'\}}{}^{'}\min(h_i,h_{i'})+\sum_{o}P_o,
+\end{multline*}
+where the primed sum is over unordered pairs of unit candidate edges entering $y$ whose tails are not both in $\cD$.
+\end{lemma}
+
+\begin{proof}
+Let $\mathcal E_0$ be the event that the short edge entering $y$ has both ends blank, and $\mathcal E_i$ the same event for the $i$-th unit edge. By \Cref{lem:credits-valid} and the fact that, for fixed $\vartheta$, $\hat x$ is uniform on $\R^2/\Lambda$ for each $x$, we have $\Pr(\mathcal E_0)\ge c$ and $\Pr(\mathcal E_i)\ge h_i$. Haar measure on $\R^2/\Lambda$ has no atoms, so there are events $\mathcal E'_0\subseteq\mathcal E_0$ and $\mathcal E'_i\subseteq\mathcal E_i$ with $\Pr(\mathcal E'_0)=c$ and $\Pr(\mathcal E'_i)=h_i$. By \Cref{lem:dtails}, $\Pr(\mathcal E'_i\cap\mathcal E'_{i'})=0$ when both tails lie in $\cD$, and in any case $\Pr(\mathcal E'_i\cap\mathcal E'_{i'})\le\min(h_i,h_{i'})$. Let $\mathcal A=\mathcal E_0\cup\bigcup_i\mathcal E_i$. By Bonferroni's inequality and \Cref{lem:maxsum} with $M=M_{\lambda(y)}\ge c$,
+\begin{align*}
+ \Pr(\mathcal A)&\ge\max\Big(c,\ \sum_ih_i-\sum{}^{'}\min(h_i,h_{i'})\Big)\\
+ &\ge c+\sum_i\pos{h_i-M}-\sum{}^{'}\min(h_i,h_{i'}).
+\end{align*}
+By \Cref{lem:centre-basic}(2) at most one centre candidate edge enters $y$, and by \Cref{lem:centre-event}, up to a null set its event $\mathcal E_o$ is disjoint from $\mathcal A$ and implies that both ends of $o$ are blank. On $\mathcal A\cup\mathcal E_o$ some candidate edge entering $y$ has both ends blank, so $F$ has an edge entering $y$.
+\end{proof}
+
+Every short credit entering $y$ is at most $M_{\lambda(y)}$. Summing \Cref{lem:head} over $y$ and averaging over $\vartheta$,
+\begin{multline}\label{eq:credit-split}
+ \E\,|F|\ \ge\ \sum_{y\notin\cD}\E\,\cred(\pi(y),y)+\E\sum_{(x,y)}\pos{h(|t_{xy}|)-M_{\lambda(y)}}\\
+ -\E\sum_y\sum_{\{x,x'\}}{}^{'}\min\big(h(|t_{xy}|),h(|t_{x'y}|)\big)+\mathcal C_{\rm ctr},
+\end{multline}
+where the second sum is over the unit candidate edges for the given $\vartheta$, the third over unordered pairs of unit candidate edges entering the same head whose tails are not both in $\cD$, and $\mathcal C_{\rm ctr}$ is the total probability of the centre events, bounded below in \Cref{prop:centres}. In mode~$\cD$ the third sum is empty.
+
+\subsection{Expected credits}
+Define
+\[
+ B_0=\frac2\pi\int_0^wh(t)\dd t=\frac{2\Delta}{\pi}\sum_{k=1}^{N_u}h_k,\qquad \rho(M)=\frac{\sum_k\pos{h_k-M}}{\sum_kh_k},
+\]
+and $\rho(v)=\rho(M_{\lambda(v)})$ for $v\in X$, so that $\rho(v)=1$ for $v\in\cD$.
+
+\begin{lemma}[Short credits]\label{lem:short}
+For $y$ in layer $\lambda\in\{1,2\}$, $\E_\vartheta\cred(\pi(y),y)=C^0_\lambda$, where
+\[
+ C^0_\lambda=\frac2\pi\sum_{i=0}^{N_s-1}c_\lambda(i)\big(2\arctan\tau_{i+1}-2\arctan\tau_i\big)\ \ge\ \frac{2}{\pihi}\sum_{i=0}^{N_s-1}c_\lambda(i)\,\frac{2(\tau_{i+1}-\tau_i)}{1+\tau_{i+1}^2}.
+\]
+\end{lemma}
+\begin{proof}
+Under a uniform rotation the folded angle $\varphi(\hat y-\widehat{\pi(y)})$ is uniform on $[0,\pi/2]$. The inequality uses $\arctan v-\arctan u\ge(v-u)/(1+v^2)$ for $0\le u\le v$.
+\end{proof}
+
+\begin{lemma}[Unit credits]\label{lem:unit}
+For $v\in X$ let $w_\cE(v)=\one[v\notin\cE]+1-\rho(v)$. Then
+\[
+ \E_\vartheta\sum_{(x,y)}\pos{h(|t_{xy}|)-M_{\lambda(y)}}\ \ge\ B_0\max\Big(0,\ m-\sum_{v\in X}\tfrac12w_\cE(v)\,d_v\Big).
+\]
+\end{lemma}
+
+\begin{proof}
+Fix a unit pair $\{x,y\}$. Under a uniform rotation the signed angle $t$ of $\hat y-\hat x$ from the upward vertical is uniform on the circle, and $(x,y)$ is a candidate exactly when $x\in\cE$ and $|t|\le w$. So the expected contribution of the orientation $(x,y)$ is
+\begin{multline*}
+ \one[x\in\cE]\,\frac{1}{2\pi}\int_{-w}^{w}\pos{h(|t|)-M_{\lambda(y)}}\dd t\\
+ =\one[x\in\cE]\,\frac{\Delta}{\pi}\sum_k\pos{h_k-M_{\lambda(y)}}=\frac{B_0}{2}\,\one[x\in\cE]\,\rho(y).
+\end{multline*}
+Since $0\le\rho\le1$ we have $\one[x\in\cE]\rho(y)\ge1-\one[x\notin\cE]-(1-\rho(y))$. Adding both orientations, the pair contributes at least $\frac{B_0}{2}\big(2-w_\cE(x)-w_\cE(y)\big)$, and also at least $0$. Summing over the $m$ pairs and collecting terms by vertex gives the claim.
+\end{proof}
+
+Write $\rho_\lambda=\rho(M_\lambda)$ for $\lambda=1,2$. In mode~$\cR$ the weights $\tfrac12w_\cE(v)$ are $\alpha=1-\rho_1/2$ on $X\setminus\cR$, $\beta_\cR=(1-\rho_2)/2$ on $\cR\setminus\cD$, and $0$ on $\cD$. In mode~$\cD$ they are $\alpha$, $\beta_\cD=1-\rho_2/2$ and $0$.
+
+\begin{lemma}[Collisions]\label{lem:collision}
+Let $x\ne x'$ be eligible tails with a common unit neighbour $y$. Then
+\begin{multline*}
+ \E_\vartheta\Big[\min\big(h(|t_{xy}|),h(|t_{x'y}|)\big)\,\one[(x,y)\text{ and }(x',y)\text{ are both candidates}]\Big]\\
+ \le\frac{\Delta}{\pi}\sum_{k:\,2t_k\ge|x-x'|}h_k .
+\end{multline*}
+Consequently the expectation of the third sum in~\eqref{eq:credit-split} is at most $\frac{2\Delta}{\pi}\sum_kh_k\,\mathcal N'(2t_k)$, where $\mathcal N'(\varrho)$ is the number of unordered pairs of points of $\cR$, not both in $\cD$, at distance at most $\varrho$.
+\end{lemma}
+
+\begin{proof}
+Let $\phi\in(0,\pi]$ be the angle at $y$ between $x-y$ and $x'-y$, so $|x-x'|=2\sin(\phi/2)$. If $t$ is the signed angle of $\hat y-\hat x$ from the vertical, then that of $\hat y-\hat x'$ is $t+\phi$ or $t-\phi$; by symmetry take $t+\phi$. Put $\tilde h(t)=h(|t|)\one[|t|\le w]$, which is even and nonincreasing in $|t|$. The expectation equals $\frac{1}{2\pi}\int\tilde h\big(\max(|t|,|t+\phi|)\big)\dd t$. For $u\ge0$ the set where $\max(|t|,|t+\phi|)\le u$ is an interval of length $\pos{2u-\phi}$, which is empty for $u<\phi/2$. If $\phi/2\ge w$, the integrand vanishes except on a null set and the expectation is $0$. Otherwise the integral equals $2\int_{\phi/2}^wh(u)\dd u$, and the expectation is $\frac1\pi\int_{\phi/2}^wh(u)\dd u\le\frac{\Delta}{\pi}\sum_{k:\,t_k\ge\phi/2}h_k$. In both cases the claimed bound holds, and $t_k\ge\phi/2$ implies $2t_k\ge2\sin(\phi/2)=|x-x'|$.
+
+In mode~$\cR$ the tails of the pairs in the third sum lie in $\cR$ and are not both in $\cD$; in mode~$\cD$ there are none. Two distinct points have at most two common unit neighbours, which gives the factor $2$.
+\end{proof}
+
+\begin{lemma}[Collision constants]\label{lem:collision-modes}
+Let $k_\varrho$ and $g_\varrho$ be as in \Cref{sec:packing}, and define
+\begin{gather*}
+ L^0=\frac{\Delta}{\pi}\sum_kg_a(t_k)h_k,\qquad T^0=\frac{\Delta}{\pi}\sum_{k:\,t_k>d}g_a(t_k)h_k,\\
+ U^0=\frac{2\Delta}{\pi}\sum_{k:\,t_k\le d}k_a(t_k)h_k,\qquad J^0=\frac{2\Delta}{\pi}\sum_kk_a(t_k)h_k .
+\end{gather*}
+Then $\frac{2\Delta}\pi\sum_kh_k\mathcal N'(2t_k)\le\min\big((n-s)L^0,\ (n-s)T^0+jU^0,\ jJ^0\big)$.
+\end{lemma}
+
+\begin{proof}
+The set $\cR$ is $2a$-separated with $|\cR|=n-s$. By \Cref{sec:packing}, $\mathcal N'(2t)$ is at most the number of pairs of $\cR$ at distance at most $2t$, which is at most $(n-s)g_a(t)/2$; this gives the first bound. Every pair counted by $\mathcal N'(2t)$ has a point in $\cR\setminus\cD$, and by \Cref{lem:pointwise} each point of $\cR\setminus\cD$ is within $2t$ of at most $k_a(t)$ other points of $\cR$. So $\mathcal N'(2t)\le j\,k_a(t)$, which gives the third bound. For the second, use $\mathcal N'(2t_k)\le j\,k_a(t_k)$ when $t_k\le d$ and $\mathcal N'(2t_k)\le(n-s)g_a(t_k)/2$ when $t_k>d$.
+\end{proof}
+
+\subsection{The main inequality}
+For weights $\alpha,\beta\ge0$ define
+\[
+ \Lambda_{\alpha,\beta}(m,s,j)=\frac{2m}{n}(\alpha s+\beta j)+\sqrt{2V(m)\Big(\alpha^2s+\beta^2j-\frac{(\alpha s+\beta j)^2}{n}\Big)} .
+\]
+
+\begin{lemma}\label{lem:CS}
+Under the hypotheses of \Cref{lem:variance} with $k=2090$, let $z_v\ge0$ be weights taking the value $\alpha$ on a set of $s$ vertices, $\beta$ on a disjoint set of $j$ vertices, and $0$ otherwise. Then $\sum_vz_vd_v\le\Lambda_{\alpha,\beta}(m,s,j)$. In particular, the sum of the degrees of any $h$ vertices is at most $\Lambda_{1,0}(m,h,0)=\frac{2mh}n+\sqrt{2V(m)h(1-h/n)}$.
+\end{lemma}
+\begin{proof}
+Write $\bar d=2m/n$ and $\bar z=\frac1n\sum z_v$. Then $\sum z_vd_v=\bar d\sum z_v+\sum(z_v-\bar z)(d_v-\bar d)$. Apply the Cauchy--Schwarz inequality, the identity $\sum(z_v-\bar z)^2=\sum z_v^2-(\sum z_v)^2/n$, and \Cref{lem:variance}.
+\end{proof}
+
+\begin{proposition}[Main inequality]\label{prop:main}
+Let $X$ be a set of $n\ge2090$ points whose unit-distance graph has $m$ edges, has no proper $6$-colouring, and has every non-isolated vertex of degree at least $6$. Let $s,j$ be as in \Cref{sec:forest-def}. Let $0\le B\le B_0$, $C\le C^0_1$ and $E\le C^0_2$, let $L\ge L^0$, $T\ge T^0$, $U\ge U^0$, $J\ge J^0$, and put $p'=p-\beta_V/2$. Then
+\[
+ 1\le\Psi(m,s,j):=\min\big\{nq+mp',\ \Psi_\cR(m,s,j),\ \Psi_\cD(m,s,j)\big\}-\mathcal C(m,s,j),
+\]
+where $\mathcal C$ is the centre credit of \Cref{prop:centres},
+\begin{align*}
+ \Psi_\cR&=\Psi_0+B\,\Lambda_{\alpha,\beta_\cR}(m,s,j)+\min\big((n-s)L,\ (n-s)T+jU,\ jJ\big),\\
+ \Psi_\cD&=\Psi_0+B\,\Lambda_{\alpha,\beta_\cD}(m,s,j),\\
+ \Psi_0&=nq+m(p'-B)-sC-jE .
+\end{align*}
+\end{proposition}
+
+\begin{proof}
+Fix a profile. Apply \eqref{eq:onebad} to a random placement in the wave colouring of $W_V$ and the forest $F$ of \Cref{sec:forest-def}, built with no ordinary edges, or in mode~$\cR$, or in mode~$\cD$. In each case $\E Y=nq-\E|F|$ and $\E X\le mp$, and \Cref{prop:stars} gives $\frac14\sum_v\E(C_v-L_v)\ge\frac14\beta_V\cdot2m$. So $1\le nq+mp'-\E|F|$. With no ordinary edges, $\E|F|\ge\mathcal C_{\rm ctr}$ by \Cref{lem:head}. In the two modes, bound $\E|F|$ by~\eqref{eq:credit-split}, \Cref{lem:short}, \Cref{lem:unit}, \Cref{lem:collision}, \Cref{lem:collision-modes} and \Cref{lem:CS}; in \Cref{lem:unit} we use $B_0\max(0,m-\Lambda')\ge B(m-\Lambda')$ for every real $\Lambda'$, since $0\le B\le B_0$. Finally, choosing the profile that gives the larger value, $\mathcal C_{\rm ctr}\ge\mathcal C(m,s,j)$ by \Cref{prop:centres} and the definition following it.
+\end{proof}
+
+The ratios $\rho_1,\rho_2$ enter only through $\alpha,\beta_\cR,\beta_\cD$, which decrease as $\rho_1,\rho_2$ increase, so lower bounds for $\rho_1,\rho_2$ suffice.
+
+\section{Edges between circle centres}\label{sec:centres}
+
+Throughout this section $X$ is as in \Cref{prop:main}, with $\cR,\cD,s,j$ as in \Cref{sec:forest-def}. Put $h=|X\setminus\cD|=s+j$, and let $L_\cR=\sum_{x\notin\cR}d_x$ and $L_\cD=\sum_{x\notin\cD}d_x$ be the degree sums outside $\cR$ and $\cD$. Recall $\delta_R=2a$ and $\delta=2d$.
+
+\subsection{Doubled arcs}
+As in the proof of \Cref{lem:variance}, for each non-isolated $v\in X$ the $d_v\ge3$ neighbours of $v$, which we call the \emph{marked points} of the unit circle $S_v$ about $v$, divide $S_v$ into $d_v$ closed \emph{arcs}, each joining two consecutive marked points and containing no marked point in its interior. There are $2m$ arcs. Since every unit pair in $X$ is an edge, a point of $X$ on $S_v$ is a marked point. The \emph{angle} $z$ of an arc is its length, and its \emph{chord} is the distance between its endpoints; always $z\ge$ chord.
+
+Two points $p\ne q$ at distance $\ell<2$ have exactly two common unit neighbours in the plane, and a circle with at least three marked points has at most one arc joining $p$ and $q$. So at most two arcs join $p$ and $q$. If two do, we call $\{p,q\}$ a \emph{doubled pair}; the two arcs lie on $S_u$ and $S_v$, where $u\ne v$ are the common unit neighbours of $p$ and $q$, which we call the \emph{centres} of the pair, and $\ell$ is its \emph{chord}. Let $t$ be the number of doubled pairs.
+
+\begin{lemma}\label{lem:doubled}
+Let $k=1317$, let $P_2$ and $P_4$ be as in \Cref{lem:sampling}, and put
+\[
+ A^*(m)=\Big\lfloor\frac{\big(n(n-1)+m-2m^2/n\big)P_4+\tfrac{266}9(k-2)}{6P_2}\Big\rfloor .
+\]
+Then $t\ge2m-A^*(m)$.
+\end{lemma}
+
+\begin{proof}
+Keep one arc of each doubled pair and all other arcs. This is a drawing of a simple graph $G'$ on $X$ with $A=2m-t$ edges, in which no arc passes through a vertex. As in the proof of \Cref{lem:variance}, any two of its arcs have finitely many common points, and it has at most $n(n-1)-\sum_u\binom{d_u}2$ crossings. Since $\sum_ud_u^2\ge(2m)^2/n$, this is at most $n(n-1)+m-2m^2/n$, so $\cro(G')$ is at most this number. By \Cref{lem:sampling} with $k=1317\le n$, $\cro(G')\ge(6AP_2-\frac{266}9(k-2))/P_4$. Hence $A\le A^*(m)$, since $A$ is an integer.
+\end{proof}
+
+\begin{lemma}[Rhombus]\label{lem:rhombus}
+Let $\{p,q\}$ be a doubled pair with centres $u,v$ and chord $\ell$, and put $M=\frac{p+q}2$, $e=\frac{q-p}\ell$ and $\alpha_\ell=\arcsin(\ell/2)$. Then $M=\frac{u+v}2$, $|u-v|=r_\ell:=\sqrt{4-\ell^2}$ and $(u-v)\cdot e=0$. The arc of $S_u$ joining $p$ and $q$ is either the \emph{minor arc}, consisting of the points $u+e_\psi$ with $e_\psi$ at angle at most $\alpha_\ell$ from $v-u$, or it has angle at least $\pi$. A point $P\in S_u$ with $(P-u)\cdot(v-u)\ge0$ lies in the interior of the minor arc if and only if $|(P-M)\cdot e|<\ell/2$.
+\end{lemma}
+
+\begin{proof}
+The points $u,p,v,q$ form a rhombus with unit sides, whose diagonals $uv$ and $pq$ bisect each other at right angles. So $M=\frac{u+v}2$, $|u-v|^2=4-\ell^2$, and $p-u$ and $q-u$ make angles $\pm\alpha_\ell$ with $f=(v-u)/r_\ell$. The two arcs of $S_u$ between $p$ and $q$ have angles $2\alpha_\ell<\pi$ and $2\pi-2\alpha_\ell>\pi$. Write $P-u=\cos\psi'\,f+\sin\psi'\,e$ with $|\psi'|\le\pi/2$, which is possible exactly when $(P-u)\cdot f\ge0$. Since $(u-M)\cdot e=0$, we get $(P-M)\cdot e=\sin\psi'$, and $P$ is interior to the minor arc if and only if $|\psi'|<\alpha_\ell$, that is $|\sin\psi'|<\ell/2$.
+\end{proof}
+
+\subsection{Centre candidate edges}
+We use two \emph{profiles} $(I,I_R,J)$, the \emph{coarse} profile $(23,\,7.9,\,98)\cdot10^{-9}$ and the \emph{fine} profile $(25.9,\,9.3,\,110)\cdot10^{-9}$. For each profile we fix a list of chord intervals covering $[\delta_R,0.245]$, and assign each chord $\ell$ in this range to the first interval in the list that contains it.
+\begin{itemize}
+\item \emph{Small intervals}, with parameters $(\sigma,\ell_+,N_\theta,N_y)$ where $\sigma$ is at most the left end and $\ell_+$ at least the right end of the interval. For the coarse profile: $[\delta_R,\delta)$ with $(\delta_R,0.02,32,48)$ and $[\delta,0.02]$ with $(\delta,0.02,32,48)$. For the fine profile: $[\delta_R,0.006]$ with $(\delta_R,0.006,100,180)$, $(0.006,\delta)$ with $(0.006,0.02,100,180)$, $[\delta,0.008]$ with $(\delta,0.008,100,180)$ and $(0.008,0.02]$ with $(0.008,0.02,100,180)$. Put $\eta=\min(0.00365,\sigma/2)$.
+\item \emph{Medium intervals} $(l,l']$, where $l<l'$ are consecutive points of $\{0.02,0.04,0.08,0.12,0.16,0.18\}\cup\{0.190,0.191,\dots,0.245\}$; there are $61$ of them. Put $\eta=\min(0.0036,\,l/2-w)$, and $N_\theta=48$ for the coarse and $N_\theta=256$ for the fine profile.
+\end{itemize}
+
+Fix $\vartheta$. An \emph{orientation} of a doubled pair is an ordered pair $(v,u)$ of its centres; $u$ is its \emph{head}. Let $\theta\in(-\pi,\pi]$ be the signed angle from $(0,1)$ to $\hat u-\hat v$. The orientation gives the \emph{centre candidate edge} $(v,u)$ if $u\in\cD$, the chord $\ell$ lies in $[\delta_R,0.245]$, the arc of $S_u$ joining $p$ and $q$ is the minor arc, and $|\theta|\le\eta$ for the interval of $\ell$.
+
+\begin{lemma}\label{lem:centre-basic}
+Let $(v,u)$ be a centre candidate edge for $\vartheta$, from a doubled pair $\{p,q\}$ with chord $\ell$.
+\begin{enumerate}
+\item The point $\hat u-(0,1)$ lies in the interior of the image of the arc of $S_u$ joining $p$ and $q$.
+\item No other centre candidate edge enters $u$.
+\item $\Phi(u)>\Phi(v)$.
+\item If $\ell$ lies in a medium interval, no unit candidate edge enters $u$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(1) The direction of $\hat v-\hat u$ makes the angle $|\theta|$ with $-(0,1)$, and $|\theta|\le\eta\le\ell/2<\alpha_\ell$: for small intervals $\eta\le\sigma/2\le\ell/2$, and for medium intervals $\eta<l/2<\ell/2$. Apply \Cref{lem:rhombus} after rotation.
+
+(2) A centre candidate edge $(v',u)$ determines the arc of $S_u$ joining the endpoints of its pair, and conversely this arc determines the pair and $v'$. By (1), $\hat u-(0,1)$ is interior to that arc. Distinct arcs of $S_u$ have disjoint interiors.
+
+(3) Since $u\in\cD$, $\operatorname{rt}(u)=u$. The height of $\hat u$ exceeds that of $\hat v$ by $r_\ell\cos\theta\ge\sqrt{4-0.245^2}\,\cos(0.00365)>1.9\cdot0.9999>2a+2d$. By~\eqref{eq:rootdist} the height of $\widehat{\operatorname{rt}(v)}$ is less than that of $\hat u$.
+
+(4) Let $(x,u)$ be a unit candidate edge. The direction of $\hat x-\hat u$ is within $w$ of $-(0,1)$, hence within $w+\eta\le l/2<\alpha_\ell$ of the direction of $\hat v-\hat u$. By \Cref{lem:rhombus}, $\hat x$ is interior to the image of the minor arc of $S_u$, which is the arc joining $p$ and $q$. But $x$ is a neighbour of $u$, hence a marked point, and arcs contain no marked point in their interior.
+\end{proof}
+
+Let $W(y)=\ell_V(|y|)$ for $|y|\le y_0$ and $W(y)=0$ otherwise, so that $O=\{(u,y):|y|\le y_0,\ |u|\le W(y)\}$ and $W$ is nonincreasing in $|y|$. To each centre candidate edge $o=(v,u)$ we attach an event $\mathcal E_o$, a set of translations $\tau$:
+\begin{itemize}
+\item \emph{Medium chord:} $\hat v\in\zeta+O$ and $\hat u\in\zeta+(0,2)+O$ for some $\zeta\in\Gamma$.
+\item \emph{Small chord:} with $(\sigma,\ell_+,N_\theta,N_y)$ the parameters of the interval of $\ell$, put $\Delta_\theta=\eta/N_\theta$, $\Delta_y=0.009/N_y$, $\theta_i=i\Delta_\theta$ and $y_k=k\Delta_y$; let $a_i\ge1-\sqrt{1-\ell_+^2/4}+\theta_i^2/2$ be a rational upper bound and $b_i=a_i+w^2/2$; and put
+\[
+ w_{i,k}=\Big[\min\Big(W(y_k+\Delta_y+a_i)-\theta_i,\ \frac\sigma2-W\big(\max(0,y_k-b_i)\big)-b_i\theta_i\Big)\Big]_+ .
+\]
+If $|\theta|\in((i-1)\Delta_\theta,i\Delta_\theta]$ (or $\theta=0$ and $i=1$), let $\mathcal R_\theta$ be the union over $0\le k<N_y$ of the sets $\{(M_1,M_2):|M_1|<w_{i,k},\ y_k\le|M_2|\le y_k+\Delta_y\}$. The event is $\hat M\in\zeta+\mathcal R_\theta$ for some $\zeta\in\Gamma$, where $M$ is the midpoint of the pair.
+\end{itemize}
+The blank set is invariant under translation by $\Gamma$, since $\Gamma$ is generated by $\Lambda$ and $(0,H)$, which permute the colour classes (\Cref{lem:symmetry}(1)). The program checks that
+\begin{equation}\label{eq:onlyhole}
+ 2\max W+\eta+w<2x\qquad\text{and}\qquad 0.009+b_{N_\theta}+y_0<\tfrac12
+\end{equation}
+for every small interval.
+
+\begin{lemma}\label{lem:centre-event}
+Let $o=(v,u)$ be a centre candidate edge for $\vartheta$. For almost every $\tau\in\mathcal E_o$, the points $\hat u$ and $\hat v$ are blank and no unit candidate edge entering $u$ has a blank tail.
+\end{lemma}
+
+\begin{proof}
+By \Cref{lem:structure}(3), every translate $\zeta+O$ with $\zeta\in\Gamma$ consists of blank points, and $(0,1)\in\Gamma$. For a medium chord this gives the first claim, and \Cref{lem:centre-basic}(4) the second.
+
+For a small chord, by $\Gamma$-invariance we may take $\zeta=0$. Let $|\theta|\in((i-1)\Delta_\theta,i\Delta_\theta]$ and $\hat M=(M_1,M_2)$ with $|M_1|<w_{i,k}$ and $y_k\le|M_2|\le y_k+\Delta_y$. With $f=(-\sin\theta,\cos\theta)$ we have $\hat u=\hat M+\frac{r_\ell}2f$ and $\hat v=\hat M-\frac{r_\ell}2f$. Since $\frac{r_\ell}2=\sqrt{1-\ell^2/4}\ge\sqrt{1-\ell_+^2/4}$,
+\[
+ 0\le1-\tfrac{r_\ell}2\cos\theta\le\big(1-\tfrac{r_\ell}2\big)+(1-\cos\theta)\le a_i .
+\]
+So $\hat u-(0,1)$ has horizontal coordinate of modulus at most $|M_1|+\theta_i<W(y_k+\Delta_y+a_i)$ and vertical coordinate of modulus at most $y_k+\Delta_y+a_i$. As $W$ is nonincreasing in $|y|$, $\hat u-(0,1)\in O$, and $\hat u$ is blank. In the same way $\hat v+(0,1)\in O$.
+
+Let $(x,u)$ be a unit candidate edge, so $\hat x=\hat u-(\sin t',\cos t')$ with $|t'|\le w$. Then $\hat x_2-M_2=\frac{r_\ell}2\cos\theta-\cos t'\in[-a_i,w^2/2]$, so $|\hat x_2-M_2|\le b_i$, and $|\hat x_1|\le|M_1|+\theta_i+w$. By~\eqref{eq:onlyhole} the only translate $\zeta'+O$, $\zeta'\in\Gamma$, that can contain $\hat x$ is $O$ itself: those with $\zeta'$ in another column are more than $2x-2\max W-\eta-w>0$ away horizontally, and those in the same column are centred at $(0,\pm\frac12),(0,\pm1),\dots$ and are more than $\frac12-0.009-b_i-y_0>0$ away vertically. So, outside a null set of $\tau$, if $\hat x$ is blank then $\hat x\in O$ and $|\hat x_1|\le W(\hat x_2)\le W(\max(0,y_k-b_i))$. Let $\hat e=(\cos\theta,\sin\theta)$, the image of $\pm e$. Then
+\begin{align*}
+ |(\hat x-\hat M)\cdot\hat e|&\le|\hat x_1-M_1|+|\hat x_2-M_2|\,|\sin\theta|\\
+ &\le W(\max(0,y_k-b_i))+|M_1|+b_i\theta_i<\frac\sigma2\le\frac\ell2 .
+\end{align*}
+Also $(\hat x-\hat u)\cdot(\hat v-\hat u)>0$, since the directions differ by at most $w+|\theta|<\pi/2$. By \Cref{lem:rhombus}, $\hat x$ is interior to the image of the minor arc of $S_u$, which is the arc joining $p$ and $q$. As in \Cref{lem:centre-basic}(4) this is impossible.
+\end{proof}
+
+\begin{lemma}[Centre probabilities]\label{lem:centre-prob}
+Let $(v,u)$ be an orientation of a doubled pair with chord $\ell\ge\delta_R$ and $u\in\cD$, and let $z_u$ be the angle of the arc of $S_u$ joining its endpoints. For each profile, the probability over the placement that $(v,u)$ is a centre candidate edge and $\tau\in\mathcal E_{(v,u)}$ is at least $\frac12\big(I-J(z_u-\delta)\big)$ if $\ell\ge\delta$, and at least $\frac12\big(I_R-J(z_u-\delta_R)\big)$ if $\ell<\delta$.
+\end{lemma}
+
+\begin{proof}
+If $\ell>0.245$ then $z_u\ge\ell>0.245$, and if the arc is not the minor arc then $z_u\ge\pi>0.245$ by \Cref{lem:rhombus}. In both cases the bound is negative because $I-J(0.245-\delta)<0$ and $I_R-J(0.245-\delta_R)<0$ for both profiles. Otherwise, $\theta$ is uniform on $(-\pi,\pi]$, and for fixed $\vartheta$ the points $\hat v$ and $\hat M$ are uniform on $\R^2/\Lambda$.
+
+\emph{Medium chord} in $(l,l']$. For fixed $\theta$, the events $\{\hat v\in\zeta+O,\ \hat u\in\zeta+(0,2)+O\}$, for $\zeta$ in a set of representatives of $\Gamma/\Lambda$, are disjoint and their total probability is $\gamma_O(\hat u-\hat v-(0,2))/(2xH)$, as in the proof of \Cref{lem:kappa}(3). The vector $\hat u-\hat v-(0,2)=(-r_\ell\sin\theta,\ r_\ell\cos\theta-2)$ has coordinates of modulus at most $2|\theta|$ and $(2-r_\ell)+\theta^2\le d_++\theta^2$, where $d_+\ge2-\sqrt{4-l'^2}$ is a rational upper bound. By \Cref{lem:Omega}, for $|\theta|\in((i-1)\Delta_\theta,i\Delta_\theta]$ with $\Delta_\theta=\eta/N_\theta$, the conditional probability is at least $\Omega(2\theta_i,d_++\theta_i^2)$. Integrating over $|\theta|\le\eta$, the probability is at least
+\[
+ \frac{\Delta_\theta}{\pi}\sum_{i=1}^{N_\theta}\Omega\big(2\theta_i,d_++\theta_i^2\big),
+\]
+and the program verifies that twice this, with $\pi$ replaced by $\pihi$, is at least $I-J(l-\delta)$ on every medium interval. The smallest margin is $0.1744\cdot10^{-9}$ for the coarse and $0.0405\cdot10^{-9}$ for the fine profile. Since $z_u\ge\ell>l$ and $\ell>0.02>\delta$, the claim follows.
+
+\emph{Small chord.} The set $\mathcal R_\theta$ lies in $[-0.004,0.004]\times[-0.0091,0.0091]$, so its translates by $\Gamma$ are disjoint and, for fixed $\theta$, $\Pr_\tau(\mathcal E_o)=\area(\mathcal R_\theta)/(2xH)=\sum_k4w_{i,k}\Delta_y/(2xH)$. Integrating over $|\theta|\le\eta$, the probability is at least
+\[
+ \mathcal P=\frac{4\Delta_\theta\Delta_y}{\pi\cdot2xH}\sum_{i=1}^{N_\theta}\sum_{k=0}^{N_y-1}w_{i,k}.
+\]
+The program computes $2\mathcal P$, with $\pi$ replaced by $\pihi$ and each $W$ rounded in the safe direction, and finds the following lower bounds, in units of $10^{-9}$: for the coarse profile $23.2555$ on $[\delta,0.02]$ and $7.9986$ on $[\delta_R,\delta)$; for the fine profile $25.9743$ on both intervals in $[\delta,0.02]$ and $9.3028$ on both intervals in $[\delta_R,\delta)$. These exceed $I$ and $I_R$ respectively, and $z_u\ge\ell$ gives the claim.
+\end{proof}
+
+\subsection{Budgets}
+Call $b_R\ge0$ \emph{admissible} if at most $b_R$ doubled pairs have chord less than $\delta_R$ and at most $2b_R$ arcs have chord less than $\delta_R$; define admissibility of $b_D$ in the same way with $\delta$ in place of $\delta_R$.
+
+\begin{lemma}\label{lem:admissible}
+Each of $L_\cR$, $5s+\binom s2$ and $\frac12(L_\cR+5s)$ is an admissible $b_R$. Each of $L_\cD$, $14s+8j+\binom s2$ and $\frac12(L_\cD+5h)$ is an admissible $b_D$.
+\end{lemma}
+
+\begin{proof}
+We treat $b_D$; the proof for $b_R$ is the same with $\cR,\delta_R,s,L_\cR$ in place of $\cD,\delta,h,L_\cD$, using \Cref{lem:shortpairs}(2) in place of (3). A vertex $x$ is an endpoint of exactly $2d_x$ arcs, two on each circle $S_y$ with $y$ a neighbour of $x$, and a doubled pair with endpoint $x$ uses two of them. An arc or doubled pair of chord less than $\delta$ has an endpoint outside $\cD$. Hence at most $2L_\cD$ such arcs and at most $L_\cD$ such pairs exist. By \Cref{lem:shortpairs}(3) at most $14s+8j+\binom s2$ pairs of points are at distance less than $\delta$, and each carries at most two arcs and at most one doubled pair. Finally, give each pair of points at distance less than $\delta$ the weight $\frac12$ times the number of arcs joining it. The total weight bounds both the number of such doubled pairs and half the number of such arcs. If $x_1$ is the total weight of pairs with exactly one point outside $\cD$ and $x_2$ that of pairs with both points outside $\cD$, then counting arc endpoints outside $\cD$ gives $2x_1+4x_2\le2L_\cD$, and \Cref{lem:shortpairs}(1) gives $x_1\le5h$. So the total weight is $x_1+x_2\le\frac12(x_1+2x_2)+\frac12x_1\le\frac12(L_\cD+5h)$.
+\end{proof}
+
+Let $\tau_0=\delta$ and $\tau_i/\delta=1.4,1.9,2.4,2.9,3.4,3.9,4.4$ for $i=1,\dots,7$. Put $K_i=\lfloor(1+2\tau_i/\delta)^2\rfloor$,
+\[
+ B_i=\Big\lfloor\frac{(K_i-1)(n-h)}2\Big\rfloor+\min\Big(2L_\cD,\ K_ih+\binom h2\Big),\qquad \varsigma_i=2m-2t-B_i,
+\]
+and, for admissible $b_R,b_D$,
+\begin{align*}
+ Q&=\pi n-(m-b_R)\delta_R-(m-b_D)(\delta-\delta_R),\qquad Q_\cD=Q-\pi h+\tfrac12\delta L_\cD,\\
+ Q^*&=\min\Big(Q-\tfrac12\sum_{i=1}^7(\tau_i-\tau_{i-1})\pos{\varsigma_i},\ Q_\cD-\tfrac12\sum_{i=1}^7(\tau_i-\tau_{i-1})\pos{\varsigma_i-L_\cD}\Big).
+\end{align*}
+
+\begin{lemma}[Budgets]\label{lem:budget}
+Let $\mathcal O$ be the set of orientations $(v,u)$ of doubled pairs with $u\in\cD$ and chord $\ell\ge\delta_R$, and $\mathcal O_\delta\subseteq\mathcal O$ those with $\ell\ge\delta$. For $o\in\mathcal O$ let $z_o$ be the angle of the arc of $S_u$ joining the endpoints of the pair, and $\delta(o)=\delta$ if $\ell\ge\delta$ and $\delta_R$ otherwise. Then
+\begin{gather*}
+ \tfrac12|\mathcal O|\ge t-b_R-\tfrac12L_\cD,\qquad \tfrac12|\mathcal O_\delta|\ge t-b_D-\tfrac12L_\cD,\\
+ \tfrac12\sum_{o\in\mathcal O}\big(z_o-\delta(o)\big)\le Q^*\le\min(Q,Q_\cD).
+\end{gather*}
+\end{lemma}
+
+\begin{proof}
+Each doubled pair has two orientations. At most $b_R$ pairs have chord less than $\delta_R$. A vertex $u\notin\cD$ is a centre of at most $d_u$ doubled pairs, since each uses a different arc of $S_u$, so at most $L_\cD$ orientations have head outside $\cD$. This gives the first inequality, and the second in the same way.
+
+Distinct $o\in\mathcal O$ correspond to distinct arcs, since the arc of $S_u$ determines the pair and the head. Give each arc $\mathfrak a$ the \emph{reserve} $\nu(\mathfrak a)=\delta_R\one[\text{chord}\ge\delta_R]+(\delta-\delta_R)\one[\text{chord}\ge\delta]$. Then $z(\mathfrak a)\ge\text{chord}\ge\nu(\mathfrak a)$, and $\nu=\delta(o)$ on the arc of $o\in\mathcal O$. Call an arc \emph{single} if its endpoints do not form a doubled pair; arcs of orientations in $\mathcal O$ are not single. If a single arc has chord at least $\tau_I$, then $z-\nu\ge\tau_I-\delta=\sum_{i\le I}(\tau_i-\tau_{i-1})$. Let $\mathcal S_i$ be the set of single arcs with chord at least $\tau_i$. Since all the quantities $z-\nu$ are nonnegative, for any set $\mathcal Z$ of centres,
+\begin{multline*}
+ \sum_{\substack{o\in\mathcal O\\ \text{head in }\mathcal Z}}(z_o-\delta(o))\le\sum_{\mathfrak a\text{ on }S_u,\,u\in\mathcal Z}\big(z(\mathfrak a)-\nu(\mathfrak a)\big)\\
+ -\sum_{i=1}^7(\tau_i-\tau_{i-1})\,\#\{\mathfrak a\in\mathcal S_i\text{ on }S_u,\ u\in\mathcal Z\}.
+\end{multline*}
+The angles of the arcs on one circle add up to $2\pi$.
+
+A single arc with chord less than $\tau_i$ joins a pair of points at distance less than $\tau_i$ that carries no other arc. Points of $\cD$ are more than $\delta$ apart, so the open discs of radius $\delta/2$ about them are disjoint, and at most $K_i$ points of $\cD$ lie within distance $\tau_i$ of any point. Hence at most $\lfloor(K_i-1)(n-h)/2\rfloor$ such pairs lie in $\cD$, and at most $K_ih+\binom h2$ have a point outside $\cD$; also at most $2L_\cD$ arcs have an endpoint outside $\cD$. So at most $B_i$ single arcs have chord less than $\tau_i$, and $|\mathcal S_i|\ge\pos{2m-2t-B_i}=\pos{\varsigma_i}$, because $2t$ of the $2m$ arcs are not single.
+
+Take $\mathcal Z=X$. At most $2b_R$ arcs have chord less than $\delta_R$ and at most $2b_D$ have chord less than $\delta$, so $\sum\nu\ge(2m-2b_R)\delta_R+(2m-2b_D)(\delta-\delta_R)$, and the right side above is at most $2Q-\sum_i(\tau_i-\tau_{i-1})\pos{\varsigma_i}$. Take $\mathcal Z=\cD$. There are $2m-L_\cD$ arcs on circles centred in $\cD$, the sum of their angles is at most $2\pi(n-h)$, their reserves sum to at least $(2m-L_\cD-2b_R)\delta_R+(2m-L_\cD-2b_D)(\delta-\delta_R)$, and at most $L_\cD$ arcs of $\mathcal S_i$ lie on circles centred outside $\cD$. So the right side is at most $2Q_\cD-\sum_i(\tau_i-\tau_{i-1})\pos{\varsigma_i-L_\cD}$.
+\end{proof}
+
+\begin{proposition}[Centre credit]\label{prop:centres}
+Let $\mathcal C_{\rm ctr}$ be the expected number of centre candidate edges $o$ with $\tau\in\mathcal E_o$. For each profile and all admissible $b_R,b_D$,
+\[
+ \mathcal C_{\rm ctr}\ge\max\big(0,\ \mathcal C_1,\ \mathcal C_2\big),
+\]
+where
+\begin{align*}
+ \mathcal C_1&=I_R\pos{t-b_R-\tfrac12L_\cD}+(I-I_R)\pos{t-b_D-\tfrac12L_\cD}-J\min(Q,Q_\cD),\\
+ \mathcal C_2&=I_R\big(t-b_R-\tfrac12L_\cD\big)+(I-I_R)\big(t-b_D-\tfrac12L_\cD\big)-JQ^* .
+\end{align*}
+\end{proposition}
+
+\begin{proof}
+By \Cref{lem:centre-prob}, and since probabilities are nonnegative,
+\[
+ \mathcal C_{\rm ctr}\ge\sum_{o\in\mathcal O}\tfrac12\big(I_{\delta(o)}-J(z_o-\delta(o))\big)=\tfrac12I_R|\mathcal O|+\tfrac12(I-I_R)|\mathcal O_\delta|-\tfrac J2\sum_{o\in\mathcal O}\big(z_o-\delta(o)\big),
+\]
+where $I_\delta=I$ and $I_{\delta_R}=I_R$. Apply \Cref{lem:budget}, and $|\mathcal O|,|\mathcal O_\delta|\ge0$ for $\mathcal C_1$.
+\end{proof}
+
+\paragraph{Monotonicity.} Both $\mathcal C_1$ and $\mathcal C_2$ are nonincreasing in $b_R$, $b_D$ and $L_\cD$, nondecreasing in $m$ when $t$ is fixed, and nondecreasing in $t$. For $\mathcal C_2$ the last claim holds because each $\pos{\varsigma_i}$ and $\pos{\varsigma_i-L_\cD}$ decreases at rate at most $2$ in $t$, so $Q^*$ increases at rate at most $\tau_7-\tau_0=3.4\,\delta$, and $I-3.4\,\delta J>0$ for both profiles. The quantity $h$ enters through $-\pi h$, which is decreasing, and through $B_i$, where we may use a lower bound for $h$ in the first term and an upper bound in the second. Consequently, if $t$, $m$ and $h$ are replaced in $\mathcal C_1$ and $\mathcal C_2$ by lower bounds, and $L_\cD$, $b_R$, $b_D$ and the $h$ in $K_ih+\binom h2$ by upper bounds, the result is still a lower bound for $\mathcal C_{\rm ctr}$. By \Cref{lem:CS}, $L_\cR\le\Lambda_{1,0}(m,s,0)$ and $L_\cD\le\Lambda_{1,0}(m,h,0)$, and by \Cref{lem:doubled}, $t\ge2m-A^*(m)$.
+
+We define $\mathcal C(m,s,j)$ to be the larger, over the two profiles, of $\max(0,\mathcal C_1,\mathcal C_2)$, evaluated with $t=2m-A^*(m)$, $h=s+j$, $L_\cR=\Lambda_{1,0}(m,s,0)$, $L_\cD=\Lambda_{1,0}(m,h,0)$, $b_R=\min\big(L_\cR,5s+\binom s2,\frac12(L_\cR+5s)\big)$ and $b_D=\min\big(L_\cD,14s+8j+\binom s2,\frac12(L_\cD+5h)\big)$. Then $\mathcal C_{\rm ctr}\ge\mathcal C(m,s,j)$, as used in \Cref{prop:main}.
+
+\section{The certificate: proof of \Cref{thm:points}}\label{sec:certificate}
+
+\subsection{The wave datum $W_V$}
+Let $x_V=923111560246/10^{12}$. The profile $\ell_V$ is symmetric about $H/2$, and on $[0,H/2]$ it is the piecewise-linear function through the following points (both coordinates in units of $10^{-12}$), and $0$ on $[0.00918,H/2]$:
+\begin{center}\small
+\begin{tabular}{@{}rr@{\quad}rr@{\quad}rr@{}}
+\toprule
+$y$ & $\ell_V(y)$ & $y$ & $\ell_V(y)$ & $y$ & $\ell_V(y)$\\
+\midrule
+0 & 3673765364 & 3240000000 & 2383876640 & 6480000000 & 975983025\\
+540000000 & 3465107313 & 3780000000 & 2150249605 & 7020000000 & 741894261\\
+1080000000 & 3256662786 & 4320000000 & 1916357203 & 7560000000 & 509856145\\
+1620000000 & 3047757021 & 4860000000 & 1681629236 & 8100000000 & 302302446\\
+2160000000 & 2838089895 & 5400000000 & 1446502958 & 8640000000 & 25666952\\
+2700000000 & 2618266220 & 5940000000 & 1211236622 & 9180000000 & 0\\
+\bottomrule
+\end{tabular}
+\end{center}
+So $y_0=0.00918$, and the hole $O$ is a region of width $0.00735$ and height $0.01836$, symmetric in both axes. The profile $r_V$ has knots at $kH/512$, $0\le k\le512$, with values in $[0.874850,0.971373]$, published with the programs (\Cref{app:replay}). A profile checker verifies (W1)--(W4) exactly at the knots, including that $\ell_V$ is nonincreasing on $[0,H/2]$ and that its first zero $y_0$ satisfies the strict inequality $y_0<H/4$ of (W3); since the profiles are piecewise linear with these knots, this gives (W1)--(W4). The program for the star certificate of $W_V$ checks again that $\ell_V$ is nonincreasing and checks that $r_V$ is nondecreasing on $[0,H/2]$, as used in \Cref{sec:angular}.
+
+By \Cref{lem:q}, and by \Cref{prop:pbar} with $N=2^{26}$,
+\begin{align*}
+ q&=\frac{82102466727}{1153889450307500}\approx7.11528\times10^{-5},\\
+ \bar p\le p&=\frac{102782566719698111}{145001902327661557000000}\approx7.08836\times10^{-7}.
+\end{align*}
+In the finite check below, $q$ and $p$ are rounded up to multiples of $10^{-18}$.
+
+\subsection{Certified constants}
+The quantities of \Cref{sec:forest} are computed in exact rational arithmetic from $\ell_V$ alone. In lower bounds $1/\pi$ is replaced by $1/\pihi$, and in upper bounds by $1/\pilo$. The results are rounded down (for $B,C,E$) or up (for $L,T,U,J$) to multiples of $10^{-18}$. In units of $10^{-18}$ the values are:
+\begin{center}\small
+\begin{tabular}{@{}lrl@{}}
+\toprule
+Constant & Value & Definition\\
+\midrule
+$B$ & $112668096940$ & $\dn{\frac{2\Delta}{\pihi}\sum_kh_k}$ \\
+$C$ & $16034576942481$ & $\dn{\text{right side of \Cref{lem:short}},\ \lambda=1}$ \\
+$E$ & $3057937052494$ & $\dn{\text{right side of \Cref{lem:short}},\ \lambda=2}$ \\
+$L$ & $142407225756$ & $\up{\frac{\Delta}{\pilo}\sum_kg_a(t_k)h_k}$ \\
+$T$ & $95763744940$ & $\up{\frac{\Delta}{\pilo}\sum_{t_k>d}g_a(t_k)h_k}$ \\
+$U$ & $104770006866$ & $\up{\frac{2\Delta}{\pilo}\sum_{t_k\le d}k_a(t_k)h_k}$ \\
+$J$ & $300592212470$ & $\up{\frac{2\Delta}{\pilo}\sum_kk_a(t_k)h_k}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+The short-credit caps are $M_1=\frac{1206695810097}{46155578012300000}\approx2.6144\times10^{-5}$ and $M_2=\frac{1670178375963}{230777890061500000}\approx7.2372\times10^{-6}$. The retention ratios, computed exactly and rounded down to thousandths, satisfy $\rho_1\ge0.344$ and $\rho_2\ge0.761$. We use these lower bounds, so
+\[
+ \alpha=0.828,\qquad\beta_\cR=0.1195,\qquad\beta_\cD=0.6195 .
+\]
+The program also checks the two inequalities in the proof of \Cref{lem:dtails}, and those of \Cref{lem:shortpairs}. With $\beta_V$ from \Cref{prop:stars}, $p'=p-\beta_V/2$ rounded up to a multiple of $10^{-18}$ is $708385488148\cdot10^{-18}$, and $q$ rounded up is $71152801254159\cdot10^{-18}$.
+
+\subsection{The finite check}
+
+\begin{proposition}\label{prop:finite}
+Let $n=10{,}689$ and $m^*=403{,}078$, with the constants above. For all integers $m\in[0,m^*]$ and $s,j\ge0$ with $s+j\le n$, we have $\Psi(m,s,j)\le0.999999995095531514<1$.
+\end{proposition}
+
+\begin{proof}
+Let $\mathfrak B=[m_0,m_1]\times[s_0,s_1]\times[j_0,j_1]$ be an integer box with $s_1\le n-j_0$ and $j_1\le n-s_0$. Each term of the three bounds in $\Psi$ is bounded on $\mathfrak B$ by its value at a suitable corner, or by a combination of corner values: $m(p'-B)$ increases in $m$ because $p'>B$; $V$ decreases in $m$; $\frac{2m}n(\alpha s+\beta j)$ increases in all three variables; $-sC-jE$ decreases in $s$ and $j$; $(n-s)L$ and $(n-s)T$ decrease in $s$; $jU$ and $jJ$ increase in $j$. The variance expression under the square root is not monotone (for $j=0$ it equals $\alpha^2s(1-s/n)$, which increases and then decreases in $s$), so we bound its positive part and its subtracted square separately:
+\[
+ \alpha^2s+\beta^2j-\frac{(\alpha s+\beta j)^2}{n}\le\alpha^2s_1+\beta^2j_1-\frac{(\alpha s_0+\beta j_0)^2}{n}.
+\]
+Hence the minimum in $\Psi$ is at most $\bar\Psi(\mathfrak B)$, the minimum of $nq+m_1p'$ and of the two mode bounds evaluated with $m_1$ in $m(p'-B)$ and in the mean term, with $V(m_0)$ and the right side of the last display under the square root, with $s_1,j_1$ in the mean term, with $s_0,j_0$ in $-sC-jE$, and with $s_0$ in $(n-s)L$ and $(n-s)T$ and $j_1$ in $jU$ and $jJ$.
+
+For the centre credit, the monotonicity statement after \Cref{prop:centres} shows that $\mathcal C(m,s,j)\ge\underline{\mathcal C}(\mathfrak B)$, where $\underline{\mathcal C}(\mathfrak B)$ is computed as $\mathcal C$ but with: $m_0$ in place of $m$; $t=2m_0-A^*_{\mathfrak B}$, where $A^*_{\mathfrak B}$ is $A^*$ with $n(n-1)+m-2m^2/n$ replaced by its maximum over $[m_0,m_1]$, bounded by $n(n-1)+m'-2m_0^2/n$ with $m'=m_0$ if $4m_0\ge n$ and $m'=m_1$ otherwise; the lower bound $s_0+j_0$ for $h$ in $-\pi h$ and in $(K_i-1)(n-h)$, and the upper bound $\min(s_1+j_1,n)$ in $K_ih+\binom h2$, in $\frac12(L_\cD+5h)$ and in the degree bound; the upper bounds
+\[
+ \Big\lceil\frac{2m_1\bar h}n\Big\rceil+1+\Big\lfloor\sqrt{2V(m_0)\big(n\bar h-\underline h^2\big)/n}\Big\rfloor
+\]
+for $L_\cD$ (with $(\underline h,\bar h)=(s_0+j_0,\min(s_1+j_1,n))$) and for $L_\cR$ (with $(\underline h,\bar h)=(s_0,s_1)$); $s_1,j_1$ in the packing bounds for $b_R,b_D$; and $\pihi$ in place of $\pi$. The program evaluates $\bar\Psi(\mathfrak B)-\underline{\mathcal C}(\mathfrak B)$ in exact rational and integer arithmetic in units of $10^{-18}$, rounding the mean terms up, taking the integer square root of the rounded-down radicand and adding one unit, and rounding every other term in the safe direction.
+
+Starting from $[0,m^*]\times[0,n]\times[0,n]$, the program discards boxes with $s_0+j_0>n$, accepts a box when $\bar\Psi(\mathfrak B)-\underline{\mathcal C}(\mathfrak B)<1$, and otherwise bisects the side of greatest weighted length (weights $1,12,12$). It reports failure if a box consisting of a single point is not accepted. It accepts all boxes after examining $66{,}601$ of them, and the largest accepted value is $999999995095531514\cdot10^{-18}$. This program alone proves the stated upper bound $0.999999995095531514$.
+
+A second program checks the weaker statement $\Psi(m,s,j)<1$ on the same range, which is all that the proof of \Cref{thm:points} uses. It uses a different subdivision (cut points at two fifths of the side, weights $1,19,9$). Instead of integer square roots it compares squares exactly: writing a mode bound on a box as $A_0+B\sqrt{Q_0}$, it accepts that mode when $1-A_0>0$ and $(1-A_0)^2>B^2Q_0$, after clearing denominators. It recomputes $m^*$ by bisection on $V$ and derives the coefficients of $V$ separately. It shares with the first program only the routines that evaluate $\underline{\mathcal C}(\mathfrak B)$ from its inputs and the packing bounds for $b_R,b_D$. It accepts after examining $46{,}865$ boxes.
+\end{proof}
+
+\subsection{Proof of \Cref{thm:points}}
+Suppose that a set $X_0$ of at most $10{,}689$ points has no proper $6$-colouring of its unit-distance graph. Choose $Y\subseteq X_0$ minimal with this property. Every $v\in Y$ has at least six unit neighbours in $Y$, since otherwise a proper $6$-colouring of $Y\setminus\{v\}$ would extend to $Y$. Add to $Y$ points far from $Y$ and from each other, so as to obtain a set $X$ of exactly $n=10{,}689$ points whose unit-distance graph is that of $Y$ together with isolated vertices. Then $X$ has no proper $6$-colouring, and every non-isolated vertex of $X$ has degree at least $6$, so \Cref{cor:ceiling} gives $m\le m^*$. By \Cref{prop:main}, $1\le\Psi(m,s,j)$, which contradicts \Cref{prop:finite}. \qed
+
+\section{Remarks}\label{sec:remarks}
+
+\begin{enumerate}
+\item At $n=10{,}690$ the edge ceiling becomes $403{,}129$, and with the same constants the box search fails at $(m,s,j)=(401216,173,105)$, where the box bound is $1.0000000493\ldots$; the second program fails at a different point. So these parameters stop at $10{,}689$. The failures at $10{,}690$ only mark where this certificate stops; they do not exhibit a unit-distance graph that needs seven colours.
+\item Without the forest, the star credit and the centre edges, the available upper estimate is $10{,}689\,q+403{,}078\,p\approx1.0463>1$. The star credit lowers this by only $403{,}078\cdot\beta_V/2\approx1.8\times10^{-4}$; the decisive quantities are the unit credit $B\approx1.127\times10^{-7}$, the collision losses, and the centre credit: at $m=403{,}078$ and $s=j=0$, \Cref{lem:doubled} gives at least $166{,}729$ doubled pairs and $\mathcal C\approx1.24\times10^{-3}$. The short credits matter for configurations with many close pairs.
+\item Choosing the forest after the placement is what allows \Cref{lem:dtails}: for a fixed rotation, at most one of the unit edges entering a head from $\cD$ can have both ends blank, so they do not compete. With a forest fixed before the translation, the collision loss between such tails would remain.
+\item The colourings of \Cref{thm:wave} and of \Cref{sec:certificate} have the lattice structure of Parts's construction~\cite{Parts}. They differ in the profiles, and in being allowed monochromatic unit pairs.
+\item Both $q$ and $p$ are fixed positive numbers, so the method gives no colouring of the whole plane. If a sequence of periodic colourings had blank densities and monochromatic probabilities both tending to $0$, a compactness argument would give $\chi(\R^2)\le6$.
+\end{enumerate}
+
+\appendix
+\section{Data and programs}\label{app:replay}
+The profiles of $W_E$ and $W_V$ and the programs are available at \coderepo. The programs are written in Python, using the python-flint library for ball arithmetic, and in C\texttt{++}. They carry out the following checks.
+\begin{itemize}
+\item The quadrature of \Cref{cor:heightquad} for $W_E$, which verifies \Cref{thm:wave}.
+\item The star certificates of \Cref{sec:starE,sec:starV}, and the bound $245{,}510$ of \Cref{thm:edges}. The program for $W_E$ exits with an error if the certified edge bound is below $245{,}510$.
+\item \Cref{prop:pbar}, in two independent implementations, one in integer arithmetic and one in Python, the second of which also computes $q$; and (W1)--(W4) for $W_V$, with $q$ and $p$ for $W_V$ recomputed with $N=2^{26}$.
+\item The lower enclosure $\Omega$ of \Cref{def:Omega}, the packing bounds $k_\varrho$ and $g_\varrho$, and the constants of \Cref{sec:certificate}.
+\item \Cref{lem:shortpairs}, the probability integrations of \Cref{lem:centre-prob}, and the evaluation of $\underline{\mathcal C}(\mathfrak B)$.
+\item The two box checks of \Cref{prop:finite} at $n=10{,}689$. The program also reports the failures at $n=10{,}690$, where the certificate stops, and exits with an error unless both checks pass at $n=10{,}689$.
+\end{itemize}
+All of these were re-run on 24 November 2026 and reproduced their recorded outputs exactly. On one core of a $2.1$\,GHz Xeon, the quadrature takes about $1.5$ seconds and the star certificate for $W_E$ about $75$ seconds; each of the other checks takes between $2$ and $15$ seconds.
+
+\section{Formal verification in Lean}\label{app:lean}
+\Cref{thm:edges} has also been proved in the Lean~4 proof assistant \cite{Lean4} with the Mathlib library \cite{Mathlib}. So has \Cref{thm:points}, from four published facts about crossing numbers that enter as an explicit hypothesis. The development uses version~4.29.1 of Lean and the matching release of Mathlib, and is available at \coderepo.
+
+\emph{Statements.} In the formal statements the plane is Mathlib's Euclidean space $\R^2$, and a colouring is any function from the plane to a set of six colours. Lean proves the following.
+\begin{itemize}\small
+\item If $E$ is a finite set of pairs $(u,v)$ of points with $|u-v|=1$, and $E$ has at most $245{,}510$ elements, then some colouring $c$ has $c(u)\ne c(v)$ for every $(u,v)\in E$. Listing each edge in one orientation, this is \Cref{thm:edges}.
+\item Given the hypothesis described below, if $X$ is a set of at most $10{,}689$ points, then some colouring $c$ has $c(x)\ne c(y)$ whenever $x,y\in X$ and $|x-y|=1$. This is \Cref{thm:points}.
+\end{itemize}
+The formal statements also define graphs, drawings by continuous injective arcs, good drawings, crossing counts and the crossing number. The hypothesis consists of four facts. Two are the inequality $\cro(G)\ge5M-\frac{203}9(N-2)$ of \cite[Theorem~4(b)]{BK} and the density theorem \cite[Theorem~7]{BFKP}. The other two are the facts about drawings from \cite{Schaefer} used in \Cref{sec:crossing}: $\cro(G)\le\cro(\mathcal D)$ for every drawing $\mathcal D$ in which any two edges have finitely many common points, and some good drawing of $G$ has exactly $\cro(G)$ crossings. From these, Lean proves \Cref{thm:BFKP} and the rest of \Cref{sec:crossing}. \Cref{thm:edges} does not use them. The formal statements were reviewed against the paper and then kept unchanged.
+
+\emph{Proof.} Every result of \Cref{sec:wave,sec:stars,sec:edges,sec:crossing,sec:packing,sec:forest,sec:centres,sec:certificate} has a Lean counterpart. The Lean proof follows the paper with two changes. Each is easier to formalise and gives a slightly weaker intermediate constant that still suffices.
+\begin{itemize}\small
+\item The height quadrature of \Cref{sec:wave} (\Cref{prop:heightbound} to \Cref{cor:heightquad}) is not formalised. For $W_E$, Lean instead evaluates the bound of \Cref{prop:pbar} with $N=2^{28}$ and proves that a randomly placed unit segment is monochromatic with probability at most $B=4077152\cdot10^{-12}$. This is larger than $p_E$, so the constant of \Cref{thm:wave} itself is not formalised. The argument of \Cref{sec:edges} goes through with $B$ in place of $p_E$, since $245{,}269\,B<1$ and $245{,}510\,(B-\beta_E/2)=0.99999954752<1$.
+\item \Cref{lem:average} is not used. Both collision parameters of \Cref{sec:forest} use the pointwise bound $k_\varrho$ of \Cref{lem:pointwise} in place of $g_\varrho$. This raises the constants $L$ and $T$ of \Cref{sec:certificate} to $150296106235$ and $97911102803$, in the units used there, and the box search of \Cref{prop:finite}, which Lean also carries out, still accepts every feasible parameter triple at $n=10{,}689$.
+\end{itemize}
+Every other numerical input is recomputed by a checker written in Lean: \Cref{prop:pbar} for $W_V$, the star certificates of \Cref{prop:stars} for both colourings, the constants of \Cref{sec:certificate} and the integrations of \Cref{sec:centres}. The recomputed blank density and monochromatic probability of $W_V$, and the constants $B$, $C$, $E$, $U$ and $J$ of \Cref{sec:certificate}, agree exactly with the values printed here. The programs of \Cref{app:replay} are used only for comparison.
+
+\emph{Trust.} The checkers are evaluated with Lean's \texttt{native\_decide} tactic, which runs compiled code, so accepting the formal proof means trusting the Lean compiler for these evaluations as well as the Lean kernel. The proof of \Cref{thm:edges} uses $8$ such evaluations: six groups of angular bins for \Cref{prop:pbar} and two checks for the star certificate. The proof of \Cref{thm:points} uses $17$ others: six groups of angular bins for \Cref{prop:pbar}, five checks for the star certificate of $W_V$, two for the constants of \Cref{sec:certificate}, three for the integrations of \Cref{sec:centres}, and the box search of \Cref{prop:finite}. Apart from these evaluations, the proofs use only the three standard axioms of Lean: propositional extensionality, the axiom of choice and the soundness of quotients. They contain no unproved steps, declare no further axioms and use no floating-point arithmetic. A clean build of the development takes about $14$ minutes on a cloud machine provided by Blaxel.
+
+\begin{thebibliography}{99}\small
+\bibitem{AP} P.~Ágoston and D.~Pálvölgyi, \emph{An improved constant factor for the unit distance problem}, arXiv:2006.06285.
+\bibitem{BSW} R.~Bodendiek, H.~Schumacher and K.~Wagner, \emph{Bemerkungen zu einem Sechsfarbenproblem von G.~Ringel}, Abh.\ Math.\ Sem.\ Univ.\ Hamburg \textbf{53} (1983), 41--52.
+\bibitem{BK} A.~Büngener and M.~Kaufmann, \emph{Improving the crossing lemma by characterizing dense 2-planar and 3-planar graphs}, J.\ Graph Algorithms Appl.\ \textbf{29} (2025), no.~3, 143--174, doi:10.7155/jgaa.v29i3.3000; arXiv:2409.01733v2.
+\bibitem{BFKP} A.~Büngener, J.~Franz, M.~Kaufmann and M.~Pfister, \emph{A first view on the density of 5-planar graphs}, in: 34th International Symposium on Graph Drawing and Network Visualization (GD 2026), ed.\ M.~Löffler and S.~Miksch, LIPIcs \textbf{396} (2026), 33:1--33:17, doi:10.4230/LIPIcs.GD.2026.33; full version arXiv:2505.24364.
+\bibitem{dBE} N.\,G.~de Bruijn and P.~Erd\H{o}s, \emph{A colour problem for infinite graphs and a problem in the theory of relations}, Indag.\ Math.\ \textbf{13} (1951), 371--373.
+\bibitem{deGrey} A.\,D.\,N.\,J.~de Grey, \emph{The chromatic number of the plane is at least 5}, Geombinatorics \textbf{28} (2018), 18--31.
+\bibitem{dGP} A.\,D.\,N.\,J.~de Grey and J.~Parts, \emph{On lower bounds of the order of $k$-chromatic unit distance graphs}, arXiv:2303.14714v1 (2023).
+\bibitem{Lean4} L.~de~Moura and S.~Ullrich, \emph{The Lean~4 theorem prover and programming language}, in: Automated Deduction -- CADE~28, Lecture Notes in Comput.\ Sci.\ \textbf{12699}, Springer, 2021, 625--635.
+\bibitem{five} \emph{The Euclidean plane is not five-colorable}, manuscript dated 23 September 2026, \url{https://github.com/openai/math}.
+\bibitem{Mathlib} The mathlib Community, \emph{The Lean mathematical library}, in: Proceedings of the 9th ACM SIGPLAN International Conference on Certified Programs and Proofs (CPP 2020), ACM, 2020, 367--381.
+\bibitem{PachToth} J.~Pach and G.~Tóth, \emph{Graphs drawn with few crossings per edge}, Combinatorica \textbf{17} (1997), 427--439.
+\bibitem{Parts} J.~Parts, \emph{What percent of the plane can be properly 5- and 6-colored?}, arXiv:2010.12668v1 (2020).
+\bibitem{Pritikin} D.~Pritikin, \emph{All unit-distance graphs of order 6197 are 6-colorable}, J.\ Combin.\ Theory Ser.\ B \textbf{73} (1998), 159--163.
+\bibitem{Schaefer} M.~Schaefer, \emph{The graph crossing number and its variants: a survey}, Electron.\ J.\ Combin., Dynamic Survey DS21.
+\bibitem{Szekely} L.\,A.~Székely, \emph{Crossing numbers and hard Erd\H{o}s problems in discrete geometry}, Combin.\ Probab.\ Comput.\ \textbf{6} (1997), 353--358.
+\end{thebibliography}
+\end{document}

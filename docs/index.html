@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ten papers, November 2026</title>
+<meta name="description" content="Ten mathematics papers by Charles O'Neill, Max Kirkby, Astra and Fable, with programs and data.">
+<style>
+:root { --bg: #fdfdfb; --fg: #1d1d1b; --muted: #5d5d58; --link: #1f4e8c; --rule: #deded8; }
+@media (prefers-color-scheme: dark) { :root { --bg: #161615; --fg: #e9e9e4; --muted: #a3a39c; --link: #8fb4ec; --rule: #33332f; } }
+html { background: var(--bg); color: var(--fg); }
+body { max-width: 46rem; margin: 0 auto; padding: 2.5rem 1rem 4rem; font: 17px/1.6 Georgia, 'Palatino Linotype', Palatino, serif; }
+a { color: var(--link); }
+h1 { font-size: 1.6rem; line-height: 1.3; margin: 0 0 .4rem; }
+h2 { font-size: 1.15rem; margin-top: 2rem; }
+.meta { color: var(--muted); margin-bottom: 1.5rem; }
+.links a { margin-right: 1.2rem; }
+li { margin-bottom: .9rem; }
+
+.display { display: block; text-align: center; margin: .8rem 0; }
+.note { color: var(--muted); font-size: .92rem; border-top: 1px solid var(--rule); margin-top: 2.5rem; padding-top: 1rem; }
+pre { font: 13px/1.45 ui-monospace, Menlo, Consolas, monospace; background: var(--rule); padding: .8rem 1rem; overflow-x: auto; white-space: pre; }
+</style>
+</head>
+<body>
+<h1>Ten papers</h1>
+<div class="meta">Charles O'Neill, Max Kirkby, Astra and Fable &middot; 24&ndash;25 November 2026 &middot; <a href="https://github.com/charlieoneill11/maths-releases">Programs and data on GitHub</a></div>
+<ul>
+<li><a href="zeta-sixth-moment/">An improved lower bound for the sixth moment of the Riemann zeta function</a><br><span class="meta">liminf M<sub>6</sub>(T) / (c<sub>3</sub> T (log T)<sup>9</sup>) &ge; 41.6406, with c<sub>3</sub> = a<sub>3</sub>/9! (previous record 41.008; conjectured 42)</span></li>
+<li><a href="chowla-nonvanishing/">Central nonvanishing of quadratic Dirichlet <i>L</i>-functions: beyond the one-level density bound, uniformly in local conditions</a><br><span class="meta">L(1/2, &chi;<sub>d</sub>) &ne; 0 for more than 94.53419890% of fundamental discriminants (previous 94.2730%); the numerical certificate also proved in Lean</span></li>
+<li><a href="legendre/">A prime between every two consecutive 11/5-th powers</a><br><span class="meta">a prime in (n<sup>11/5</sup>, (n+1)<sup>11/5</sup>) for every n &ge; 1; Legendre&rsquo;s conjecture checked by computation for every m &le; 10<sup>14</sup> (independently replayed in part)</span></li>
+<li><a href="least-prime-ap/">Primes below <i>n</i><sup>2-δ</sup> in every residue class, for a majority of moduli</a><br><span class="meta">for more than 58.7% of moduli n, every reduced class mod n has a prime below C n<sup>2&minus;&delta;</sup>; the density computation also proved in Lean</span></li>
+<li><a href="hadwiger-nelson/">Six colours suffice for every unit-distance graph with at most 10,689 vertices or 245,510 edges</a><br><span class="meta">every unit-distance graph with at most 10,689 vertices, or at most 245,510 edges, is 6-colourable (previous 6,992 and 232,645); the edge bound also proved in Lean</span></li>
+<li><a href="seven-cycle-five/">The fourth strong power of the seven-cycle has independence number at most 112</a><br><span class="meta">&alpha;(C<sub>7</sub><sup>&#8864;4</sup>) &le; 112 and &alpha;(C<sub>7</sub><sup>&#8864;5</sup>) &le; 392 (previous 115 and 401); both also proved in Lean</span></li>
+<li><a href="cube-packing/">Packing side-two cubes in the three-dimensional torus of side <i>N</i>≡5 mod  8</a><br><span class="meta">&alpha;(C<sub>N</sub><sup>&#8864;3</sup>) = N(mN&minus;1)/2 for every N = 4m+1 &equiv; 5 (mod 8): the conjecture of Baumert et al. (1971) for this family, previously known when N or m is prime and within 2 in general; computer-assisted</span></li>
+<li><a href="conjugate-generation/">Conjugate pairs with the full prime spectrum in finite groups</a><br><span class="meta">every finite group G has conjugate elements a, b with &pi;(&lang;a, b&rang;) = &pi;(G), answering Shumyatsky&rsquo;s Question 17.125 in the Kourovka Notebook (previously known when all maximal subgroups are Hall subgroups); the deduction from four cited theorems also proved in Lean</span></li>
+<li><a href="hadamard-4792/">A Hadamard matrix of order 4792</a><br><span class="meta">an explicit Hadamard matrix of order 4792 = 8&middot;599, an order for which none was known before (twice 2396, the smallest open order); HH<sup>T</sup> = 4792I checked by three independent programs</span></li>
+<li><a href="quadratic-differences/">The optimal constant for four-colour quadratic van der Waerden numbers</a><br><span class="meta">W(ex<sup>2</sup>+fx; 4) &le; 57|e|+39|f|+1 for all e, f, so the optimal constant C<sub>4</sub> asked for by Kumthekar, Gasarch, Regli and Whitehouse is 57 (they proved 57 &le; C<sub>4</sub> &le; 64); six new exact values of W(x<sup>2</sup>+jx; 4); computer-assisted, with checked DRAT proofs</span></li>
+</ul>
+<p class="note"><strong>AI use.</strong> The mathematical arguments and computer programs in six of these papers were developed by Astra (GPT-6.2 Astra, OpenAI). Fable (Fable 5.2, Anthropic) worked throughout as a second model: it proposed alternative approaches, reviewed arguments and raised objections. The manuscripts were prepared from the project&#x27;s research records with Claude (Anthropic). All computations were re-run before release, and the programs and certificates are available at https://github.com/charlieoneill11/maths-releases. Charles O&#x27;Neill has checked the arguments and takes full responsibility for the correctness of the results. The papers on packing cubes, on conjugate pairs, on the Hadamard matrix of order 4792 and on quadratic van der Waerden numbers were produced differently. The cube-packing arguments and programs were developed by GPT-6.2 Astra and GPT-6.2 Sol in Codex, the conjugate-pair argument by GPT-6.2 Astra, the Hadamard construction and search by GPT-6.2 Astra, starting from Kishan Kumar’s public search programs, and the quadratic van der Waerden arguments and programs by GPT-6.2 Astra; each of their pages gives its own statement. Open-weight models, Kimi K3.1 Pro and DeepSeek V4.1 Flash, were able to derive a significant proportion of the results in four of these papers when given guidance. We will report the details separately. Each paper's page describes the human authors' contributions to it.</p>
+</body>
+</html>

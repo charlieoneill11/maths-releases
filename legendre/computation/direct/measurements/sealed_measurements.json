@@ -1,0 +1,22 @@
+[
+  {
+    "label": "low",
+    "first": 3883854444452,
+    "last": 3883855444451,
+    "rows": 1000000,
+    "core_seconds": 3.502023,
+    "wall_seconds": 3.50543159299923,
+    "bytes": 866605,
+    "pinned_cpu": 0
+  },
+  {
+    "label": "high",
+    "first": 32654577787390,
+    "last": 32654578787389,
+    "rows": 1000000,
+    "core_seconds": 3.6753550000000006,
+    "wall_seconds": 3.685098788002506,
+    "bytes": 880501,
+    "pinned_cpu": 0
+  }
+]

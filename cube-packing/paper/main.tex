@@ -1,0 +1,453 @@
+\documentclass[11pt,colorlinks]{charlie}
+\input{preamble}
+\usepackage{amssymb}
+
+\newcommand{\ZN}{\mathbb{Z}_N}
+\newcommand{\spow}{\boxtimes}
+\newcommand{\norm}[1]{\lVert #1\rVert}
+\renewcommand{\aiusestatement}{The mathematical arguments and computer programs in this paper were developed by Astra (GPT-6.2 Astra, OpenAI) and GPT-6.2 Sol (OpenAI), working in Codex from Charles O'Neill's instructions. The manuscript was prepared from the project's research records with Claude (Anthropic). All computations were re-run before release, and the programs and certificates are available at \coderepo.}
+
+\title{Packing side-two cubes in the three-dimensional torus of side $N\equiv5\pmod 8$}
+\author{Charles O'Neill, Max Kirkby and Astra}
+\date{25 November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Let $N=4m+1$ with $m$ odd. We prove that the largest number of pairwise disjoint translates of the cube $\{0,1\}^3$ in the discrete torus $\ZN^3$ is $N(mN-1)/2$. Equivalently, the independence number of the third strong power of the cycle $C_N$ is $\alpha(C_N^{\spow3})=N(mN-1)/2$ for every $N\equiv5\pmod8$. The lower bound is a construction of Baumert, McEliece, Rodemich, Rumsey, Stanley and Taylor, who conjectured in 1971 that it is optimal. Bohman, Holzman and Natarajan proved the conjecture when $N$ is prime and showed that in general the maximum exceeds the construction by at most two; Natarajan proved it when $m$ is prime. We build on their analysis of full and almost-full planar projections. Arithmetic constraints between the hole lines of perpendicular full planes, a slope-propagation argument for adjacent almost-full planes and a new embedding for one case of their reduction exclude every side $N\ge653$. Below $653$, exact integer comparisons at $23$ sides and exhaustive computations at the sides $85$, $133$, $141$, $261$ and $301$ settle the remaining cases. The proof is computer-assisted, and all programs are available.
+\end{abstract}
+\mscandkeywords{05C69; 05B40, 52C17, 94A24}{cube packing, discrete torus, strong product, odd cycles, independence number, Shannon capacity}
+
+\section*{AI use and author contributions}
+\aiusestatement
+
+Charles O'Neill proposed the problem and asked for the conjecture to be proved or disproved, and for the work to continue until the proof was complete. \responsibilitystatement
+
+\section{Introduction}
+A \emph{packing} of side-two cubes in the discrete torus $\ZN^3$, where $\ZN=\Z/N\Z$, is a family of pairwise disjoint translates $x+\{0,1\}^3$. Recording each cube by its corner $x$, a packing is the same as a set $S\subset\ZN^3$ in which no two points differ by at most one, cyclically, in every coordinate. That is, $S$ is an independent set in the strong power $C_N^{\spow3}$ of the $N$-cycle. For odd $N$ these numbers govern the zero-error capacity of the cycle channel \cite{Lovasz}, and they have been studied since Baumert, McEliece, Rodemich, Rumsey, Stanley and Taylor \cite{BBC}. Write $\alpha(G)$ for the independence number of a graph $G$.
+
+Let $N=4m+1$ with $m$ odd, that is, $N\equiv5\pmod8$, and put
+\[
+ t=t(N)=\frac{N(mN-1)}{2}.
+\]
+Baumert et al.\ gave a packing of $t$ cubes and conjectured that it is optimal \cite{BBC}; see \cite[Section~1]{BHN}. Bohman, Holzman and Natarajan \cite{BHN} proved the conjecture when $N$ is prime, which gives for example $\alpha(C_{13}^{\spow3})=247$, and proved $\alpha(C_N^{\spow3})\le t+2$ for every $N\equiv5\pmod8$. Natarajan proved it when $m$ is prime \cite[Section~1]{BHN}. Bohman \cite{Bohman} showed that the recurrence proposed by Baumert et al.\ for all dimensions fails in higher dimensions, and conjectured a formula for the residue $N\equiv2^{d-1}+1\pmod{2^d}$ in each dimension $d$; the case $d=3$ is the present one.
+
+\begin{theorem}\label{thm:main}
+For every positive odd integer $m$ and $N=4m+1$,
+\[
+ \alpha\bigl(C_N^{\spow3}\bigr)=\frac{N(mN-1)}2 .
+\]
+\end{theorem}
+
+For example, $\alpha(C_{85}^{\spow3})=75{,}820$, $\alpha(C_{133}^{\spow3})=291{,}802$ and $\alpha(C_{141}^{\spow3})=347{,}847$; these are the three smallest sides at which neither $N$ nor $m$ is prime.
+
+\paragraph{Outline.}
+The lower bound is the construction of \cite{BBC}. For the upper bound it suffices to exclude a packing of $t+1$ points, since any larger packing contains one. We work throughout with the projections of slabs of two consecutive levels, called planes, and with the holes of these projections, following \cite{BHN}. \Cref{sec:bhn} collects what we use from \cite{BHN} and from its long version \cite{BHNlong}. In particular, an almost-full plane can be transformed into a maximum planar packing, its \emph{parent}, of side $N-4$, $N$ or $N+4$ by a bounded number of local operations \cite[Theorem~22]{BHNlong}.
+
+The new ingredients are as follows.
+\begin{enumerate}
+\item An arithmetic criterion (\Cref{prop:arith}): if the compatibility coefficients $1\pm8abc$ of \cite[Lemma~12]{BHN} are all units modulo $N$, the conjecture holds at $N$.
+\item An obstruction (\Cref{prop:endpoint}) to an interval of almost-full planes whose parents share a slope of absolute value greater than two.
+\item An explicit embedding (\Cref{prop:lift}) for the double-expansion case of the reduction in \cite{BHNlong}, which shows that its holes correspond to those of the parent.
+\item A slope-propagation argument (\Cref{thm:cutoff}): adjacent almost-full planes have parents with the same slope once $N\ge653$. Together with the first two ingredients this excludes every $N\ge653$, and exact integer comparisons do the same below $653$ except at $N=261,301$.
+\item Exhaustive computations (\Cref{sec:finite}) at $N=85,133,141,261,301$.
+\end{enumerate}
+\Cref{sec:proof} assembles the proof and \Cref{sec:computation} describes the programs.
+
+\section{Planes, holes and the results of Bohman, Holzman and Natarajan}\label{sec:bhn}
+
+Throughout, $N=4m+1$ with $m$ odd and $S\subset\ZN^3$ is a packing, that is, an independent set of $C_N^{\spow3}$. Its points are the \emph{anchors} of the cubes.
+
+\paragraph{Planes and deficiencies.}
+For an axis $i$ and a level $s\in\ZN$, the slab at $s$ consists of the anchors whose $i$-th coordinate is $s$ or $s+1$. Its projection $S_s$ onto the other two coordinates is injective and is an independent set of $C_N^{\spow2}$; we call it the \emph{plane} (or dual plane) at level $s$. Every anchor lies in two slabs on each axis. The maximum size of a planar packing is $A=\alpha(C_N^{\spow2})=mN$. A plane is \emph{full} if $|S_s|=A$ and \emph{almost full} if $|S_s|=A-1$. Its \emph{deficiency} is $D_s=A-|S_s|$. If $|S|=t+k$, summing over the levels of one axis gives
+\begin{equation}\label{eq:deficiency}
+ \sum_s D_s=N-2k,\qquad F-\sum_{D_s\ge2}(D_s-1)=2k,
+\end{equation}
+where $F$ is the number of full planes on that axis. In particular a packing of $t+1$ points has at least two full planes on each axis \cite[Lemmas~9 and~10]{BHN}.
+
+\paragraph{Rows.}
+The two physical levels of a slab give the \emph{physical rows} of a plane. If a plane of deficiency $D$ has physical row counts $r_i$, then $r_i+r_{i+1}=2m-e_i$ with $e_i\ge0$ and $\sum_ie_i=2D$, since a dual line of $C_N^{\spow2}$ holds at most $2m$ points. Taking the alternating sum around the odd cycle gives
+\begin{equation}\label{eq:rows}
+ |r_i-m|\le D .
+\end{equation}
+
+\paragraph{Holes and dual lines.}
+A \emph{hole} of a planar packing $P\subset\ZN^2$ is a translate of $\{0,1\}^2$ containing no point of $P$, indexed by its corner. A \emph{dual line} is a pair of consecutive rows (or columns). Its projection is an independent set of $C_N$, of size at most $2m$. A dual line has an odd number $1+2d$ of holes, where $d\ge0$ is its \emph{badness}, and it is \emph{full} if $d=0$. If a full dual line has its hole at $h$, its projected points are exactly
+\[
+ I_N(h)=\{h+2,h+4,\ldots,h+N-1\}\pmod N .
+\]
+Between successive holes $h,h'$ of a dual line its projected points are $h+2,h+4,\ldots,h'-1$, so $h'-h$ is odd in a cyclic lift.
+
+\paragraph{Maximum planar packings.}
+By the classification of Baumert et al.\ \cite{BBC}, see \cite[Section~2.5]{BHN}, the holes of a maximum planar packing on $\ZN^2$ form a single affine line of slope $\pm2a$ for a positive divisor $a$ of $m$, and a planar packing on the odd torus is determined by its holes. Concretely, a maximum pattern of signed slope $s=\pm2a$ is a translate of the preimage under $(x,y)\mapsto x-sy$ of
+\[
+ Q_a=\{2i+4aj:\ 0\le i<a,\ 0\le j<m/a\}.
+\]
+Since $(2a)(2m/a)=4m\equiv-1\pmod N$, the inverse of a slope $\pm2a$ is $\mp2m/a$, so in either orientation of the plane the hole line has slope $\pm2a'$ with $a'\mid m$. We call $a$ the \emph{half-slope}; a plane has \emph{class one} if its half-slopes are $1$ and $m$ in the two orientations. In particular $\pm2$ are the slopes of class one, with inverses $\mp2m$.
+
+\paragraph{Compatibility.}
+Fix full planes perpendicular to the three axes and write their hole lines with signed slopes $\Delta_x,\Delta_y,\Delta_z$, taken in cyclic order. If the planes perpendicular to the second and third axes meet in a dual line whose hole has first coordinate $h$, and the full plane perpendicular to the first axis is at level $s$, then \cite[Lemma~12]{BHN} gives
+\begin{equation}\label{eq:compat}
+ (1+\Delta_x\Delta_y\Delta_z)(h-s)\equiv0\pmod N .
+\end{equation}
+By \cite[Lemma~13]{BHN} the coefficient is never $0$ modulo $N$: if each $x_i$ is an even divisor of $2m$ then $x_1x_2x_3\not\equiv\pm1\pmod N$.
+
+\paragraph{Almost-full planes.}
+We use the analysis of planar packings of deficiency one in the long version of \cite{BHN}. The published version states only its consequences \cite[Section~1]{BHN}, and refers to the long version, available from the first author's web page, for the proofs \cite{BHNlong}.
+
+\begin{theorem}[{\cite[Theorem~22 and Sections~3.1--3.2]{BHNlong}}]\label{fact:reduction}
+Let $P$ be a planar packing on $\ZN^2$ of size $A-1$. Then $P$ is transformed into a maximum planar packing, its \emph{parent}, on a square torus of side $K\in\{N-4,N,N+4\}$ by one of the following sequences of operations, together with at most one \emph{thread move}, which slides a run of anchors at spacing two along a physical line by one:
+\begin{itemize}
+\item at $K=N-4$, four \emph{collapses}, two on each axis; a collapse deletes two consecutive primal levels on one axis and reduces the badness in the perpendicular direction by one;
+\item at $K=N+4$, two \emph{normal expansions}, each inserting two primal levels on both axes, or one \emph{double expansion};
+\item at $K=N$, one normal expansion and one collapse on each axis, or one \emph{addition} of a point.
+\end{itemize}
+The total badness of the dual lines of $P$ in each direction is two, and each operation reduces it as stated. The canonical algorithm of \cite[Section~3.2.1]{BHNlong} performs a thread move parallel to two adjacent dual lines only when both are bad. The double expansion occurs only in Case~2 of \cite[Section~3.2.2]{BHNlong}, in which all holes are isolated.
+\end{theorem}
+
+Besides this theorem we use \cite[Lemmas~12, 16, 19 and~23]{BHNlong} and the description of the double-expansion case in \cite[Section~3.2.2]{BHNlong}, at the places where they occur. These results of the long version have not been published in refereed form, and the proof of \Cref{thm:main} depends on them.
+
+\section{An arithmetic criterion}\label{sec:arith}
+
+\begin{proposition}\label{prop:arith}
+If $\gcd(N,1\pm8abc)=1$ for all positive divisors $a,b,c$ of $m$ and both signs, then $\alpha(C_N^{\spow3})=t$.
+\end{proposition}
+
+\begin{proof}
+Suppose a packing has more than $t$ points. By \cite[Lemmas~9 and~10]{BHN} it has at least two full planes on each axis. In a full plane the holes lie on one affine line, with slope $\pm2a$ for a divisor $a$ of $m$. Fix full planes perpendicular to the second and third axes. Their intersection has one hole, at first coordinate $h$. Choose a full plane perpendicular to the first axis at a level $s\ne h$. Then \eqref{eq:compat} holds after translation, and the coefficient $1+\Delta_x\Delta_y\Delta_z$ has the form $1\pm8abc$. By hypothesis it is a unit, so $s=h$, a contradiction.
+\end{proof}
+
+\begin{remark}
+Below $173$, the sides $N\equiv5\pmod8$ at which neither $N$ nor $m$ is prime and \Cref{prop:arith} does not apply are exactly $85$, $133$ and $141$. Between $173$ and $653$ there are $23$ such sides: $205$, $221$, $253$, $261$, $301$, $309$, $325$, $341$, $365$, $381$, $445$, $469$, $477$, $493$, $501$, $533$, $565$, $573$, $581$, $589$, $621$, $637$ and $645$.
+\end{remark}
+
+\section{An endpoint obstruction for intervals of large slope}\label{sec:endpoint}
+
+\begin{proposition}\label{prop:endpoint}
+Suppose two full $x$-levels $s_0,s_1$ have hole lines $z=ay+A_s$ with the same signed slope $a$, and two full $z$-levels $w_0,w_1$ have hole lines $x=cy+C_w$ with the same signed slope $c$. Let $I$ be a cyclic interval of $y$-levels containing a full level $t$ with hole line $x=bz+B_t$, and suppose every plane at $y\in I$ is full or almost full, with an ordinary parent of side $N$ and signed slope $b$. Assume that $b$ is not of class one: in the two orientations the absolute half-slopes are odd divisors $d,e\ge3$ of $m$ with $de=m$. Let $q$ be the additive order of $c+ab$ in $\ZN$. If $I$ contains at least $q$ consecutive levels and each pair of transverse full levels has cyclic separation at least three, then $N\le165$.
+\end{proposition}
+
+For the three intervals constructed in \Cref{sec:cutoff}, the separations and the length of $I$ follow from \eqref{eq:compat}. The coefficient $c+ab$ differs from a compatibility coefficient by a unit, so $q>1$ by \cite[Lemma~13]{BHN}, and $q$ is odd. For fixed transverse full levels the same coefficient times the displacement to the unique intersection hole is zero on both full levels of the remaining axis; subtraction shows that $q$ divides their spacing. In particular two distinct such levels are at cyclic distance at least $q\ge3$, and two full levels on the $y$-interval give the required length.
+
+\begin{proof}
+\emph{A full transverse line through one mixed reduction.} The ordinary reduction at the original side is either a single addition or a mixed sequence with one collapse in each coordinate and one normal expansion. Either may include one thread move. For a full original plane use the identity. In the mixed case choose translations of the parent coordinates so that on retained primal levels the coordinate maps have the form $z\mapsto z+2\epsilon(z)$ with $\epsilon(z)\in\{0,1\}$. Indeed one pair of original levels is removed and one pair inserted on each axis, and starting just after the removed pair gives an unshifted interval followed by an interval shifted by two. If the insertion and deletion partly or wholly cancel, the retained map is a translation, and at most two original levels are dropped. The original global coordinates remain fixed; both parent-coordinate translations are recorded in the single parent intercept $B_y$.
+
+Fix one of the two planar axes as the input. Of its two transverse true full levels choose one whose two primal input coordinates survive the collapse; the two deleted primal coordinates can disqualify only three consecutive dual levels, and the full levels are at distance at least three. The intersection line at the selected input is full because the transverse slab is full. Its two primal coordinates map to a pair at distance $g=1$ or $3$ in cyclic order. A move along the output in the canonical algorithm cannot touch this full line: before the move, a collapse of the output preserves its fullness, because its capacity drops by one and the removed consecutive primal levels hold at most one of its anchors, and an input collapse leaves its surviving primal pair intact. A prior normal expansion leaves at most one unit of badness in either direction, whereas \cite[Section~3.2.1]{BHNlong} performs a move only along two bad parallel lines. A move along the input changes the projected occupancy at just one output value, since the moving thread has a single primal output coordinate.
+
+Divide output coordinates by two modulo $N$. The actual projected line is now an interval $J$ of length $2m$. The projected union of the parent pair is a translate of $P_g=D\cup(D+gd)$, where $D=\bigcup_{j=0}^{e-1}[2dj,2dj+d-1]$; a negative signed slope gives the same set up to translation. Outside the at most two omitted original positions and the one possible move discrepancy, actual membership at a position $z$ agrees with parent membership at $z$ or $z+1$. An addition occurs only in the alternative reduction with no coordinate surgery.
+
+For a set $P$ of size $2m$ having $k$ cyclic runs, the number of positions where neither parent choice matches $J$ is
+\[
+|(P\cap(P-1))\setminus J|+|J\setminus(P\cup(P-1))|=\tfrac12\bigl(|J\triangle P|+|J\triangle(P-1)|\bigr)-k .
+\]
+When $g=3$, the occupied length-$d$ blocks of $P_3$ have indices $0$, $2,3,\ldots,2e-1$ and $2e+1$. Its two internal gaps have length $d$ and its exterior gap has length $2m-2d+1$. An interval of length $2m+1$ meets at least $d$ occupied positions: if it meets the exterior gap and an internal gap it contains a whole intervening occupied run; if it misses the exterior gap it includes at least $2m+1-2d>d$ occupied positions; if it misses both internal gaps it contains at least $2d$ occupied positions. Equality requires covering the entire exterior gap, one entire boundary occupied run of length $d$ and that run's neighbouring internal gap, since meeting all three gaps would include two whole occupied runs. Thus exactly two interval starts give equality, separated by $2d$ and hence nonadjacent. Passing to complementary intervals, the minimum of $|J\triangle P_3|$ is $2d$, attained at exactly two nonadjacent starts. The distances to $P_3$ and $P_3-1$ cannot both attain it, and these distances are even. The formula with $k=3$ therefore gives at least $2d-2\ge4$ forced discrepancies, exceeding the three allowed. Consequently $g=1$, also when $d=3$.
+
+For $g=1$ the parent line is an interval $P$ of length $2m$. Write $J=P+r$ in half-coordinates. With $\norm{r}_N$ the distance from $r$ to $0$ on the discrete circle, the forced mismatch count is $\norm{r}_N+\norm{r+1}_N-1$. The bound of three gives $r\in\{-2,-1,0,1\}$. In the addition case the move and the addition affect at most two values without any coordinate shifts, which gives $\norm{r}_N\le1$. Hence for each selected line the parent input equals the actual input plus $2i$ with $i\in\{0,1\}$, and its parent output hole equals the actual output hole plus $2v$ with $v\in\{-1,0,1,2\}$. The same conclusion holds after interchanging the planar input and output, with the same parent and the same two coordinate frames.
+
+\emph{Closing the three equations.} For every $y\in I$ choose a surviving full level $s\in\{s_0,s_1\}$ and a surviving full level $w\in\{w_0,w_1\}$, possibly depending on $y$. At $x=s$ the actual hole has $z=ay+A_s$, and at $z=w$ it has $x=cy+C_w$. Their parent coordinates obey $x'=bz'+B_y$. At the true full level $y=t$, exact pairwise compatibility gives $s-bA_s=B_t+ab\,t$ and $C_w-bw=B_t-ct$ for every selected $s,w$. Eliminating $B_y$ gives
+\[
+ (c+ab)(y-t)\equiv2u+2bv\pmod N,\qquad |u|,|v|\le2,
+\]
+since each error coefficient is the difference of a fixed-input correction from $\{0,1\}$ and a full-output correction from $\{-1,0,1,2\}$. The constant term is the same for all four endpoint choices.
+
+Take $D=1$ if $|b|\le\sqrt{N-1}$ and $D=(N-1)/|b|$ otherwise. In either case $D$ is a unit and $\norm{D}_N+\norm{Db}_N\le1+\sqrt{N-1}$. The centred magnitude of $D(c+ab)(y-t)$ is therefore at most $4(1+\sqrt{N-1})$. As $y$ runs through $q$ consecutive levels these residues exhaust the subgroup of order $q$, which, being of odd order $q\ge3$, has a member of centred magnitude $N(q-1)/(2q)\ge N/3$. This is a contradiction when $N>12(1+\sqrt{N-1})$, which holds for every $N\ge173$. The next smaller side $N\equiv5\pmod8$ is $165$.
+\end{proof}
+
+\section{A localized lift for the double-expansion case}\label{sec:lift}
+
+We use the input classification of \cite[Section~3.2.2, Case~2]{BHNlong} and \cite[Lemmas~12, 16 and~19]{BHNlong}, and construct the larger planar packing directly.
+
+\begin{proposition}\label{prop:lift}
+Let $P\subset\ZN^2$ be a planar packing of size $mN-1$ in the double-expansion case of \Cref{fact:reduction}. Then there is a maximum planar packing on $\Z_{N+4}^2$, obtained by inserting two primal levels at two cuts on each axis, in which every old point off a single shared primal column keeps its embedded position. In particular, every original hole whose dual cell avoids this column and the cuts corresponds to a hole of the new packing in the two embedded coordinate frames.
+\end{proposition}
+
+\begin{proof}
+A dual column at $i$ consists of primal columns $i,i+1$. After reflecting and translating, the two adjacent bad dual columns have indices $0$ and $1$, and their holes have heights $A<B<C<D<E<F<A+N$. The left column has holes $A,D,E$ and the right column $B,C,F$. The $B$--$C$ region of the right column and the $D$--$E$ region of the left column are uniform. The $C$--$F$ region of the right column and the $A$--$D$ region of the left column are of type~II. The bad dual rows are $C$ and $D$; each has three holes, and the two regions incident with its central hole are uniform. These are the input conclusions of \cite[Section~3.2.2, Case~2]{BHNlong}.
+
+The proof of \cite[Lemma~19]{BHNlong} places the two holes generated by a type~II region in the neighbouring dual line opposite the primal side containing the first and last occupied sites of that region. Indeed, in their coordinates with endpoint sites $(2,0),(2k,0)$, the two outside sites $(1,2),(2k+1,2)$ and an internal site $(2j,1)$ force a hole on either side of $2j$ in dual row $1$ by \cite[Lemma~12]{BHNlong}. Thus the endpoint sites of the right column's $C$--$F$ region lie on outer column $2$, since only its left neighbour is bad, and the $A$--$D$ endpoints in the left column lie on outer column $0$. At an isolated hole, the occupied sites immediately preceding and following it lie on opposite sides of its dual line, by \cite[Lemma~16]{BHNlong}. Hence the uniform $B$--$C$ and $D$--$E$ strings both occupy the shared primal column $1$. Take $A$ even in a cyclic lift. Then $A,B,E,F$ are even and $C,D$ are odd; indeed the site at $B+2$ in the shared column lies in both the left $A$--$D$ and the right $B$--$C$ regions. \cite[Lemma~16]{BHNlong} at $(1,C)$ and $(0,D)$ also puts the left uniform horizontal region on primal row $h+1$ and the right one on primal row $h$, for each $h=C,D$.
+
+Put $K=N+4$. Insert two primal columns between $0$ and $1$ and two between $1$ and $2$. Insert two primal rows between $C$ and $C+1$ and two between $D$ and $D+1$. Denote the embeddings by $\iota_x,\iota_y$; using origins away from the cuts, each adds twice the number of preceding cuts. In a local expanded frame the old columns $0,1,2$ become $0,3,6$, and the new pairs are $\{1,2\}$ and $\{4,5\}$. An \emph{outward} choice means expanded column $1$ on the left and $5$ on the right; an \emph{inward} choice means $2$ on the left and $4$ on the right.
+
+Keep all old points at their embedded positions except for the following two replacements on the shared old column $1$, written in old heights:
+\begin{align*}
+ \{B+2,B+4,\ldots,C-1\}&\longmapsto\{B+1,B+3,\ldots,C\},\\
+ \{D+2,D+4,\ldots,E-1\}&\longmapsto\{D+1,D+3,\ldots,E\}.
+\end{align*}
+The original uniform strings are complete. Each new string has one more point than the string it replaces. The endpoint holes and the two pairs of inserted rows separate the replacements from the other old points on the shared column, and every other old column is at least three expanded units away. This gives an independent set $S_0$ of size $mN+1$.
+
+We prescribe the points $W$ on the four new pairs. The vertical projections on the left and right pairs are $I_K(\iota_y(B))$ and $I_K(\iota_y(E))$, respectively. At each old height $y$ whose image belongs to the prescribed projection, choose the side as follows.
+\begin{enumerate}
+\item If $B<y\le C$ or $D<y\le E$, place the point outward.
+\item At other heights from $A$ through $F$, place it inward.
+\item On the complementary open arc from $F$ to $A+N$, place it outward if $(1,y)\in P$, and inward otherwise.
+\end{enumerate}
+
+For the new row pair after $h=C,D$, let $t=1,0$, respectively, be the old column of the central hole. Choose lifts $p<t<q<p+N$ of the two other holes in that row. Use horizontal projection $I_K(2)$ for the pair after $C$ and $I_K(3)$ for the pair after $D$, in the expanded frame $0,3,6$. If an old input $x$ has its image in the prescribed projection, use the first inserted row for $p<x\le t$ and the second inserted row for $t<x\le q$. On the complementary arc the new projection selects exactly the old projected sites. For those sites choose the inserted row opposite the unique old point: the second inserted row if $(x,h)\in P$ and the first if $(x,h+1)\in P$. The assertion about the complementary arc follows from the alternating gap rule: to the left of the central cuts the new projection has the parity opposite to $p$, and to their right it has the parity of $q$. Thus it agrees with the old projection on the exterior arc and reverses the parity in the two uniform intervals, apart from the cut coordinates.
+
+If $C_1,C_2$ and $D_1,D_2$ denote the new rows in increasing order at their cuts, the four crossings receive
+\[
+ (1,C_1),\quad(4,C_2),\quad(2,D_1),\quad(5,D_2).
+\]
+This realizes each prescribed projection at the inserted coordinates as well. The vertical target after $B$ selects the parity following $B$, and the other target selects the opposite parity before $E$. Each two-site insertion preserves the parity of the subsequent old coordinates. Both cuts therefore select their first new row in the left vertical pair and their second in the right pair. The horizontal projections select new columns $1,4$ after $C$ and $2,5$ after $D$.
+
+We check that the result is a packing. Within each inserted pair the projected positions are separated by at least two, and parallel inserted pairs are at mutual distance at least two. At old heights a vertical point can conflict only with points on its facing old boundary. On $B$--$C$ and $D$--$E$, old shared-column sites exclude outer-column points at their own and neighbouring heights; between two consecutive shared sites they exclude all three possible neighbouring heights of an outward point. At the shifted end heights $B+1,C$ only the right outward point is selected, and the old right hole at either endpoint and the adjacent end of the shared string exclude the outer right boundary there. At $D+1,E$ only the left outward point is selected, and the old left holes give the same exclusion. This reasoning also applies to a string with one old site.
+
+On the interleaving portions $A$--$B$, $C$--$D$ and $E$--$F$, the two old projections have opposite parities, so the shared column is empty in their interiors. The nearby ends of the replacement strings are $B+1,C,D+1,E$. No inward point is selected at $B$ or $E+1$, and the new row pairs separate the old levels at the other two endpoints. At $A$ neither vertical projection is selected. At $F$ the old right hole excludes the shared column at $F,F+1$, and opposite parities exclude it just before $F$. On the complementary arc both original columns selected any old height selected by the new projection, so there was either one old shared site or a site on each old outer boundary, and the opposite-facing choice is available throughout the one-step neighbourhood by the original independence. This proves compatibility with $S_0$ away from the inserted horizontal rows.
+
+For the horizontal pairs, each incident uniform region has all its old sites on one boundary, so the chosen inserted row faces the empty boundary. The holes at either end clear both old boundary rows at two primal columns, which protects the endpoints. On the exterior arc a selected old projected site has no neighbouring selected projected coordinate, and the opposite row is available. It remains to check the changed middle column and the crossings. The configurations in expanded columns $0,\ldots,6$ on the four successive relevant levels are
+\[
+\begin{array}{c|cccc}
+&\text{old }h&\text{first new}&\text{second new}&\text{old }h+1\\ \hline
+h=C&\{3,5\}&\{1\}&\{4,6\}&\{0,2\}\\
+h=D&\{4,6\}&\{0,2\}&\{5\}&\{1,3\}
+\end{array}
+\]
+The old-row entries use \cite[Lemma~16]{BHNlong} at $C,D$ and the shared-column replacements. Consecutive lists are separated horizontally by at least two, and every horizontal point beyond the seven columns is at least two steps from any inserted vertical pair. Hence $S_0\cup W$ is independent.
+
+Each new pair contains $(K-1)/2=2m+2$ points, with exactly one double count at each of the four crossings. Consequently
+\[
+ |S_0\cup W|=mN+1+4(2m+2)-4=(m+1)(N+4),
+\]
+which is the maximum planar size at side $K$. Every modification of old points occurred on the single shared primal column. Any old dual cell whose four corners avoid this column and both sets of cuts keeps its hole status, which proves the last assertion.
+\end{proof}
+
+Only a bounded number of dual lines meet the exclusions in \Cref{prop:lift}, and $r$ original dual lines in one direction contain at most $r+4$ holes. This is how the lift is used in \Cref{sec:cutoff,sec:finite}.
+
+\section{An explicit cutoff}\label{sec:cutoff}
+
+In this section we prove that a packing of more than $t$ points forces $N<653$, and that below $653$ only the sides $261$ and $301$ survive, with a special structure. Throughout, $N=4m+1$ with $m$ odd and the packing has $t+k$ points, $k>0$.
+
+\subsection{Rows of adjacent planes}
+In a plane of deficiency $D$, \eqref{eq:rows} gives $r_i\ge m-D$. Consider two adjacent full or almost-full planes and a transverse input $j$ at which both projected dual lines have exactly one hole, say $h_0$ and $h_1$. Their shared physical row contains at least $m-D_j$ anchors, where $D_j$ is the deficiency of the perpendicular plane indexed by $j$. Put
+\[
+ \tau_M(h)=\frac{2^{-1}h\bmod M}{M}\in\R/\Z
+\]
+for odd $M$. After division by two the selected sites on the two lines become intervals of length $2m$, and their overlap gives
+\begin{equation}\label{eq:cutoff-row}
+ \norm{\tau_N(h_1)-\tau_N(h_0)}\le\frac{m+D_j}{N}.
+\end{equation}
+This holds also when $D_j\ge m$, since the cyclic distance between integer residues is at most $2m$.
+
+\subsection{Two hole correspondences}
+Let a plane of deficiency one have parent of side $K\in\{N-4,N,N+4\}$, as in \Cref{fact:reduction}; a full plane is its own parent. A dual line of badness $d$ has $1+2d$ holes. The total line badness in each direction starts at two. A collapse deletes two primal levels and reduces the perpendicular badness by one; a normal expansion inserts two primal levels on each axis and reduces both badnesses by one; an addition or a double expansion consumes both units in both directions. Thus the ordinary possibilities are four collapses, two normal expansions, one normal expansion with two perpendicular collapses, or one addition, each with an optional move.
+
+\begin{lemma}\label{lem:first-corr}
+For any two full or almost-full planes there are at most $T=48$ original inputs at which a hole fails to correspond to a parent hole in the following sense. The retained primal coordinates on each axis use one shared cyclic frame, with integer lifts $j'=j+e_j$ on retained inputs and $h'=h+e_h$ on retained outputs, where the corrections are even. After absorbing a constant in each coordinate, the normalized input error is at most $r_K/K$ and
+\[
+ \norm{\tau_K(h')-\tau_N(h)-\mathrm{const}}\le\frac{r_K}{2K},\qquad r_N=1,\quad r_{N\pm4}=2 .
+\]
+The retained input corrections of the two planes are constant on at most five consecutive segments of the original cycle.
+\end{lemma}
+
+\begin{proof}
+Discard the holes on all dual lines meeting a cut. A collapse on an axis of total badness $B$ costs at most $3+2B$ holes, since three consecutive dual levels meet its deleted pair. Four collapses, two per axis, cost at most $12+2(8-4)=20$, because each of the four unlike pairs of steps decreases the later parallel badness by one. Two normal expansions cost at most $10+6=16$, counting the holes on each insertion line in both axes. For the mixed sequence the three possible relative positions of the expansion give costs at most $10+5+3$, $7+8+3$ and $7+5+6$. A move slides consecutive anchors at spacing two along a physical line by one; its occupied union of dual cells changes only at its two ends, with at most two newly covered holes. An addition costs four holes. For the double expansion use \Cref{prop:lift}: all changes on old primal levels lie on the shared primal column, its two neighbouring dual columns and the two dual rows at the insertions are the four one-bad lines, and their union contains at most twelve holes. Outside them the coordinate embeddings take an original hole to a parent hole. Successive ordinary maps are injective on retained cells, so the costs add. The total budgets, including the move, are $22$ at $K=N-4$, $20$ at $K=N$ and $18$ at $K=N+4$. Omitting also at most two nonfull original input lines gives at most $24$ omitted inputs for a plane with reduced side and at most $22$ for any other plane, hence at most $48$ for two planes.
+
+Choose a common old origin away from all cuts of the two planes and translate each parent to its image. For $K=N+4$ the correction increases by two at each of two insertions, so the range of $e_j-4j/N$ has width at most four: its increase on any oriented arc is at most the four inserted positions. For $K=N-4$ reverse the signs and use the two deletions. For $K=N$ the range of $e_j$ has width at most two, because there is one insertion and one deletion, or an identity map. The bound on the output error uses $\tau_M(h)=(h/M+(h\bmod2))/2\pmod1$ on chosen integer representatives and their equal parity. Each map has at most two actual cuts, so in the linear fundamental interval of old inputs the four interior cuts of the two planes give at most five segments. If a parent coordinate passes its own origin, its lifted phase changes by a full period only. A deleted interval can inherit either neighbouring correction when extending to discarded inputs.
+\end{proof}
+
+\begin{lemma}\label{lem:second-corr}
+If the input correction is allowed to depend on the hole at a cut, at most $E=10$ original holes per plane fail to correspond, and each original coordinate correction lies in an interval of even integers of width at most four. Moreover, when only the inputs are charged, the input budgets, including the move and two nonfull inputs, are $12$ at $K=N-4$ and $14$ at $K=N$ and $K=N+4$, and the normalized-error and five-segment bounds of \Cref{lem:first-corr} still hold.
+\end{lemma}
+
+\begin{proof}
+In a collapse write $A,B,C,D\in\{0,1\}$ for the occupancy indicators of four consecutive primal columns on a fixed dual row, where $B,C$ are deleted. The three old hole indicators are $1-A-B$, $1-B-C$ and $1-C-D$, and the new indicator is $1-A-D$. The compressed set is independent \cite[Lemma~23]{BHNlong}. The old sum exceeds the new indicator by $2(1-B-C)$. The deleted dual column is full, so this is two on exactly one transverse row and zero elsewhere. If the new indicator equals one, an old hole on the left or right outer edge can be matched to it (if $B+C=0$, both outer edges are empty). The matched displacement is $0$ or $-2$ relative to the embedded ends. All other lost old holes total exactly two.
+
+At a normal expansion discard the central old hole. At any other hole crossing the column cut, the original outer columns are empty in the fixed transverse dual row. The two inserted columns have at most one occupied site in that row, so the left or right outer subedge remains empty and yields an even correction of $0$ or $2$. The row cut works the same way. Distinct old squares have disjoint collections of subdivided dual cells, so a normal expansion loses at most one old hole. For the double expansion discard the six holes on the two bad dual columns of \Cref{prop:lift}; off them, any old hole crossing a horizontal cut similarly has an empty outer subedge, and every other old hole persists. Counting the optional move, four collapses cost at most $10$, a mixed sequence at most $7$, two normal expansions at most $4$, an addition at most $6$ and the double expansion at most $8$. Even allowing either subedge at a cut, an original coordinate correction lies in an interval of even integers of width at most four, since there are at most two operations on that coordinate.
+
+For the input budgets, in a pure collapse the subedge match is deterministic in each coordinate on its matched holes. If the deleted dual column has index $j+1$, both outer indices $j,j+2$ map to $j$, and the uniquely holed middle input is discarded. The map on retained inputs is weakly increasing and its correction makes one downward jump by two. Composing two such maps preserves this order and gives at most two correction jumps and total decrease at most four; the same holds for the output maps. Thus the normalized-error and five-segment bounds still hold even when two original inputs have the same parent input. Four collapses lose at most eight original holes, and the move and the two nonfull inputs bring the budget to $12$ at $K=N-4$.
+
+For $K=N+4$ keep the first (strip) charts in each normal expansion while charging input indices rather than all discarded holes. Each input cut discards one index at its current stage, and the earlier ordinary insertion chart is injective on its retained inputs. Each output cut discards at most five holes in the first expansion and three in the second. The budget is $1+5+1+3+2+2=14$, including the move and the nonfull inputs. For the double expansion discard two bad input levels and at most six holes on its two marked output lines; this works also with the axes interchanged, and its budget is at most $12$.
+
+For $K=N$, use the precise collapse match but exclude both entire cut lines at the single normal expansion. The two collapses discard at most four holes, the move at most two, and at most two initial inputs are nonfull. If the input-direction collapse precedes the expansion, at most two retained original input indices map to its input cut, since there was only one input collapse; moreover that collapse has already reduced the total output-direction badness to one, so its output cut costs at most three holes. Otherwise at most one original index maps to the input cut and the output cut costs at most five holes. In either case the total is at most $8+6=14$. Each coordinate chart composes one downward and one upward jump by two, each on a weakly order-preserving retained domain, and pulling a single jump back through such a map again gives at most one jump. Excluding the whole insertion cut makes its correction single-valued, and the two jumps of opposite signs give total range width at most two, also when the cuts coincide. For an addition the bound of six lost holes and two nonfull inputs suffices.
+\end{proof}
+
+The second correspondence is used in the class-one argument of \Cref{lem:classone}, and its input budgets in the finite propagation test of \Cref{prop:finite-prop}. The endpoint obstruction of \Cref{prop:endpoint} uses its own correspondence.
+
+\subsection{Adjacent slopes above the cutoff}
+Start at a full plane and choose its shorter orientation, so that the parent hole line has signed half-slope $a$ with $0<|a|\le\sqrt m$. Suppose this integer is known for one plane of an adjacent pair whose parents have sides $K_0,K_1$, and let $b$ be the second parent's signed half-slope in the same orientation, so $0<|b|\le(K_1-1)/4$. In their own coordinates the parent equations read $\tau_{K_i}(h_i')=s_ij_i'/K_i+\mathrm{const}$ with $s_0=a$ and $s_1=b$. \Cref{lem:first-corr} and \eqref{eq:cutoff-row} imply, for the retained inputs with $D_j\le d$,
+\begin{equation}\label{eq:cutoff-global}
+ \norm{(b-a)j/N+\mathrm{const}}\le\frac{m+d}{N}+\frac{2(|a|+|b|+1)}{N-4}.
+\end{equation}
+
+\begin{lemma}\label{lem:adjacent}
+If $N\ge653$, then $b=a$ for every pair of adjacent full or almost-full planes.
+\end{lemma}
+
+\begin{proof}
+First suppose $|b|\le N/24$ and $a\ne b$. At $d=\lfloor N/37\rfloor$ at most $37$ inputs have $D_j>d$, since $\sum_jD_j<N$. There are at least $N-85$ eligible inputs. The full cyclic sequence on the left of \eqref{eq:cutoff-global} has uniform multiplicity $g=\gcd(N,|b-a|)\le|a|+|b|$, and a closed arc of width $w$ contains at most $Nw+g$ of its terms. Dividing this upper bound by $N$ gives at most
+\[
+ \tfrac12+\tfrac2{37}+\frac{4(U+1/24+1/N)}{1-4/N}+U+\tfrac1{24},\qquad U=\frac1{2\sqrt N}.
+\]
+At $N=653$ this is less than $1-85/N$ by more than $1.26/N$, and as $N$ increases the upper fraction decreases while the lower increases.
+
+Now suppose $|b|>N/24$ and put $\beta=|b/K_1-a/K_0|$. For $N\ge653$,
+\[
+ 0<\beta_0=\frac1{24(1+4/N)}-\frac1{2\sqrt N(1-4/N)}\le\beta<0.28 .
+\]
+In each segment of constant input correction the parent phase difference is a rotation of step $\pm\beta$. At $d'=\lfloor N/20\rfloor-3$, a retained input with $D_j\le d'$ lies in the preimage of an arc of width at most $2(m+d')/N+4/(N-4)\le0.6$ under that rotation. A block of $\lfloor1/\beta\rfloor+1$ consecutive rotation points has circular gaps at most $\beta$, and at least one sixth of its points lie in the complementary open arc: for $\beta>0.2$ the block has at most five points and the arc is longer than the maximum gap, and for $\beta\le0.2$ the fraction is at least $(0.4-\beta)/(1+\beta)\ge1/6$. The incomplete final block in each of the five segments has at most $1/\beta_0$ inputs. Hence at least $(N-5/\beta_0)/6$ inputs are omitted or have $D_j>d'$. There are at most $48+1/(1/20-3/N)$ of them. At $N=653$ the lower count exceeds the upper by more than $0.45$, and the lower count increases and the upper decreases with $N$. These two contradictions prove $b=a$.
+\end{proof}
+
+\subsection{Three intervals}
+On each axis \eqref{eq:deficiency} gives $F-\sum_{D\ge2}(D-1)=2k$. Removing the planes with $D\ge2$ therefore leaves a cyclic interval of full or almost-full planes containing at least two full planes, or the whole cycle if nothing is removed. If adjacent slopes agree along it, propagation from either full plane gives a common signed short half-slope on the interval. A short half-slope of absolute value $d>1$ divides $m$ and every parent parameter $(K-1)/4$; since $m-1$ and $m+1$ are coprime to $m$, all parents on such an interval have $K=N$ and are ordinary.
+
+Choose such intervals on all three axes, and write their signed full slopes in the orientations
+\[
+ z=ay+A_x,\qquad x=bz+B_y,\qquad x=cy+C_z .
+\]
+(Here $a,b,c$ are full slopes, not half-slopes.) Take one full plane in each interval and put $q=\operatorname{ord}_{\ZN}(c+ab)$. Multiplication by the unit $c^{-1}$ identifies this order with that of the compatibility coefficient $1+abc^{-1}$, so $q>1$ by \cite[Lemmas~12 and~13]{BHN}, and $q$ is odd. For two full levels on the same interval, fix full transverse planes on the other two intervals; subtracting the two instances of \eqref{eq:compat} shows that $q$ divides the spacing of the two levels. Thus every interval contains at least $q$ consecutive levels, and any two chosen full levels have cyclic separation at least $q\ge3$. If some interval has short half-slope of absolute value greater than one, make it the middle axis and apply \Cref{prop:endpoint}, which excludes $N\ge173$.
+
+\subsection{The class-one case}
+
+\begin{lemma}\label{lem:classone}
+If all three intervals have class one, then $N\le90$ or $N<41g+90\le459$, where $g=N/q\in\{1,3,7,9\}$.
+\end{lemma}
+
+\begin{proof}
+Only the short signed slopes $s=\pm2$ remain. For every matched hole the short-orientation congruence on the old side has a plane-dependent intercept and an error $2u$ with $|u|\le5$. To see this, write $h'=sj'+v_0-vK$ with $0\le h',j',v_0<K$. For $s=2$ the possible quotients are $v=0,1,2$, and for $s=-2$ they are $-2,-1,0$. Modulo $N$ the error is $se_j-e_h-v(K-N)$ up to the intercept, and the even ranges of its three terms have widths at most $8$, $4$ and $8$ by \Cref{lem:second-corr}. Centering at an even integer gives the bound, since the coordinate-correction ranges lie in three successive even values and the quotient term in three multiples of four. Translating the original axes back to their common frame only changes the intercept, and reversing the equation makes the error an integer of magnitude at most five. In either orientation write $u(s)=2$ when $|s|=2$ and $u(s)=1$ when $|s|=1/2$. Thus the error lies in $u(s)\{-5,\ldots,5\}$ when the full slope $s$ is written as a signed dyadic rational and reduced modulo $N$.
+
+Use $q$ consecutive middle levels $y$ and any $q$ choices each of $x$ and $z$ from their intervals. For every pair $x,y$ choose one hole on their intersection, and similarly for $y,z$; an odd cyclic line of dual cells always has a hole. Let $\alpha_y$ be the fraction of $x$ choices for which the chosen hole is exceptional in its $x$-plane, and $\beta_y$ the corresponding fraction of $z$ choices. Each mean is at most $e=10/q$ by \Cref{lem:second-corr}. For a given $y$ its own plane can invalidate at most a further fraction $e$ on each side, since the input levels are distinct. If $q>10$ set $\alpha'_y=\min(\alpha_y,1-e)$, and similarly $\beta'_y$. Choosing $x,z$ independently, the mean fraction of successful pairs is at least
+\[
+ \operatorname*{mean}_y(1-e-\alpha'_y)(1-e-\beta'_y)\ \ge\ 1-4e+3e^2,
+\]
+because both truncated means are at most $e$ and the cross term is nonnegative. Some fixed pair $x,z$ therefore works on at least $q-40+300/q$ middle levels. Substituting the two hole equations for each such pair gives
+\[
+ (c+ab)y\in D+E_Y-E_Y-bE_X-E_Z\pmod N,
+\]
+where $D$ depends only on the fixed outer pair and $E_X,E_Y,E_Z$ are the respective error sets. Put $G=\gcd(u(b),|b|u(a),u(c))$, the positive rational gcd after clearing powers of two. This dyadic unit divides all the errors, and multiplication by $G^{-1}$ leaves an error interval of integer width
+\[
+ W=10\{2u(b)+|b|u(a)+u(c)\}/G .
+\]
+In lexicographic order of $(|a|,|b|,|c|)$, with $2$ preceding $1/2$, the widths are $50,90,50,40,40,70,90,70$. Write $g=N/q$. Clearing the powers of two in $1+abc^{-1}$ gives $g\in\{1,3,7,9\}$, and in all cases $W\le90$. Each eligible $y$ contributes a distinct residue of a translate of the subgroup of order $q$, and an integer interval of width $W$ contains at most $1+\lfloor W/g\rfloor$ of them. Hence
+\[
+ q\le10\qquad\text{or}\qquad q^2-40q+300\le q\bigl(1+\lfloor W/g\rfloor\bigr).
+\]
+In the first case $N=gq\le90$, and in the second $N<41g+W\le459$.
+\end{proof}
+
+\subsection{The finite range}
+
+\begin{proposition}\label{prop:finite-prop}
+Let $173\le N<653$ be one of the $23$ sides listed after \Cref{prop:arith}. Then adjacent full or almost-full planes have parents with equal signed short half-slopes. Among these sides, the bound of \Cref{lem:classone} with $W=90$ for every possible $g$ leaves only $N=261$ and $N=301$.
+\end{proposition}
+
+\begin{proof}
+For each such $N$, take each positive divisor $a\le\sqrt m$ of $m$ and each $K_0\in\{N-4,N,N+4\}$ with $a\mid(K_0-1)/4$; reflecting the output axis makes the propagated half-slope positive. Take each permitted $K_1$ and each signed divisor $b\ne a$ of $(K_1-1)/4$. For $0\le d<m$ put
+\[
+ w_d=\frac{2(m+d)}N+\frac{(2|a|+1)r_{K_0}}{K_0}+\frac{(2|b|+1)r_{K_1}}{K_1}
+\]
+and
+\[
+ v_d=\frac{2(m+d)}N+\frac{r_{K_0}}{K_0}+\frac{r_{K_1}}{K_1}.
+\]
+The global phase grid admits at most $U_d=\min\bigl(N,g'(1+\lfloor Nw_d/g'\rfloor)\bigr)$ inputs in the arc, where $g'=\gcd(|b-a|,N)$. Independently, form $R$ consecutive points of the rotation $b/K_1-a/K_0$ and compute $G_R$, the largest number of them in a closed circular arc of width $v_d$, by sorting the doubled circular list of rational residues; if $v_d\ge1$ set $G_R=R$. A complete block of $R$ inputs contributes at most $G_R$ and a remainder of length $r$ contributes at most $\min(r,G_R)$. Since $R\min(r,G_R)\le G_Rr+G_R(R-G_R)$, all five segments together contribute at most
+\[
+ V_{d,R}=\left\lfloor G_R\{N+5(R-G_R)\}/R\right\rfloor .
+\]
+Take $R\le N$ from $8$, $12$, $16$, $20$, $24$, $30$, $36$, $42$, $48$, $56$, $64$, $72$, $84$, $96$, $112$, $128$, $160$, $192$, $224$, $256$, and put $H_d=\min(U_d,\min_RV_{d,R})$. The number of inputs with $D_j>d$ is at least $\max(0,N-H_d-T')$, where $T'$ is the sum of the two input budgets of \Cref{lem:second-corr}. The transition from $a$ to $b$ is excluded when the sum over $d$ of these lower bounds exceeds $N-2$, since $\sum_jD_j\le N-2$. Every floor is evaluated on a rational number. A program carries out these comparisons in integer arithmetic and excludes all $3{,}589$ transitions at the $23$ sides, including the $118$, $150$ and $142$ transitions at $N=205,221,261$. It then evaluates the criterion of \Cref{lem:classone} with $W=90$ for each $g\in\{1,3,7,9\}$ dividing $N$, and only $261$ and $301$ remain.
+\end{proof}
+
+\begin{theorem}\label{thm:cutoff}
+If a packing of more than $t$ points exists at a side $N\equiv5\pmod8$ with $N\ge173$, then $N\in\{261,301\}$, and on each axis there is a cyclic interval of full or almost-full planes containing at least two full planes, all of whose parents have side $N$ and signed slope $\pm2$, the same along the interval.
+\end{theorem}
+
+\begin{proof}
+Remove the planes with $D\ge2$ on each axis to obtain the three intervals above. For $N\ge653$, \Cref{lem:adjacent} gives a common short half-slope on each interval; for $173\le N<653$ the same follows from \Cref{prop:arith}, Natarajan's theorem and \cite[Theorem~1]{BHN} unless $N$ is one of the $23$ listed sides, and then from \Cref{prop:finite-prop}. If some interval has short half-slope greater than one in absolute value, \Cref{prop:endpoint} excludes $N\ge173$. Otherwise all intervals have class one, and \Cref{lem:classone} gives $N<459$; among the sides not already covered, \Cref{prop:finite-prop} leaves $261$ and $301$.
+\end{proof}
+
+\section{The finite sides}\label{sec:finite}
+
+By \cite[Theorem~1]{BHN}, Natarajan's theorem and \Cref{prop:arith}, the sides below $173$ that remain are $85$, $133$ and $141$. \Cref{thm:cutoff} leaves $261$ and $301$. Each is excluded by a computation, which uses only necessary conditions on a hypothetical packing of $t+1$ points.
+
+\subsection{Six full planes at side 85}\label{sec:enum85}
+For a packing of $75{,}821$ points, let $F$ count the full levels along an axis; the total negative part of $\delta(s)=1-D_s$ is $F-2$. At this side the gcd of a signed compatibility coefficient with $85$ is $1$, $5$ or $17$. For fixed transverse full planes the unique intersection hole gives a centre in the $5\times17$ residue grid, and every full level on the remaining axis lies on the row or the column through that centre, by \eqref{eq:compat}. If some axis has three or more full levels, no two centres can differ in both residues, since their two crosses would meet in only two cells. There are at least two distinct centres, because a fixed transverse plane has unit slope and its intersection with another full plane varies with that plane's level. A set of pairwise row-or-column-sharing centres with two distinct members lies in a single row or column, and the crosses at two distinct centres meet exactly in that row or column. Thus all full levels on that axis share a residue modulo one of the two primes. Holding each transverse full plane fixed in turn shows, again by the unit slopes, that the full levels on all axes share the corresponding residue modulo the same prime, so their spacing is at least five. Distinct nonsolid full planes have distinct negative neighbours, so at least two full planes on each axis are \emph{solid}, that is, both of their neighbours are full or almost full. If each axis has exactly two full planes, all other planes are almost full, and the enumeration below checks that the two full planes on each axis are separated by at least five in this case too. It therefore suffices to select two solid planes on each axis, with almost-full neighbours on both sides.
+
+Choose one of the eight triples formed by these planes at which their intersection is not a hole; one exists because two perpendicular full planes meet in a line with exactly one hole. Translate the chosen triple to the origin. Reflecting each coordinate about a suitable centre and permuting axes puts the second levels at $1\le X\le Y\le Z\le42$. The hole lines at zero can then be written $z=ay+h$, $z=bx+h$ and $y=cx-h/a$ with $h\ne0$, all arithmetic being modulo $85$ and $a,b,c$ among the eight allowed signed slopes $\pm2,\pm6,\pm14,\pm42$. The three pairwise intersections agree exactly when $h(b+ac)=0$. Each second plane has one of the same eight slopes, and its intercept is determined by one of the original perpendicular planes: $bX+h$ at $x=X$, $aY+h$ at $y=Y$ and $(Z-h)/a$ at $z=Z$. The enumerator requires consistency with the other original perpendicular plane and checks the intersections between the three second planes. It identifies patterns under permutations preserving the sorted distances and reflections exchanging the two selected levels on an axis; in the latter case the reflected dual coordinate is $t\mapsto X-t$ on the first axis and likewise on the others, and a translation absorbs the one-unit change in the anchor of a reflected slab.
+
+The enumerator finds $62{,}728$ labelled patterns in $5{,}558$ symmetry orbits: $46{,}088$ labelled patterns lie in a common residue fibre modulo $5$ and $16{,}640$ in one modulo $17$. There are $694$ orbits with two class-three planes, $4{,}616$ with four and $248$ with six.
+
+\subsection{The surgery filter at sides 85 and 133}\label{sec:surgery}
+The input consists of six full planes, two on each axis, whose neighbours are almost full. A configuration is rejected as soon as either neighbour of a chosen full plane of slope in $\{\pm6,\pm14\}$ fails the following necessary conditions. Write $F$ for this full plane and $U$ for its neighbour. Their shared physical layer contains at least $(mN-1)/2-(N-1)$ points, which is $808$ at $N=85$: writing the physical layer sizes as $(mN-1)/2+u_i$, we have $u_i+u_{i+1}=\delta(i)$, and alternating around the odd cycle gives $2|u_i|\le\sum_j|\delta(j)|=2F-2$, with $F\le N$. A reflection and, if needed, a swap of the two planar coordinates sends the signed base slope to $6$; these transformations preserve the list of possible parents and the operations. A parent has side $K=81,85,89$ and signed slope $\pm2a$ with $a\mid(K-1)/4$.
+
+\paragraph{Parents of different slope or side.}
+Use the canonical reduction of \cite[Section~3.2]{BHNlong}. On each planar axis the retained old primal levels keep their cyclic order. Choose the origin at one cut independently on each axis and translate the parent origin to the corresponding side of that cut. At side $N-4$ this leaves at most one interior jump, of size $-2$, after deleting two pairs of old levels on each axis. At side $N+4$ there are two insertions of two levels per axis, and the same choice leaves at most one interior jump of size $+2$; this also describes the embedding in \Cref{prop:lift}. At side $N$, place the deletion at the origin, so the insertion leaves an interior jump of size $+2$. If the deletion meets the inserted pair in one level, the remaining new level occupies the position of the deleted old level; if in two, the changes cancel. In either case the retained map is a translation, included by placing the remaining cut at the boundary. These charts apply separately to the two axes, with arbitrary relative phases for base and parent.
+
+For each pair of phases and each parent slope, the verifier sums the common occupied sites over the whole old window using both one-jump maps and all cut placements; including discarded sites can only increase the count. For each row it evaluates all column cuts by prefix sums, and for each column cut a prefix sum of row score differences optimizes the row cut exactly. At side $85$ the maximum over all parent slopes is $586$ at $K=81$, $515$ at $K=85$ excluding the matching signed slope, and $546$ at $K=89$. Every base primal row and column contains $m$ anchors, by alternating the full dual-line counts, so discarded old primal levels contribute at most $8m$, $4m$ and $0$, respectively. A moved thread contributes at most $2m$ further anchors, and an addition only increases the overlap. The resulting upper bounds $796$, $641$ and $588$ are all below $808$. For the double expansion the embedding is the same two-insertion chart, and all changed old anchors lie in one primal column of the original plane by \Cref{prop:lift}; charging the $m$ base anchors of that column gives $546+21+42=609<808$. At side $133$ the corresponding comparison is $1254+33+66=1353<2062$.
+
+\paragraph{Parents with the same signed slope.}
+Enumerate all phases of a parent of side $85$ whose hole line has the same signed slope as $F$. On each axis enumerate the possible coordinate maps separately: delete original levels $D,D+1$, order the remaining $83$ levels cyclically from $D+2$, and for $1\le b\le83$ send the first $b$ retained coordinates $z$ to $z$ and the rest to $z+2$. A constant translation is absorbed in the phase. These $85\cdot83$ maps include all mixed surgeries after ignoring discarded levels, and the identity on the retained set for an addition. A true transverse full line at $t$ is ignored if $t$ or $t+1$ is deleted; otherwise both retained coordinates are unshifted, both are shifted, or the pair is separated by the inserted levels.
+
+Fix a transverse full plane at $t$. Its intersection with $U$ gives a hole $h$, and the projection of its two primal levels onto the other planar coordinate is $I_{85}(h)$. At a retained coordinate $z$, compare membership in $I_{85}(h)$ with the sum of the two parent occupancy indicators at the corresponding primal sites. If the transverse slab contains a point at $z$ in the physical layer shared by $F$ and $U$, then $F$ determines which of the two primal levels holds that point, and the parent must occupy that site. Allow two discrepancies per retained true full line. A move parallel to the line cannot touch it: before the move each perpendicular collapse preserves fullness, because the capacity drops by one and the removed consecutive primal levels hold at most one of its anchors, parallel deletions are disjoint from its surviving primal pair, and a normal expansion leaves at most one unit of badness per direction, which precludes a later move. A move perpendicular to the line changes points at one value of $z$, and an addition can change one further value. Dropping all constraints on ignored lines only enlarges the set of permitted parents. For each axis group the coordinate maps by their actions at the two true transverse full lines. Testing the two $x$-line projections depends only on the full $y$ map and the two $x$ actions, and conversely, so the verifier unions masks of phases within each group and intersects the two masks. On the $5{,}558$ orbits this leaves $384$.
+
+\subsection{The full-line check at side 85}\label{sec:fullline}
+The $384$ remaining configurations have their selected levels in a single residue class modulo $17$ on each axis. If an axis had more than two full levels, they would lie in the same classes, since the selected distances are $17$ or $34$; thus $F\le5$, and a plane of loss $D=A-|S_s|$ has $D\le F-1\le4$ by \eqref{eq:deficiency}. By \eqref{eq:rows} every physical row has at least $17$ points, and every physical row of a full plane has exactly $21$.
+
+Fix a solid selected plane $A_0$ normal to axis $i$ and one of its almost-full neighbours $B$. In a dual line of $B$ along coordinate $j$, with the remaining coordinate in $\{u,u+1\}$, the physical $i$-level shared by $A_0$ and $B$ contains at least $17$ points of this line, or $21$ if the plane at level $u$ is full. Their projected positions belong to $A_0$ and $B$ and are distinct in the $j$ coordinate. The computation uses forced occupied points, forced empty points, empty dual squares and covered dual squares in $B$. Each transverse full plane fixes the projected occupancy of its entire dual line in $B$, and at the shared physical level its full projection can require a point at a given physical coordinate, whose exact position in $B$ is then given by $A_0$. Occupied points exclude their eight neighbours, empty squares exclude their four points, and covered squares with a single available point force it. For each dual line the verifier tests all $85$ maximum patterns $I_{85}(h)$, rejecting a pattern that conflicts with a known point or hole or that shares too few positions with $A_0$. A line with no surviving pattern is nonfull. In each direction $B$ has total line loss exactly two, so three such lines are impossible, and if exactly two exist every other line in that direction is full. The verifier propagates every fact shared by all surviving patterns of each line until nothing changes or a contradiction appears. Every one of the $384$ configurations has a neighbour that yields a contradiction. This excludes $75{,}821$ points at side $85$.
+
+\paragraph{Bounding full levels from a complete catalogue.}
+At $133$ and $141$ the row bounds come from the complete catalogue. For fixed selected distances on two axes, let $G$ be the set of distances on the third axis found in any catalogue record with those two distances. If the chosen levels on the third axis are $0,a$, a further full level $u$ would give the pairs $(0,u)$ and $(a,u)$, so both cyclic distances must lie in $G$. Counting the possible $u$, including the two selected levels, bounds $F$, and then $D\le F-1$ and \eqref{eq:rows} bound the rows.
+
+\subsection{Side 141}
+Here $m=35$ and $t=347{,}847$. The signed full slopes have absolute values $2,10,14,70$, and for every signed triple $\gcd(1+abc,141)\in\{1,3\}$. By \eqref{eq:compat} every full level lies in a single residue class modulo $47$ on its axis, so there are at most three full levels on an axis. For $|S|=t+1$ the total negative part of $\delta$ is $F-2\le1$, the full levels are at least $47$ apart, and at least two on each axis are solid. Every plane loses at most $F-1\le2$ points, so by \eqref{eq:rows} at least $33$ shared physical points lie on each dual line, or $35$ when the transverse plane is full.
+
+Choosing a non-hole corner and reflecting as at side $85$ puts all three pairs of full levels at $0$ and $47$, with origin offset $47$ or $94$. The enumerator checks the gcd assertion and finds $36{,}864$ labelled patterns in $1{,}266$ orbits. The full-line propagation, with the $70$-point maximum pattern on a cycle of length $141$, eliminates $1{,}264$ orbits. For the last two one more class of line patterns suffices. A $69$-point independent set on this cycle has exactly three empty edges, since its points cover $138$ distinct edges; consecutive empty-edge anchors are at odd distances, and conversely a triple of anchors with odd cyclic gaps determines the set by alternation. In an almost-full plane the total loss over the dual lines of one direction is two, so if another line must be nonfull the current line loses at most one point. Propagating the facts common to its full and one-loss patterns, at least one of the twelve almost-full neighbours in each remaining orbit gives a contradiction. An independent finite-state implementation, using $h_j=1-q_j-q_{j+1}$ for empty-edge indicators $h$ and selection indicators $q$, gives the same two eliminations.
+
+\subsection{Side 133}
+Here $m=33$ and $t=291{,}802$. The full slope magnitudes are $2,6,22,66$, and $\gcd(1+abc,133)\in\{1,7,19\}$ for signed slopes. Since $133=7\cdot19$, the residue-grid argument of \Cref{sec:enum85} applies with these two primes, the spacing is at least seven, and there are two solid full planes per axis. The enumeration finds $93{,}106$ labelled configurations, $71{,}289$ in a common fibre modulo $7$ and $21{,}817$ modulo $19$, in $8{,}844$ orbits; the modulus is determined by the nonzero selected distances. For modulus $7$, $F\le19$, so every plane loses at most $18$ and its physical rows have at least $15$ points; for modulus $19$, $F\le7$, the loss is at most $6$ and the rows have at least $27$ points. The full-line filter leaves $116$ orbits, and including one-loss patterns leaves $33$. In each of them one neighbouring almost-full projection is perpendicular to a class-three base, whose two directional thread lengths are $3$ and $11$.
+
+For a packing of $t+1$ points the physical layer shared between the base plane and that neighbour contains at least $(mN-1)/2-(F-1)\ge2{,}176$ points, since $F\le19$; the program uses only the weaker floor $(mN-1)/2-(N-1)=2{,}062$ of \Cref{sec:surgery}. The parent calculation of \Cref{sec:surgery} gives maximal retained-site overlaps $1{,}319$, $1{,}249$ and $1{,}254$ at parent sides $129$, $133$ and $137$, the last excluding the matching signed slope. Accounting for discarded levels and a move gives the bounds $1{,}649$, $1{,}447$ and $1{,}320$, and the double expansion gives at most $1{,}353$. The equal-side, equal-slope surgery check then rejects each of the $33$ orbits.
+
+\subsection{Sides 261 and 301}\label{sec:homogeneous}
+By \Cref{thm:cutoff} each axis carries an interval of class-one planes with a common slope. Choose two successive full levels within each interval, using its linear order, or any two cyclically successive full levels if the interval is the whole cycle. The next plane from each chosen full plane towards the other is almost full, since the chosen levels are at least three apart and no full plane lies between them on the chosen arc; the direction can be either one in normalized coordinates.
+
+Normalize the six full planes as at side $85$. The three zero-plane lines read $z=ay+h$, $z=bx+h$ and $y=cx-h/a$, with compatibility coefficient $b+ac$ up to a unit, and $a,b,c\in\{\pm2,\pm2m\}$ since the inverses of $\pm2$ are $\mp2m$. The offset $h$ is nonzero and annihilated by $b+ac$. Each second plane has the slope of its parallel plane at zero, and its intercept is $bx+h$, $ay+h$ or $(z-h)/a$ at the second level $x$, $y$ or $z$. Substituting into the other incidences is equivalent to requiring the three second levels to be annihilated by $b+ac$, so all are multiples of $N/\gcd(N,b+ac)$. This gives the catalogues: $1{,}328$ labelled configurations in $114$ orbits at $261$, and $480$ in $38$ orbits at $301$.
+
+To bound the rows, for each axis and proposed full level use the four incidences with the known transverse full planes; each forces a point on its hole line, and some allowed full slope must fit the four points. If $B$ levels pass this test there are at most $B$ full levels on the axis, so $D\le B-1$ on every plane there by \eqref{eq:deficiency}, and every physical row of such a plane has at least $\max(0,m+1-B)$ anchors, or exactly $m$ when it is full. For each of the six bases apply the full-line propagation of \Cref{sec:fullline} to its proposed inward neighbour. A configuration is kept only if, for each pair, at least one of the two inward directions is compatible with both proposed neighbours. None of the $114$ or $38$ orbits survives. An independent Python program reconstructs the full projections from the slope data and repeats the propagation with cyclic bit masks, with the same result.
+
+\section{Proof of \texorpdfstring{\Cref{thm:main}}{the main theorem}}\label{sec:proof}
+The construction of \cite{BBC} gives $t$ points; see \cite[Section~1.1]{BHN}. Suppose a packing has more than $t$ points; it then contains one of exactly $t+1$ points. If $N$ is prime, \cite[Theorem~1]{BHN} excludes it, and if $m$ is prime, Natarajan's theorem does \cite[Section~1]{BHN}. If all the coefficients $1\pm8abc$ are units modulo $N$, \Cref{prop:arith} excludes it. For $N<173$ the remaining sides are $85$, $133$ and $141$, excluded in \Cref{sec:finite}. For $N\ge173$, \Cref{thm:cutoff} leaves $N=261$ and $N=301$, excluded in \Cref{sec:homogeneous}. Hence $\alpha(C_N^{\spow3})=t$.\qed
+
+\section{The computations}\label{sec:computation}
+The programs, written in Python and C\texttt{++}, and the catalogues are available at \coderepo. The table lists the steps run at each side, the number of symmetry orbits enumerated and the number that survive.
+
+\begin{center}\small
+\begin{tabular}{@{}rL{0.45\linewidth}rr@{}}
+\toprule
+Side & Steps & Orbits & Survivors \\
+\midrule
+$85$ & enumeration, surgery filter and full-line check (\Cref{sec:enum85,sec:surgery,sec:fullline}) & $5{,}558$ & $0$ \\
+$133$ & the same, with the full-line check first & $8{,}844$ & $0$ \\
+$141$ & enumeration and full-line check & $1{,}266$ & $0$ \\
+$261$ & enumeration of \Cref{sec:homogeneous} and full-line check, with an independent check & $114$ & $0$ \\
+$301$ & the same & $38$ & $0$ \\
+$173$--$645$ & the comparisons of \Cref{prop:finite-prop}, $3{,}589$ transitions at $23$ sides & -- & $261$, $301$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The catalogues have the following SHA-256 hashes.
+\begin{center}\scriptsize
+\setlength{\tabcolsep}{4pt}\begin{tabular}{@{}ll@{}}
+\toprule
+Catalogue & SHA-256\\
+\midrule
+$85$ & \texttt{2d8eae82709c399905f7f6ab2e9f66106f6a07648adc2c35b9dbbe51d9d573bc}\\
+$85$, 384 left & \texttt{ff7049ddea81cf0f0230e7be7c565a9e99dd060297b8a79dfa5a0d5b3655c95a}\\
+$133$ & \texttt{7e199490cbf6e75f59e495df656feef6991b02f9d983485aa00c3e57f1213319}\\
+$133$, 33 left & \texttt{fcba20b8a654fc2dcc600c66aebb5ad3057891b3ca634f43be8b7eeb89c7a39d}\\
+$141$ & \texttt{59840b2e206f27f3a689a30915b371cfd6302a43b0334e9279308cc81338b3fe}\\
+$261$ & \texttt{8e26156a42e3be9e6a126540121d38d328e0917a6da22f27d13cd6b615f8876f}\\
+$301$ & \texttt{12950f3b4dc958124dfb5e682c6b71d679449813bb632ac79b3262e494f6813f}\\
+\bottomrule
+\end{tabular}
+\end{center}
+All six computations, and the independent check at $261$ and $301$, were replayed on 25 November 2026 with these results. The side-$133$ run takes about four minutes and the others less.
+
+\begin{thebibliography}{99}\small
+\bibitem{BBC} L.\,D.~Baumert, R.\,J.~McEliece, E.~Rodemich, H.\,C.~Rumsey, R.~Stanley and H.~Taylor, \emph{A combinatorial packing problem}, in: Computers in Algebra and Number Theory, SIAM-AMS Proc.\ \textbf{4} (1971), 97--108.
+\bibitem{Bohman} T.~Bohman, \emph{A limit theorem for the Shannon capacities of odd cycles~II}, Proc.\ Amer.\ Math.\ Soc., \url{https://doi.org/10.1090/S0002-9939-04-07470-2}.
+\bibitem{BHN} T.~Bohman, R.~Holzman and V.~Natarajan, \emph{On the independence numbers of the cubes of odd cycles}, Electron.\ J.\ Combin.\ \textbf{20}(3) (2013), \#P10.
+\bibitem{BHNlong} T.~Bohman, R.~Holzman and V.~Natarajan, \emph{On the independence numbers of the cubes of odd cycles}, long version, manuscript, \url{https://www.math.cmu.edu/~tbohman/papers/3dcubes.ps}.
+\bibitem{Lovasz} L.~Lov\'asz, \emph{On the Shannon capacity of a graph}, IEEE Trans.\ Inform.\ Theory \textbf{25} (1979), 1--7.
+\end{thebibliography}
+\end{document}

@@ -1,0 +1,372 @@
+\documentclass[11pt,colorlinks]{charlie}
+\input{preamble}
+\usepackage{amssymb}
+
+\newcommand{\spow}{\boxtimes}
+\newcommand{\Zs}{\mathbb{Z}_7}
+\newcommand{\cut}{\operatorname{cut}}
+\newcommand{\lev}{\operatorname{lev}}
+\newcommand{\cR}{\mathcal{R}}
+\newcommand{\cL}{\mathcal{L}}
+
+\title{The fourth strong power of the seven-cycle has independence number at most $112$}
+\author{Charles O'Neill, Max Kirkby, Astra and Fable}
+\date{24 November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Let $\alpha_n=\alpha(C_7^{\spow n})$ be the largest size of a zero-error code of length $n$ for the seven-cycle channel. Averaging over bands of two adjacent levels gives $\alpha_4\le\lfloor7\alpha_3/2\rfloor=115$, and the Lov\'asz theta function gives $\alpha_4\le121$ and $\alpha_5\le401$. We prove $\alpha_4\le112$, and consequently $\alpha_5\le392$. The best known codes have $108$ and $367$ words. A code of $113$ words in $\Zs^4$ would have, on each of its four coordinates, at least two \emph{full} bands, whose projections are maximum codes of length three. We split according to the distances between full bands and exclude each of the fifteen resulting cases by an exhaustive computation. The computation rests on a complete atlas of the $16{,}672{,}544$ codes of size $33$ in $\Zs^3$, which we generate by two independent programs, and on necessary conditions linking the projections of full bands in different directions. Both bounds are also proved in Lean~4 with Mathlib. There the exhaustive searches are run by checkers whose soundness is proved in Lean, and the proof depends only on the standard axioms and on the compiled evaluation of $197$ named checks.
+\end{abstract}
+\mscandkeywords{05C69; 05C76, 94A24}{Shannon capacity, seven-cycle, strong product, independence number, zero-error codes}
+
+\section*{AI use and author contributions}
+\aiusestatement
+
+Open-weight models, Kimi~K3.1~Pro (Moonshot AI) and DeepSeek~V4.1~Flash (DeepSeek), were able to derive a significant proportion of these results when given guidance. We will report the details separately.
+
+Charles O'Neill proposed the problem because a code of $368$ words in five coordinates would give $\Theta(C_7)\ge368^{1/5}>3.2596$ for the Shannon capacity, larger than any lower bound known to him. He then asked whether such a code could exist at all, which turned the work from constructions towards the upper bounds proved here. Max Kirkby set up and ran the experiments with open-weight models. \responsibilitystatement
+
+\section{Introduction}
+Two words $x,y\in\Zs^n$ are \emph{confusable} if $x\ne y$ and $|x_i-y_i|\le1$ for every $i$, where $|t|$ denotes the distance from $t$ to $0$ in the cycle $\Zs=\Z/7\Z$. A \emph{code} is a set of pairwise non-confusable words, that is, an independent set of the strong power $C_7^{\spow n}$, and $\alpha_n$ is the largest size of a code in $\Zs^n$. Codes are the zero-error codes of length $n$ for the channel whose confusability graph is the seven-cycle, and the Shannon capacity $\Theta(C_7)=\lim_n\alpha_n^{1/n}$ is unknown \cite{Lovasz}. Lov\'asz's bound $\alpha_n\le\vartheta(C_7)^n$ with
+\[
+ \vartheta(C_7)=\frac{7\cos(\pi/7)}{1+\cos(\pi/7)}=3.3176\ldots
+\]
+gives $\alpha_4\le121$ and $\alpha_5\le401$. The exact values $\alpha_1=3$, $\alpha_2=10$ and $\alpha_3=33$ are classical \cite{BBC}. In four coordinates the best known code has $108$ words \cite{VZ}, and in five coordinates Polak and Schrijver \cite{PS} constructed $367$ words.
+
+Fix a coordinate. The words of a code whose fixed coordinate lies in $\{i,i+1\}$ project injectively to a code of length $n-1$, and every word lies in exactly two of these seven \emph{bands}. Hence $\alpha_n\le\lfloor7\alpha_{n-1}/2\rfloor$, which gives $\alpha_4\le115$ and then $\alpha_5\le402$. Our main result is the following.
+
+\begin{theorem}\label{thm:main}
+$\alpha_4\le112$.
+\end{theorem}
+
+\begin{corollary}\label{cor:five}
+$\alpha_5\le392$.
+\end{corollary}
+
+\begin{proof}
+By the band averaging (\Cref{lem:bands}), $2\alpha_5\le7\alpha_4\le784$.
+\end{proof}
+
+Thus $108\le\alpha_4\le112$ and $367\le\alpha_5\le392$.
+
+\emph{Method.} Suppose that $C\subseteq\Zs^4$ is a code of $113$ words. On each coordinate the seven bands have at most $33$ words each and their sizes add up to $226$, so at least two bands are \emph{full}, with $33$ words. The projection of a full band is a maximum code of length three. We first list all of these: there are $16{,}672{,}544$, in $1{,}016$ classes under the isometries of $\Zs^3$ (\Cref{thm:atlas}). Next we record on each coordinate the least cyclic distance $1$, $2$ or $3$ between the starts of two full bands; sorting the four distances gives one of fifteen \emph{profiles}. Two full bands in different directions meet in a two-dimensional \emph{crossing}, which both of their projections must describe in the same way (\Cref{lem:crossing}), and two full bands in the same direction are linked through their shared level (if they are adjacent) or through a perfect matching between their projections (if they are two apart). For each profile, these necessary conditions are combined in an exhaustive search over the atlas, which finds no code. When all four distances are $1$ the search goes further and determines that the four slabs formed by the adjacent pairs, together with the best possible completion outside them, contain at most $105$ words.
+
+The proof is computer-assisted. \Cref{sec:bands} collects the elementary facts about bands, \Cref{sec:atlas} the atlas, and \Cref{sec:crossings} the necessary conditions. \Cref{sec:adjacent,sec:gaptwo,sec:gapthree} carry out the three groups of cases, and \Cref{sec:proof} assembles the proof. \Cref{sec:computation} describes the programs, their running times and the independent checks. \Cref{sec:lean} describes the formal proof in Lean, which checks every step, including the exhaustive searches.
+
+\section{Bands and levels}\label{sec:bands}
+Throughout, $\Zs^n$ carries the confusability relation above. The group $G_n$ generated by the permutations of the coordinates and the maps $x_k\mapsto\pm x_k+t$ of a single coordinate preserves confusability. It has order $n!\,14^n$; in particular $|G_2|=392$ and $|G_3|=16{,}464$. All statements about classes of codes refer to these groups. The coordinates of $\Zs^n$ are called \emph{axes}. For a set $K$ of axes, $\pi_K$ deletes the coordinates in $K$ and keeps the others in their original order; we write $\pi_k=\pi_{\{k\}}$.
+
+Let $C\subseteq\Zs^n$ be a code and fix an axis $k$. For $i\in\Zs$ the \emph{level} is $L_i=L^k_i=\{x\in C:x_k=i\}$ and the \emph{band starting at $i$} is $B_i=B^k_i=L_i\cup L_{i+1}$; write $h_i=|L_i|$.
+
+\begin{lemma}\label{lem:bands}
+The map $\pi_k$ is injective on $B_i$ and $\pi_k(B_i)$ is a code in $\Zs^{n-1}$. Hence $|B_i|\le\alpha_{n-1}$, and
+\[
+ |B_i|=h_i+h_{i+1},\qquad\sum_{i\in\Zs}|B_i|=2|C|,\qquad h_i=\frac12\sum_{j=0}^{6}(-1)^j|B_{i+j}|.
+\]
+In particular $\alpha_n\le\lfloor7\alpha_{n-1}/2\rfloor$.
+\end{lemma}
+
+\begin{proof}
+Let $x\ne y$ in $B_i$. Then $|x_k-y_k|\le1$. If $\pi_k(x)$ and $\pi_k(y)$ were equal or confusable, then $|x_l-y_l|\le1$ for every $l$, so $x,y$ would be confusable. The first two identities are clear. For the third, $\sum_{j=0}^6(-1)^j(h_{i+j}+h_{i+j+1})=h_i+h_{i+7}=2h_i$.
+\end{proof}
+
+From now on $n=4$. For a code $C\subseteq\Zs^4$ and an axis $k$, the \emph{deficit} of the band $B^k_i$ is $d_i=33-|B^k_i|$, which is nonnegative because $\alpha_3=33$ (\Cref{thm:atlas}). The band is \emph{full} if $d_i=0$, and $F_k=\{i:d_i=0\}$ is the set of \emph{full starts} on axis $k$. For $|C|=113$, \Cref{lem:bands} gives $\sum_id_i=7\cdot33-226=5$ and
+\begin{equation}\label{eq:levels}
+ h_i=14+d_{i+1}+d_{i+3}+d_{i+5}\qquad(i\in\Zs),
+\end{equation}
+since $\sum_j(-1)^jd_{i+j}=5-2(d_{i+1}+d_{i+3}+d_{i+5})$.
+
+\begin{lemma}\label{lem:deficits}
+Let $C\subseteq\Zs^4$ be a code with $|C|=113$, and fix an axis.
+\begin{enumerate}
+\item Every level has between $14$ and $19$ words, and $|F|\ge2$.
+\item If $F$ contains two consecutive residues, then it contains two consecutive residues $c-1,c$ with $16\le h_c\le19$.
+\item If $F$ contains no two consecutive residues and $0,2\in F$, then $|B_1|\ge31$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(1) The bounds on $h_i$ follow from \eqref{eq:levels}, since $0\le d_{i+1}+d_{i+3}+d_{i+5}\le5$. At most five of the seven deficits are positive.
+
+(2) The shared level of the full bands at $c-1$ and $c$ is $L_c$. There are $\binom{11}{5}=462$ vectors $(d_0,\dots,d_6)$ of nonnegative integers with sum $5$; $420$ of them have two cyclically consecutive zeros, and for each of these the largest value of $14+d_{c+1}+d_{c+3}+d_{c+5}$ over the $c$ with $d_{c-1}=d_c=0$ is $16$, $17$, $18$ or $19$ (for $14$, $147$, $154$ and $105$ vectors respectively). This is a direct finite check.
+
+(3) We have $d_0=d_2=0$. Since $F$ has no two consecutive residues, $d_1,d_3,d_6\ge1$, and $d_4,d_5$ are not both $0$. As the deficits add up to $5$, $d_1=5-d_3-d_6-(d_4+d_5)\le5-1-1-1=2$. So $|B_1|=33-d_1\ge31$.
+\end{proof}
+
+\begin{definition}\label{def:profile}
+Let $C\subseteq\Zs^4$ be a code in which every axis has at least two full starts. On each axis $k$ let $g_k\in\{1,2,3\}$ be the least cyclic distance between two distinct full starts. The \emph{profile} of $C$ is the multiset $\{g_1,g_2,g_3,g_4\}$, written as a nondecreasing string such as $1123$.
+\end{definition}
+
+There are $\binom{6}{4}=15$ profiles. We call a profile \emph{adjacent} if it contains $1$, \emph{of type two} if its least entry is $2$, and \emph{of type three} if it is $3333$. On an axis with $g_k=1$ we always use a pair $c-1,c$ as in \Cref{lem:deficits}(2), and we call $c$ the \emph{centre} of the axis. The shared level $L_c$ then has between $16$ and $19$ words.
+
+\section{Codes of length two and three}\label{sec:atlas}
+\begin{lemma}\label{lem:two}
+$\alpha_2=10$. There are exactly $980$ codes of size $10$ in $\Zs^2$, forming three classes under $G_2$, of sizes $392$, $196$ and $392$, represented by
+\begin{gather*}
+ \{00,02,14,20,22,34,41,46,53,65\},\qquad\{00,02,14,20,32,34,46,51,53,65\},\\
+ \{00,02,14,21,26,33,40,45,52,64\},
+\end{gather*}
+where $ab$ denotes the word $(a,b)$.
+\end{lemma}
+
+\begin{proof}
+$\alpha_2\le\lfloor7\cdot3/2\rfloor=10$ by \Cref{lem:bands} with $\alpha_1=3$, and the sets displayed are codes. The remaining statements are a direct enumeration of the $1{,}796{,}859$ codes in $\Zs^2$ (including the empty code) by a depth-first search over words in increasing order, followed by a computation of orbits.
+\end{proof}
+
+Let $C\subseteq\Zs^3$ and write $P_u=\pi_1(L^1_u)\subseteq\Zs^2$ for its \emph{planes} along the first axis. By \Cref{lem:bands}, $C$ is a code if and only if every $P_u$ is a code, and $P_u,P_{u+1}$ are disjoint with $P_u\cup P_{u+1}$ a code, for every $u$. We call such a pair \emph{compatible}. Put $p_u=|P_u|$ and $e_u=10-p_u-p_{u+1}$. As in \Cref{lem:bands},
+\begin{equation}\label{eq:slab}
+ \sum_ue_u=70-2|C|,\qquad p_u=\frac12\Big(10-\sum_{j=0}^6(-1)^je_{u+j}\Big),
+\end{equation}
+which are identities valid for every set $C\subseteq\Zs^3$. For a code $C\subseteq\Zs^3$, moreover, $e_u\ge0$ for every $u$, since $P_u\cup P_{u+1}$ is then a code of $p_u+p_{u+1}$ words in $\Zs^2$ and $\alpha_2=10$ (\Cref{lem:two}).
+
+\begin{theorem}\label{thm:atlas}
+$\alpha_3=33$. There are exactly $16{,}672{,}544$ codes of size $33$ in $\Zs^3$. They form $1{,}016$ classes under $G_3$: $1{,}011$ classes with trivial stabiliser and $1$, $3$ and $1$ classes with stabilisers of orders $2$, $3$ and $6$.
+\end{theorem}
+
+\begin{proof}
+By \eqref{eq:slab} every code in $\Zs^3$ has at most $35$ words, and a code with more than $33$ words contains one with exactly $34$, for which $\sum e_u=2$. We enumerate, for each value $D\in\{0,2,4\}$, all codes with $\sum e_u=D$, that is of size $(70-D)/2$; the enumeration finds none for $D=0,2$ and $16{,}672{,}544$ for $D=4$. Since $\alpha_3\ge33$ by \cite{BBC} (or by any of the codes found), this proves $\alpha_3=33$ and the count; the case $D=0$ is not needed but is checked as well. The enumeration for a fixed $D$ is as follows.
+
+\emph{Normalisation.} Some $e_u$ vanishes, since $D<7$. Call a code \emph{normalised} if $e_0=0$. For a normalised code $c$ let $t(c)$ be the largest $t\ge0$ such that $e_6,e_5,\dots,e_{7-t}$ are all positive. Every code $c'$ is the translate $c+(j,0,0)$ of exactly one normalised code $c$ with $0\le j\le t(c)$: namely $j$ is the least index with $e_j(c')=0$, and $c=c'-(j,0,0)$. So it suffices to list the normalised codes and record $t(c)$.
+
+\emph{Sizes.} For a normalised code the sequence $(e_u)$ is one of the compositions of $D$ into seven nonnegative parts with $e_0=0$ ($126$ for $D=4$), and it determines every $p_u$ by \eqref{eq:slab}. The pair $(P_0,P_1)$ is a split of one of the $980$ maximum codes $M=P_0\cup P_1$ of \Cref{lem:two} with $|P_0|=p_0$.
+
+\emph{Symmetry.} The subgroup of $G_3$ acting on the last two coordinates acts on normalised codes and preserves $(e_u)$. It therefore suffices to take $M$ among the three class representatives of \Cref{lem:two}, enumerate the normalised codes with $P_0\cup P_1=M$, apply the $392$ elements of $G_2$ to the last two coordinates of each, and remove duplicates. This yields every normalised code, since every maximum code of $\Zs^2$ is an image of a representative.
+
+\emph{Search.} Given $(P_0,P_1)$ and the sizes, we list all chains $P_2,P_3,P_4$ with $P_{u+1}$ a code of size $p_{u+1}$ in $\Zs^2\setminus N(P_u)$, where $N(P)$ is the set of words equal or confusable to a word of $P$; this is exactly compatibility of $P_u$ and $P_{u+1}$. We store these chains in a table indexed by $P_4$. Independently we list all chains $P_6,P_5,P_4'$ with $P_6\subseteq\Zs^2\setminus N(P_0)$, $P_5\subseteq\Zs^2\setminus N(P_6)$ and $P_4'\subseteq\Zs^2\setminus N(P_5)$ of the prescribed sizes, and output the code $(P_0,\dots,P_6)$ for every stored chain with $P_4=P_4'$. Every code with the given $P_0,P_1$ and sizes is output exactly once, as its planes are determined by it.
+
+For $D=4$ this gives $8{,}104{,}208$ normalised codes and, after the translations, $16{,}672{,}544$ codes, which are pairwise distinct. For the classes we sort the codes and, for each code not yet marked in sorted order, generate its $16{,}464$ images under $G_3$, find each by binary search and mark it. This produces $1{,}016$ orbits whose sizes add up to $16{,}672{,}544$, with the stated stabilisers.
+\end{proof}
+
+\emph{A second enumeration.} The searches of \Cref{sec:adjacent,sec:gaptwo,sec:gapthree} read the $1{,}016$ class representatives from a list produced by a different program. It normalises the cyclic sequence of slab deficits $(e_u)$ to its least image under translations and reflections, fixes the first two planes to one of the three classes of \Cref{lem:two}, enumerates all compatible sequences of further planes of the prescribed sizes, and prunes with an upper bound for each transverse band computed by a two-dimensional dynamic programme. It also excludes size $34$, finds $1{,}016$ classes, and recovers the orbit sizes, which add up to $16{,}672{,}544$, by counting the elements of $G_3$ that map each code to its canonical form. We have checked that the two lists of representatives define the same $1{,}016$ classes: canonical forms (the lexicographically least sorted image under $G_3$) computed for both lists coincide as sets, and the orbit sizes found in the proof of \Cref{thm:atlas} agree, class by class, with the numbers of distinct images under $G_3$ of the representatives in the list read by the searches.
+
+We fix this list of \emph{representatives} $\cR$. A \emph{labelled $33$-code} is any code of size $33$ in $\Zs^3$; each is $g(R)$ for some $R\in\cR$ and $g\in G_3$.
+
+\section{Projections, cuts and crossings}\label{sec:crossings}
+For a set $W\subseteq\Zs^3$, an axis $m$ of $\Zs^3$ and $t\in\Zs$, put
+\begin{align*}
+ \lev_{m,t}(W)&=\pi_m\{y\in W:y_m=t\},\\
+ \cut_{m,t}(W)&=\pi_m\{y\in W:y_m\in\{t,t+1\}\},
+\end{align*}
+subsets of $\Zs^2$. If $W$ is a code, $\cut_{m,t}(W)$ is a code of $\Zs^2$ and the disjoint union of $\lev_{m,t}(W)$ and $\lev_{m,t+1}(W)$, by \Cref{lem:bands}; in particular each point of $\cut_{m,t}(W)$ is the image of exactly one point of $W$ whose axis-$m$ coordinate is $t$ or $t+1$.
+
+Let $C\subseteq\Zs^4$ be a code and $B=B^k_i$ a full band. Its \emph{projection} $\pi_k(B)$ is a labelled $33$-code. Its axes are the axes $l\ne k$ of $\Zs^4$, in their original order; we use the same name for an axis of $\Zs^4$ and the corresponding axis of a projection.
+
+\begin{lemma}[Crossings]\label{lem:crossing}
+Let $C\subseteq\Zs^4$ be a code, let $k\ne l$ be axes and let $W=\pi_k(B^k_i)$ and $W'=\pi_l(B^l_j)$ be projections of full bands. Then
+\[
+ \cut_{l,j}(W)=\cut_{k,i}(W')=\pi_{\{k,l\}}\{x\in C:x_k\in\{i,i+1\},\ x_l\in\{j,j+1\}\}.
+\]
+Moreover, for $s\in\{j,j+1\}$, the set $\pi_{\{k,l\}}\{x\in C:x_k\in\{i,i+1\},x_l=s\}$ equals $\lev_{l,s}(W)$.
+\end{lemma}
+
+\begin{proof}
+Both sides are obtained from the same set of words of $C$ by deleting the coordinates $k$ and $l$, keeping the other two in their original order.
+\end{proof}
+
+We call the common set in \Cref{lem:crossing} the \emph{crossing} of the two bands. For a labelled $33$-code $W$, an axis $m$ and $s\in\Zs$ write
+\[
+ \Pi(W,m,s)=\big(\cut_{m,s}(W),\cut_{m,s+1}(W),\lev_{m,s+1}(W)\big).
+\]
+Let $\mathcal T_1$ be the set of all triples $\Pi(W,m,s)$ over all labelled $33$-codes $W$, axes $m$ and $s\in\Zs$, together with the triples $(Y,X,M)$ for $(X,Y,M)$ in it; and let $\mathcal P_1$ be the set of pairs $(X,Y)$ that occur as the first two entries of an element of $\mathcal T_1$. Define $\mathcal T_2$ and $\mathcal P_2$ in the same way with
+\[
+ \big(\cut_{m,s}(W),\cut_{m,s+2}(W),\lev_{m,s+1}(W),\lev_{m,s+2}(W)\big)
+\]
+in place of $\Pi(W,m,s)$ (reversal now maps $(X,Y,M,N)$ to $(Y,X,N,M)$), and let $\mathcal P_3$ be the set of pairs $(\cut_{m,s}(W),\cut_{m,s+3}(W))$ and their reversals. By \Cref{thm:atlas} these are finite sets that can be listed from $\cR$: it suffices to take $W\in\cR$ and to apply the $392$ elements of $G_2$ to all entries simultaneously.
+
+\begin{lemma}[Slabs]\label{lem:slab}
+Let $C\subseteq\Zs^4$ be a code with full bands $B^k_{c-1},B^k_c$ on an axis $k$. Put $S=\pi_k(B^k_{c-1})$, $T=\pi_k(B^k_c)$ and $U=\pi_k(L^k_c)$. Then $U\subseteq S\cap T$, and the three levels $L^k_{c-1},L^k_c,L^k_{c+1}$ are the lifts of $S\setminus U$, $U$, $T\setminus U$ to heights $c-1,c,c+1$. If moreover $B^l_t$ is a full band on an axis $l\ne k$ with projection $W$, then
+\[
+ \big(\cut_{l,t}(S),\cut_{l,t}(T),\cut_{l,t}(U)\big)=\Pi(W,k,c-1)\in\mathcal T_1,
+\]
+and the three levels of $W$ at heights $c-1,c,c+1$ on axis $k$ are $\cut_{l,t}(S)\setminus\cut_{l,t}(U)$, $\cut_{l,t}(U)$ and $\cut_{l,t}(T)\setminus\cut_{l,t}(U)$.
+\end{lemma}
+
+\begin{proof}
+$L^k_c$ lies in both bands, so $U\subseteq S\cap T$, and $S$ is the disjoint union of $\pi_k(L^k_{c-1})$ and $U$ by \Cref{lem:bands}; similarly for $T$. The second statement is \Cref{lem:crossing} applied to the three sets of words of $B^l_t$ with $x_k\in\{c-1,c\}$, $x_k\in\{c,c+1\}$ and $x_k=c$.
+\end{proof}
+
+\begin{lemma}[Matchings]\label{lem:matching}
+Let $S,T\subseteq\Zs^3$ be codes of size $33$, and let $\Gamma$ be the bipartite graph with sides $S$ and $T$ in which $y\in S$ is joined to $z\in T$ if $y=z$ or $y,z$ are confusable. Then $\Gamma$ has a perfect matching. If $X\subseteq S$ and $Y\subseteq T$ are disjoint and $X\cup Y$ is a code, then no edge $yz$ of $\Gamma$ has $y\in X$ and $z\in Y$. Consequently, in any perfect matching of $\Gamma$, exactly $33-|X|-|Y|$ edges $yz$ have $y\notin X$ and $z\notin Y$.
+\end{lemma}
+
+\begin{proof}
+If $A\subseteq S$ had fewer than $|A|$ neighbours in $T$, then $A\cup(T\setminus N(A))$ would be a code of size $|A|+33-|N(A)|>33$, since there are no edges between $A$ and $T\setminus N(A)$; this contradicts $\alpha_3=33$. Hall's theorem gives a perfect matching. If $yz$ is an edge with $y\in X$ and $z\in Y$, then $y\ne z$ as $X\cap Y=\emptyset$, so $y,z$ are confusable words of the code $X\cup Y$, which is impossible. Hence in a perfect matching the $|X|$ edges with $y\in X$ and the $|Y|$ edges with $z\in Y$ are distinct, and the remaining $33-|X|-|Y|$ edges have $y\notin X$ and $z\notin Y$.
+\end{proof}
+
+\begin{lemma}[Normalisation]\label{lem:normal}
+Let $C\subseteq\Zs^4$ be a code and $k$ an axis with full starts $i$ and $i+g$. There is $\gamma\in G_4$ such that $\gamma(C)$ is a code, with the same profile as $C$ if $C$ has one (\Cref{def:profile}), $\gamma$ maps axis $k$ to axis $1$ by $x_k\mapsto x_k-i$, the full starts $i,i+g$ become $0,g$, and $\pi_1(B^1_0)\in\cR$ for $\gamma(C)$. On the axes other than $k$, $\gamma$ acts by an element of $G_3$, which may permute them.
+\end{lemma}
+
+\begin{proof}
+Translate axis $k$ so that $i=0$, permute the axes so that $k=1$, and apply to the axes $2,3,4$ an element $g\in G_3$ with $g(\pi_1(B^1_0))\in\cR$, extended to $\Zs^4$ by acting on the last three coordinates.
+\end{proof}
+
+\section{Profiles with an adjacent pair}\label{sec:adjacent}
+\begin{proposition}\label{prop:adjacent}
+Let $C\subseteq\Zs^4$ be a code with $|C|=113$. Then the profile of $C$ does not contain $1$.
+\end{proposition}
+
+The proof occupies this section. Suppose the profile contains $1$. By a coordinate permutation we may assume $g_1=1$; the distances $(g_2,g_3,g_4)$ are then a permutation of the other three entries of the profile, and the search below runs over all such permutations. On axis $1$ let $c$ be the centre (\Cref{def:profile}). By \Cref{lem:normal} we may assume $c=1$, so the two chosen full bands are $B^1_0,B^1_1$, and that $S=\pi_1(B^1_0)\in\cR$. Let $T=\pi_1(B^1_1)$ and $U=\pi_1(L^1_1)$, so $16\le|U|\le19$ and $U\subseteq S\cap T$ by \Cref{lem:slab}. On each axis $l\in\{2,3,4\}$ choose full starts $t_l-g_l$ and $t_l$ at distance $g_l$; if $g_l=1$ take $t_l$ to be the centre. We call the six bands $B^l_{t_l-g_l},B^l_{t_l}$ the \emph{marked transverse bands}. The search consists of the following stages, each of which keeps every configuration that can come from a code $C$ as above.
+
+\emph{Stage 1 (support pairs).} Since $|S\cap T|\ge|U|\ge16$, the pair $(S,T)$ is one of the pairs with $S\in\cR$, $T$ a labelled $33$-code and $|S\cap T|\ge16$. There are $21{,}103{,}868$ such pairs; their numbers by the value of $|S\cap T|$ are in \Cref{tab:census}.
+
+\emph{Stage 2 (contacts).} For an axis $l\in\{2,3,4\}$ (an axis of $S$ and $T$ as well) call $t$ \emph{admissible} if $(\cut_{l,t}(S),\cut_{l,t}(T))\in\mathcal P_1$. By \Cref{lem:slab}, every full start on axis $l$ is admissible. We keep the pairs $(S,T)$, with all admissible choices of the $t_l$, for which $t_l-g_l$ and $t_l$ are both admissible on each axis.
+
+\emph{Stage 3 (the middle level).} For each kept pair and each marked transverse band $B^l_t$, \Cref{lem:slab} shows that
+\[
+ \big(\cut_{l,t}(S),\cut_{l,t}(T),\cut_{l,t}(U)\big)\in\mathcal T_1 .
+\]
+Each point of $\cut_{l,t}(S)$ is the image of a unique point of $S$ whose axis-$l$ coordinate is $t$ or $t+1$, so each admissible third entry $M$ prescribes, for every point of $S\cap T$ whose $l$-coordinate lies in $\{t,t+1\}$, whether it belongs to $U$; and it must not prescribe a point of $S\setminus T$. We combine these prescriptions over the six marked bands, requiring agreement wherever two of them prescribe the same point, discard partial assignments with more than $19$ points in $U$ or with no possibility of reaching $16$, and then try all subsets of the points of $S\cap T$ not covered by any marked band. This gives all candidate triples $(S,T,U)$ with $16\le|U|\le19$, together with the marked starts.
+
+\emph{Stage 4 (six-band join).} For each candidate and each marked transverse band $B^l_t$, \Cref{lem:slab} determines the three levels of its projection $W_{l,t}=\pi_l(B^l_t)$ at heights $0,1,2$ on axis $1$. We list all labelled $33$-codes with these three levels. A choice of one code $W_{l,t}$ from each of the six lists must satisfy:
+\begin{enumerate}
+\item for marked bands $B^l_t,B^{l'}_{t'}$ with $l\ne l'$, $\cut_{l',t'}(W_{l,t})=\cut_{l,t}(W_{l',t'})$ (\Cref{lem:crossing});
+\item if $g_l=1$, the shared level $L^l_{t_l}$ has at least $16$ words. Its words at heights $0,1,2$ on axis $1$ are known from $(S,T,U)$; its words at a height $h\in\{3,4,5,6\}$ project into $\lev_{1,h}(W_{l,t_l-1})\cap\lev_{1,h}(W_{l,t_l})$. So the number of known words plus $\sum_{h=3}^6|\lev_{1,h}(W_{l,t_l-1})\cap\lev_{1,h}(W_{l,t_l})|$ must be at least $16$.
+\end{enumerate}
+We keep the candidates for which some choice satisfies all these conditions, and record the \emph{slab} $\Sigma=C\cap\{x:x_1\in\{0,1,2\}\}$ that the candidate determines by \Cref{lem:slab}.
+
+\emph{Stage 5 (slab join).} Let $K$ be the set of axes $k$ with $g_k=1$. We fix coordinates for $C$ as follows: first normalise along axis $1$ as above, so that the slab of axis $1$ is one recorded in Stage 4; then reorder the axes $2,3,4$ so that $g_2\le g_3\le g_4$, keeping the relative order of axes with equal distances; finally translate every axis $k\in K$ so that its centre is $0$, and every axis $l\notin K$ so that its marked starts are $-g_l$ and $0$. The reordering is a stable sort of the transverse axes by their distances, so the recorded slab of axis $1$ is moved by a fixed permutation of its transverse axes that depends only on the order of $(g_2,g_3,g_4)$ used in the search. Afterwards $K=\{1,\dots,|K|\}$, and every slab is described in the same global order of the axes, in which the distances are nondecreasing. For $k\in K$ let $\Sigma_k=C\cap\{x:x_k\in\{6,0,1\}\}$. Call a map of $\Zs^4$ a \emph{frame map} if it permutes the axes, preserving the distances $g$, and applies to each axis $l$ either the identity or the reflection $x_l\mapsto1-g_l-x_l$ (which is $x_l\mapsto-x_l$ if $g_l=1$). A frame map preserves the centres and the pairs of marked starts; the reflection of an axis $l\notin K$ exchanges its two marked bands. Conversely, an element of $G_4$ that maps the centre or the pair of marked starts of each axis to the centre or the pair of marked starts of its image axis is a frame map: a translation or reflection of $\Zs$ that fixes $0$ is the identity or $x\mapsto-x$, and one that preserves the pair of bands starting at $-g$ and $0$ is the identity or $x\mapsto1-g-x$. Applying the normalisation of Stages 1--4 along an axis $k\in K$ in place of axis $1$, and comparing the two coordinate systems, shows that $\Sigma_k$ is the image, under a frame map taking axis $1$ to axis $k$, of a recorded slab placed in these coordinates (by the translations determined by its centres and marked starts); for $k=1$ the frame map is the identity. Two slabs must agree on their common region:
+\[
+ \Sigma_k\cap\{x:x_{k'}\in\{6,0,1\}\}=\Sigma_{k'}\cap\{x:x_k\in\{6,0,1\}\}\qquad(k,k'\in K),
+\]
+and $\bigcup_{k\in K}\Sigma_k$ must be a code. We list all such unions.
+
+\emph{Stage 6 (completion).} If $K$ is the set of all four axes (profile $1111$), every word of $C$ outside $\bigcup_k\Sigma_k$ has all four coordinates in $\{2,3,4,5\}$, and we compute exactly the largest code obtained by adding such words. Otherwise, for each marked band $B^l_t$ with $l\notin K$, the projection $W_{l,t}$ must agree with the union on the region where some coordinate in $K$ lies in $\{6,0,1\}$ (where the union contains every word of $C$), and every other word of $W_{l,t}$ must lift, at one of the heights $t,t+1$ on axis $l$, to a word that is neither in the union nor confusable with a word of it. We list the labelled $33$-codes with these properties for each such band, and require that the choices on different axes satisfy \Cref{lem:crossing}.
+
+\begin{table}[ht]\centering\small
+\caption{Profile $1111$: the number of support pairs with $|S\cap T|=\kappa$ (Stage 1), of those passing Stage 2, of middle choices $(S,T,U)$ with their centres after Stage 3, and of those passing Stage 4.}\label{tab:census}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}rrrrr@{\quad}rrrrr@{}}
+\toprule
+$\kappa$&Stage 1&Stage 2&Stage 3&Stage 4&$\kappa$&Stage 1&Stage 2&Stage 3&Stage 4\\\midrule
+16&6477540&394804&2&0&25&194903&86396&809890&474\\
+17&4581225&434977&190&0&26&123989&56900&1361058&242\\
+18&3217530&445550&938&0&27&79585&38287&2028247&336\\
+19&2238309&426213&4416&0&28&51432&26040&2878036&22\\
+20&1540197&377203&18950&6&29&33293&17744&4014388&442\\
+21&1048999&311972&50784&8&30&20664&11847&3553230&874\\
+22&706057&243863&119315&32&31&11272&6799&1769488&112\\
+23&468245&181566&252043&64&32&4689&3062&355040&0\\
+24&304923&127966&453054&240&33&1016&883&37686&0\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{lemma}\label{lem:1111}
+For profile $1111$, Stage 4 keeps $2{,}852$ slabs. Stage 5 gives $2{,}852$ slabs on axis $1$ and $136{,}896$ on each other axis; after repeatedly discarding slabs that agree with no slab on some other axis, $2{,}004$, $1{,}655$, $1{,}809$ and $2{,}570$ remain, and there are exactly $1{,}776$ unions, of sizes $97$ ($720$ unions), $98$ ($736$), $99$ ($280$) and $100$ ($40$). In Stage 6 the largest completion of these unions has $101$, $102$, $103$, $104$ and $105$ words for $24$, $80$, $1{,}328$, $320$ and $24$ unions respectively.
+\end{lemma}
+
+In particular every code of profile $1111$ in which each chosen shared level has $16$ to $19$ words has at most $105$ words; \Cref{rem:105} gives an example with $105$.
+
+\begin{lemma}\label{lem:mixedadj}
+For each of the nine profiles that contain $1$ and are different from $1111$, the numbers of middle choices after Stage 3, of slabs after Stage 4, and of unions after Stage 5 are as follows, and Stage 6 excludes every union.
+\begin{center}\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Profile & Stage 3 & Stage 4 & Stage 5\\\midrule
+1112 & 20{,}680{,}742 & 138 & 0\\
+1113 & 8{,}870{,}883 & 0 & 0\\
+1122 & 7{,}027{,}895 & 48 & 4\\
+1123 & 7{,}323{,}911 & 395 & 64\\
+1133 & 1{,}806{,}905 & 0 & 0\\
+1222 & 953{,}888 & 0 & 0\\
+1223 & 1{,}499{,}193 & 0 & 0\\
+1233 & 990{,}374 & 0 & 0\\
+1333 & 194{,}256 & 0 & 0\\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{lemma}
+
+\begin{proof}[Proof of \Cref{prop:adjacent}]
+Every stage retains every configuration of a code of the given profile, by \Cref{lem:crossing,lem:slab,lem:deficits}. For profile $1111$, \Cref{lem:1111} bounds the size of such a code by $105<113$. For the other nine profiles nothing survives, by \Cref{lem:mixedadj}.
+\end{proof}
+
+The counts in \Cref{lem:1111,lem:mixedadj} and \Cref{tab:census} are computed by the programs described in \Cref{sec:computation}, which also check that every slab entering the join of Stage 5 is a code, that every union is a code, that for profile $1111$ every union contains all eight marked bands in full and has between $16$ and $19$ words on each centre level, and that every completion found in Stage 6 is a code. A single slab contains in full only the two marked bands of its own axis. The words of a marked band of another axis in $K$ that lie outside the slab are supplied by the slab of that axis when the slabs are joined in Stage 5, and Stage 6 tests whether the marked bands of the axes not in $K$ can be completed. As an independent check of Stage 4 at the smallest overlap, a separate program takes the two candidates with $|S\cap T|=16$ supplied by Stage 3 and redoes Stage 4 for them directly from coordinates: their six lists of transverse projections have sizes $(20,33,26,18,9,3)$ and $(3,9,18,26,33,20)$, and in each, two bands on different axes have no common crossing.
+
+\section{Profiles of type two}\label{sec:gaptwo}
+\begin{proposition}\label{prop:gaptwo}
+Let $C\subseteq\Zs^4$ be a code with $|C|=113$. Then the profile of $C$ is not $2222$, $2223$, $2233$ or $2333$.
+\end{proposition}
+
+The proof occupies this section. Suppose the profile is one of these, so no axis has two consecutive full starts. By a coordinate permutation we may assume $g_1=2$, and by \Cref{lem:normal} that $0,2\in F_1$ and $S=\pi_1(B^1_0)\in\cR$. Let $T=\pi_1(B^1_2)$ and $X=\pi_1(L^1_1)\subseteq S$, $Y=\pi_1(L^1_2)\subseteq T$. Then $X\cup Y=\pi_1(B^1_1)$ is a code and $X\cap Y=\emptyset$ (\Cref{lem:bands}), $|X|+|Y|\ge31$ by \Cref{lem:deficits}(3), and $14\le|X|,|Y|\le19$ by \Cref{lem:deficits}(1). On each axis $l\in\{2,3,4\}$ choose full starts $t_l$ and $t_l+g_l$ with $g_l\in\{2,3\}$ as in the profile; the search runs over all assignments of the distances to the three axes (one for $2222$, and seven in total for the other three profiles, namely those in which not all three distances are $2$).
+
+\emph{Stage 1 (planar filter).} For a full band $B^l_t$ on an axis $l\in\{2,3,4\}$, with projection $W$, \Cref{lem:crossing} gives $\cut_{1,0}(W)=\cut_{l,t}(S)$ and $\cut_{1,2}(W)=\cut_{l,t}(T)$, so $(\cut_{l,t}(S),\cut_{l,t}(T))\in\mathcal P_2$. Among all $1{,}016\cdot16{,}672{,}544=16{,}939{,}304{,}704$ pairs $(S,T)$ with $S\in\cR$ and $T$ a labelled $33$-code, we keep those for which every axis $l$ has a pair of starts $t,t+g_l$ with this property, for some admissible assignment of distances.
+
+\emph{Stage 2 (matching).} Fix a perfect matching of the bipartite graph of \Cref{lem:matching} between $S$ and $T$. By \Cref{lem:matching} and $|X|+|Y|\ge31$, no edge $yz$ has $y\in X$ and $z\in Y$, and at most two edges have $y\notin X$ and $z\notin Y$. For a marked band $B^l_t$ with projection $W$, \Cref{lem:crossing} gives $\lev_{1,1}(W)=\cut_{l,t}(X)$ and $\lev_{1,2}(W)=\cut_{l,t}(Y)$, so $(\cut_{l,t}(S),\cut_{l,t}(T),\cut_{l,t}(X),\cut_{l,t}(Y))\in\mathcal T_2$. As in \Cref{sec:adjacent}, each admissible pair of third and fourth entries prescribes membership in $X$ and in $Y$ for the points of $S$ and $T$ in the corresponding cuts. We combine these prescriptions over the six marked bands, requiring agreement, and reject a partial assignment that puts $y\in X$ and $z\in Y$ for some matching edge $yz$, that has three matching edges $yz$ with $y\notin X$ and $z\notin Y$, or that makes $14\le|X|,|Y|\le19$ impossible. A \emph{layout} is a pair $(S,T)$ with marked starts that admits a complete assignment.
+
+\emph{Stage 3 (projections).} For each layout and each marked band $B^l_t$, we list all labelled $33$-codes $W$ with $\cut_{1,0}(W)=\cut_{l,t}(S)$ and $\cut_{1,2}(W)=\cut_{l,t}(T)$. A choice of one $W$ for each of the six marked bands must satisfy \Cref{lem:crossing} for bands on different axes; the memberships in $X$ and $Y$ that the chosen projections prescribe through $\lev_{1,1}(W)$ and $\lev_{1,2}(W)$ must agree; and no prescribed point of $X$ may be equal or confusable to a prescribed point of $Y$.
+
+\begin{lemma}\label{lem:gaptwo}
+For $2222$, Stage 1 keeps $9{,}767{,}343$ pairs, Stage 2 tests $25{,}578{,}139$ placements of marked starts and keeps $894$ layouts, on $889$ pairs, and Stage 3 keeps none. For the seven assignments of the profiles $2223$, $2233$, $2333$, Stage 1 keeps $16{,}076{,}232$ pairs, Stage 2 tests $96{,}313{,}808$ placements and keeps $17{,}702$ layouts, on $15{,}051$ pairs, and Stage 3 keeps none.
+\end{lemma}
+
+\Cref{prop:gaptwo} follows, since every stage retains every configuration of a code of the given profile. The layouts kept by Stage 2 depend on the choice of the perfect matching, but every layout of an actual code passes Stage 2 for every choice, since \Cref{lem:matching} applies to any perfect matching. Stage 3 has a second implementation, which builds each projection from the explicit coordinates of the $33$ moved words and joins them independently: in it, $125$ of the $894$ layouts for $2222$ and one of the $17{,}702$ layouts for the other profiles admit six projections with agreeing crossings, and all of these fail the conditions on $X$ and $Y$.
+
+\section{The profile of type three}\label{sec:gapthree}
+\begin{proposition}\label{prop:gapthree}
+No code $C\subseteq\Zs^4$ has, on every axis, two full starts at cyclic distance $3$. In particular no code of size $113$ has profile $3333$.
+\end{proposition}
+
+This statement does not use the size of $C$. Suppose that on every axis $k$ there are full starts at distance $3$; translating and reflecting each axis, we may take them to be $0$ and $3$. The reflection $x_k\mapsto4-x_k$ exchanges the bands starting at $0$ and $3$, so the eight bands $B^k_0,B^k_3$ ($1\le k\le4$) are preserved as a set by every permutation of the axes and by these reflections. Their projections are labelled $33$-codes.
+
+Among the eight projections choose one whose class in $\cR$ has the least index in our list, and move its band to axis $1$ and start $0$. Permutations of the axes $2,3,4$ and the reflections $x\mapsto4-x$ on them realise every signed permutation of these axes while preserving the starts $\{0,3\}$; so we may assume that this projection is $S=R+v$ for some $R\in\cR$ and $v\in\Zs^3$, which gives $1{,}016\cdot343=348{,}488$ possibilities. Let $T$ be the projection of $B^1_3$; its class has index at least that of $S$.
+
+For each of the six bands $B^l_s$ ($l\in\{2,3,4\}$, $s\in\{0,3\}$) with projection $W$, \Cref{lem:crossing} gives $\cut_{1,0}(W)=\cut_{l,s}(S)$ and $\cut_{1,3}(W)=\cut_{l,s}(T)$, so $(\cut_{l,s}(S),\cut_{l,s}(T))\in\mathcal P_3$. For each $S$ we list all $T$ satisfying these six conditions. For each pair $(S,T)$ found, the six projections $W$ range over the labelled $33$-codes with the prescribed cuts at starts $0$ and $3$ on axis $1$, and any two of them on different axes must have equal crossings (\Cref{lem:crossing}), which gives twelve conditions.
+
+\begin{lemma}\label{lem:gapthree}
+Of the $348{,}488$ choices of $S$, $143{,}566$ admit no $T$ and $204{,}922$ admit at least one. There are $21{,}378{,}687$ distinct pairs $(S,T)$ in all, and none of them admits six projections satisfying the twelve crossing conditions.
+\end{lemma}
+
+This proves \Cref{prop:gapthree}. The search describes each $T$ as the image of a class in $\cR$ under an element of $G_3$, and finds $21{,}633{,}276$ such descriptions of pairs $(S,T)$. Two descriptions of the same $T$ differ by an element of the stabiliser of its class. The program identifies them by comparing the moved coordinates and counts the $21{,}378{,}687$ distinct pairs. The $254{,}589$ repeated descriptions all come from the five classes with nontrivial stabilisers (\Cref{thm:atlas}), and for every class the number of descriptions is the order of its stabiliser times the number of distinct pairs. In the search, the set $\mathcal P_3$ has $4{,}145{,}792$ ordered pairs on $138{,}670$ distinct planar codes. For every class and every element of $G_3$, that is, for all $1{,}016\cdot16{,}464=16{,}727{,}424$ pairs, the program checks that the cuts it computes from its index agree with those of the explicitly moved coordinates.
+
+A second program, written independently of the first, lists the $16{,}672{,}544$ labelled $33$-codes as explicit sets of points, computes all cuts from the coordinates, and repeats the search without the index of the first program. For each of the $1{,}016$ classes of $S$ it finds the same numbers of choices of $S$ with and without a partner $T$ and the same number of distinct pairs $(S,T)$ as the first program, and it finds no pair admitting six projections that satisfy the twelve crossing conditions.
+
+\section{Proof of \texorpdfstring{\Cref{thm:main}}{the main theorem}}\label{sec:proof}
+Suppose that $\alpha_4\ge113$, and let $C\subseteq\Zs^4$ be a code of exactly $113$ words. By \Cref{lem:deficits}(1), every axis has at least two full starts, so $C$ has a profile (\Cref{def:profile}). If the profile contains $1$, \Cref{prop:adjacent} gives a contradiction. Otherwise every entry is $2$ or $3$; if some entry is $2$ the profile is one of $2222,2223,2233,2333$, excluded by \Cref{prop:gaptwo}, and otherwise it is $3333$, excluded by \Cref{prop:gapthree}. Hence $\alpha_4\le112$. \qed
+
+\section{Remarks}\label{sec:remarks}
+\begin{remark}\label{rem:105}
+The bound $105$ in \Cref{lem:1111} is attained. A code of $105$ words, given with the programs, has on each axis full bands at starts $6$ and $0$ with $19$ words on the shared level $0$.
+\end{remark}
+
+\begin{remark}
+At $392$ words, a five-dimensional code would have all $35$ bands of size $112$, and every single level of size $56$, by \Cref{lem:bands}. Moreover, for an axis $k$ write $\cL_i\subseteq\Zs^4$ for the projection of $L^k_i$. For every $i$, the set $\cL_i\cup\cL_{i+1}\cup(\cL_{i-1}\cap\cL_{i+2})$ is a code in $\Zs^4$ and its three parts are disjoint. Summing over $i$ gives $2|C|+P_3\le7\alpha_4$, where $P_3$ is the number of pairs of words of $C$ that agree off axis $k$ and differ by $\pm3$ on it. So a $392$-word code has no such pair.
+\end{remark}
+
+\section{The computations}\label{sec:computation}
+The programs are available at \coderepo. They are written in C\texttt{++}17 and Python~3 with no other libraries, except NumPy for the comparison of the atlases at the end of this section. They use exact integer arithmetic and bit sets, and stop with an error if an assertion fails or a count differs from the value recorded in this paper. This includes the intermediate counts of Stage~5 in \Cref{lem:mixedadj}, the two lists of domain sizes in the check at overlap $16$, and the number of distinct pairs in \Cref{lem:gapthree}.
+
+The proof is checked in six parts: the atlas of \Cref{sec:atlas}; the searches of \Cref{sec:adjacent} for the profile $1111$ and for the nine other profiles of that section; the searches of \Cref{sec:gaptwo} for the pure and the mixed profiles; and the search of \Cref{sec:gapthree}. A driver checks that the fifteen profiles are partitioned among the five groups of cases, regenerates the list $\cR$ of atlas classes that all parts read and compares it byte for byte with the stored list, and then runs the searches. The finite check in \Cref{lem:deficits}(2) is part of the search for the profile $1111$. The independent check of Stage~4 at overlap $16$ in \Cref{sec:adjacent} and the second program of \Cref{sec:gapthree} are run separately; the latter takes about $25$ minutes on one core.
+
+We replayed all six parts on 24 November 2026 on one core of a $2.1$\,GHz Intel Xeon with $15$\,GB of memory, using GCC~13.3 and Python~3.13. Including compilation, they took $7$\,s, $1$\,min $50$\,s, $10$\,min $38$\,s, $2$\,min $8$\,s, $3$\,min $17$\,s and $2$\,min $49$\,s, in the order listed above, about $21$ minutes in all. No part used more than $1.3$\,GB of memory, and every recorded count was reproduced. The second atlas of \Cref{sec:atlas} is produced by two further programs, and rebuilding it reproduces the published list byte for byte, in about $21$ minutes on four cores. The comparison of the two atlases stops with an error unless the two sets of canonical forms are equal and the orbit sizes agree class by class and add up to $16{,}672{,}544$.
+
+\section{Formal verification in Lean}\label{sec:lean}
+Both bounds have also been proved in the Lean~4 proof assistant \cite{Lean4} with the Mathlib library \cite{Mathlib}, using version~4.29.1 of Lean and the matching release of Mathlib. The development is available at \coderepo.
+
+\emph{Statement.} The formal statement is short enough to read in full. Words of length $n$ are functions $\texttt{Fin}\ n\to\texttt{ZMod}\ 7$. Two words are confusable when they are distinct and every coordinate difference lies in $\{-1,0,1\}$. A code is a finite set of words, no two of them confusable. The two main theorems are
+{\footnotesize
+\begin{verbatim}
+theorem card_le_112 (C : Finset (Word 4)) (hC : IsCode C) :
+    C.card <= 112
+theorem card_le_392 (C : Finset (Word 5)) (hC : IsCode C) :
+    C.card <= 392
+\end{verbatim}
+}\noindent
+The development also restates them as bounds on the independence number of the strong powers of Mathlib's seven-cycle graph. The statement was fixed before the proof was written and has not changed since. The codes of sizes $3$, $10$, $33$ and $105$ used in this paper are checked by the Lean kernel.
+
+\emph{Proof.} Every result of \Cref{sec:bands,sec:atlas,sec:crossings,sec:adjacent,sec:gaptwo,sec:gapthree,sec:proof} has a Lean counterpart. The structural arguments are ordinary Lean proofs: the band averaging, \Cref{lem:deficits}, the symmetry group and normal forms, and the deduction of \Cref{cor:five} from \Cref{thm:main}. Each exhaustive search is a Boolean checker written in Lean, together with a Lean theorem saying what a successful run proves. These searches are the atlas census, the exclusion of $34$-word codes in $\Zs^3$, and the searches of \Cref{sec:adjacent,sec:gaptwo,sec:gapthree}. The formal searches cover the same cases as the programs of \Cref{sec:computation}. The programs serve only as regression comparisons and as a source of search hints, and a missing or wrong hint cannot exclude a genuine code. The formal searches reproduce the counts stated in this paper. These include the $1{,}016$ atlas classes, the $21{,}378{,}687$ distinct pairs and $254{,}589$ repeated descriptions of \Cref{lem:gapthree}, and the source counts of the type-three search.
+
+\emph{Trust.} The checkers are evaluated with Lean's \texttt{native\_decide} tactic, which runs compiled code, so accepting the formal proof means trusting the Lean compiler for these evaluations as well as the Lean kernel. The bound $112$ uses $197$ such evaluations: $36$ atlas traversals, $65$ checks for \Cref{sec:adjacent}, $10$ slab and exterior checks, $66$ checks for \Cref{sec:gaptwo} and $20$ checks for \Cref{sec:gapthree}. The bound $392$ uses the same evaluations, and the deduction of \Cref{cor:five} from \Cref{thm:main} uses none. Apart from these evaluations, the proofs use only the three standard axioms of Lean: propositional extensionality, the axiom of choice and the soundness of quotients. They contain no unproved steps and declare no further axioms. The evaluations take about four CPU-hours in total, and the largest used $4.7$\,GB of memory. They were compiled on cloud machines provided by Blaxel.
+
+\begin{thebibliography}{99}\small
+\bibitem{BBC} L.\,D.~Baumert, R.\,J.~McEliece, E.~Rodemich, H.\,C.~Rumsey, R.~Stanley and H.~Taylor, \emph{A combinatorial packing problem}, in: Computers in Algebra and Number Theory, SIAM-AMS Proc.\ \textbf{4} (1971), 97--108.
+\bibitem{Lean4} L.~de~Moura and S.~Ullrich, \emph{The Lean~4 theorem prover and programming language}, in: Automated Deduction -- CADE~28, Lecture Notes in Comput.\ Sci.\ \textbf{12699}, Springer, 2021, 625--635.
+\bibitem{Mathlib} The mathlib Community, \emph{The Lean mathematical library}, in: Proceedings of the 9th ACM SIGPLAN International Conference on Certified Programs and Proofs (CPP 2020), ACM, 2020, 367--381.
+\bibitem{Lovasz} L.~Lov\'asz, \emph{On the Shannon capacity of a graph}, IEEE Trans.\ Inform.\ Theory \textbf{25} (1979), 1--7.
+\bibitem{PS} S.~Polak and A.~Schrijver, \emph{New lower bound on the Shannon capacity of $C_7$ from circular graphs}, Inform.\ Process.\ Lett.\ \textbf{143} (2019), 37--40.
+\bibitem{VZ} A.~Vesel and J.~\v{Z}erovnik, \emph{Improved lower bound on the Shannon capacity of $C_7$}, Inform.\ Process.\ Lett.\ \textbf{81} (2002), 277--282.
+\end{thebibliography}
+\end{document}

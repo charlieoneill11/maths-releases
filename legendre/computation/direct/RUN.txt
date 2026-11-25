@@ -1,0 +1,137 @@
+Prime witnesses between consecutive 11/5 powers
+===============================================
+
+Each archived row proves that its integer base n has a prime p satisfying
+n^11 < p^5 < (n+1)^11. All endpoints in this kit are inclusive. The three
+archives contain 3,000,001 proved bases. The residual interval starts at
+3,883,855,444,452 and ends at 32,654,577,787,389. Its 28,770,722,342,938
+bases are the target of the proposed computation.
+
+Run the commands below in the extracted prime_sweep_kit directory. The
+standalone companion prime_sweep_feasibility.pdf explains the primality
+criterion, timing projections, and the role of RH in the outer ranges.
+legendre_square_certificates.zip separately covers the square-interval
+computations. The direct 11/5-power certificates here are unconditional.
+
+1. Check the delivered files
+----------------------------
+
+    shasum -a 256 -c SHA256SUMS
+
+On Linux, sha256sum -c SHA256SUMS is equivalent. The manifest covers the
+instructions, sources, measurements, and the three saved archives.
+
+2. Replay the saved proofs using Python alone
+---------------------------------------------
+
+Python 3.8 or later suffices. Each command checks the exact endpoints and
+primality of every row, the archive checksum, and the expected row count.
+
+    python3 -S power_pilot_certificates.py 3883853444451 3883854444451 sealed/3883853444451-3883854444451.iw.gz
+    python3 -S power_pilot_certificates.py 3883854444452 3883855444451 sealed/3883854444452-3883855444451.iw.gz
+    python3 -S power_pilot_certificates.py 32654577787390 32654578787389 sealed/32654577787390-32654578787389.iw.gz
+
+3. Build the searcher, codec, and independent GMP verifier
+---------------------------------------------------------
+
+On a Mac, use the current Apple Command Line Tools, Python 3, and GMP.
+Homebrew supplies GMP with "brew install gmp". The following commands
+use Apple Clang on a 64-bit Intel or Apple Silicon Mac.
+
+    mkdir -p bin
+    GMP_PREFIX="$(brew --prefix gmp)"
+    clang++ -O3 -std=c++17 -I"$GMP_PREFIX/include" portable_power_witness.cpp -L"$GMP_PREFIX/lib" -lgmpxx -lgmp -o bin/portable_power_witness
+    clang++ -O3 -std=c++17 interval_witness_codec.cpp -o bin/interval_witness_codec
+    clang++ -O3 -std=c++17 -DUSE_GMP -I"$GMP_PREFIX/include" check_power_witnesses.cpp -L"$GMP_PREFIX/lib" -lgmpxx -lgmp -o bin/check_power_witnesses
+    export INTERVAL_GENERATOR="$PWD/bin/portable_power_witness"
+
+On 64-bit Linux with GCC and the GMP development files, run the following.
+
+    mkdir -p bin
+    g++ -O3 -std=c++17 portable_power_witness.cpp -lgmpxx -lgmp -o bin/portable_power_witness
+    g++ -O3 -std=c++17 interval_witness_codec.cpp -o bin/interval_witness_codec
+    g++ -O3 -std=c++17 -DUSE_GMP check_power_witnesses.cpp -lgmpxx -lgmp -o bin/check_power_witnesses
+    export INTERVAL_GENERATOR="$PWD/bin/portable_power_witness"
+
+On x86-64 Linux with AVX-512F, DQ and IFMA, select the faster generator.
+
+    g++ -O3 -std=c++17 fast_power_witness.cpp -lgmpxx -lgmp -o bin/fast_power_witness
+    export INTERVAL_GENERATOR="$PWD/bin/fast_power_witness"
+
+Both searchers share the sieve and exact interval guards. The portable
+backend uses two 64-bit limbs. The optimized backend uses AVX-512 IFMA.
+The separate verifier recomputes primality and interval membership.
+The original GMP searcher, which considers a broader part of each interval,
+is available with "g++ -O3 -std=c++17 verify_11_5.cpp -lgmpxx -lgmp
+-o bin/verify_11_5". Its executable accepts FIRST LAST --witnesses.
+
+The following two commands replay all three archives through the compiled
+verifier. The first command checks the join between the lower two files.
+
+    python3 power_sweep_plan.py replay 3883853444451 3883855444451 sealed bin
+    python3 power_sweep_plan.py replay 32654577787390 32654578787389 sealed bin
+
+4. Measure the actual machine
+-----------------------------
+
+With INTERVAL_GENERATOR set above, time a short end-to-end trial.
+
+    python3 benchmark_interval_pipeline.py bin "$(mktemp -d)" --workers 1 --rows 100000
+
+For a longer whole-Mac trial, set WORKERS to the number of simultaneous
+jobs to use. Start with four or substitute your intended worker count.
+
+    WORKERS=4
+    python3 benchmark_interval_pipeline.py bin "$(mktemp -d)" --workers "$WORKERS" --rows 1000000
+
+Use a fresh output directory for each run. The test generates two shards
+per worker near opposite ends of the range, writes compressed files, reads
+them back, and independently verifies and hashes them. Python reports the
+aggregate bases per second and projected days for the measured concurrency.
+To test sustained throughput, increase --rows and use the storage volume
+that the full run would use. Existing projections use endpoint samples.
+Mac timings must be measured on the Mac. measurements/sealed_measurements.json
+contains the original single-core Linux IFMA records. The other timing file
+gives Linux scalar and four-worker calibration results with their run sizes.
+
+5. Assign work and check the results
+-----------------------------------
+
+    python3 power_sweep_plan.py plan > jobs.tsv
+    python3 power_sweep_plan.py plan 0
+    python3 power_sweep_plan.py plan 28770
+
+jobs.tsv gives the zero-based job ID, first base and last base. There are
+28,771 jobs. The default job size is one billion bases, and the last job
+has 722,342,938 bases. Assign disjoint ranges to your workers. Archives
+must use the canonical names produced by the runner.
+
+For example, the following commands run job 0. This is a full billion-base
+job. The timing commands in section 4 provide a shorter trial.
+
+    set -- $(python3 power_sweep_plan.py plan 0)
+    bash certify_power_shard.sh "$1" "$2" results bin
+    python3 power_sweep_plan.py replay "$1" "$2" results bin
+
+The runner verifies temporary archive contents before publishing the file.
+It refuses to overwrite an existing file. Preserve the emitted SHA-256
+digest with the job record. Use shared storage or collect completed shard
+files in one results directory before checking joined coverage.
+
+When every planned job has finished, audit the complete residual range.
+
+    python3 power_sweep_plan.py replay 3883855444452 32654577787389 results bin
+
+The range checker rejects gaps, duplicate coverage and overlaps. For a
+job split into smaller ranges, replay the whole original range to check
+that its pieces join. A failed search leaves the base unresolved. The
+reported index can be handled separately, with disjoint shard files for
+its neighbors. The optional single-base fallback requires SymPy only for
+generation. Set N to the reported integer, then write and verify the
+proof before publishing it. Use fresh paths for recovery files.
+
+    python3 power_pratt_fallback.py generate "$N" > "$N.pratt.pending" && python3 -S power_pratt_fallback.py verify "$N.pratt.pending" --expected-base "$N" && ln "$N.pratt.pending" "results/$N.pratt.json"
+
+Run the range checker again after collecting the recovery files. Its replay
+supports both compressed witness streams and the canonical N.pratt.json
+singleton format.

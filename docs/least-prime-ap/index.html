@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Primes below n2−δ in every residue class, for a majority of moduli</title>
+<meta name="description" content="Let P(a,n) denote the least prime congruent to a modulo n. Since the generalised Riemann hypothesis for Dirichlet L-functions is now known, P(a,n)ll(varphi(n)log n)2, but a bound max_(a,n)=1P(a,n)ll n2−δ with a fixed delta&gt;0 is not known for all large n. We show, without using the generalised Rieman">
+<meta name="citation_title" content="Primes below n2−δ in every residue class, for a majority of moduli">
+<meta name="citation_author" content="O&#x27;Neill, Charles">
+<meta name="citation_author" content="Kirkby, Max">
+<meta name="citation_author" content="Astra">
+<meta name="citation_author" content="Fable">
+<meta name="citation_publication_date" content="2026/11/24">
+<meta name="citation_pdf_url" content="https://charlieoneill11.github.io/maths-releases/least-prime-ap/least-prime-ap.pdf">
+<meta name="citation_abstract_html_url" content="https://charlieoneill11.github.io/maths-releases/least-prime-ap/">
+<meta name="citation_keywords" content="least prime in an arithmetic progression, Linnik&#x27;s theorem, divisors in intervals, stick-breaking">
+<meta name="citation_language" content="en">
+<meta name="dc.creator" content="Charles O&#x27;Neill">
+<meta name="dc.creator" content="Max Kirkby">
+<meta name="dc.creator" content="Astra">
+<meta name="dc.creator" content="Fable">
+<meta name="dc.date" content="2026-11-24">
+<style>
+:root { --bg: #fdfdfb; --fg: #1d1d1b; --muted: #5d5d58; --link: #1f4e8c; --rule: #deded8; }
+@media (prefers-color-scheme: dark) { :root { --bg: #161615; --fg: #e9e9e4; --muted: #a3a39c; --link: #8fb4ec; --rule: #33332f; } }
+html { background: var(--bg); color: var(--fg); }
+body { max-width: 46rem; margin: 0 auto; padding: 2.5rem 1rem 4rem; font: 17px/1.6 Georgia, 'Palatino Linotype', Palatino, serif; }
+a { color: var(--link); }
+h1 { font-size: 1.6rem; line-height: 1.3; margin: 0 0 .4rem; }
+h2 { font-size: 1.15rem; margin-top: 2rem; }
+.meta { color: var(--muted); margin-bottom: 1.5rem; }
+.links a { margin-right: 1.2rem; }
+li { margin-bottom: .9rem; }
+
+.display { display: block; text-align: center; margin: .8rem 0; }
+.note { color: var(--muted); font-size: .92rem; border-top: 1px solid var(--rule); margin-top: 2.5rem; padding-top: 1rem; }
+pre { font: 13px/1.45 ui-monospace, Menlo, Consolas, monospace; background: var(--rule); padding: .8rem 1rem; overflow-x: auto; white-space: pre; }
+</style>
+</head>
+<body>
+<h1>Primes below <i>n</i><sup>2-δ</sup> in every residue class, for a majority of moduli</h1>
+<div class="meta">Charles O'Neill, Max Kirkby, Astra and Fable &middot; 24 November 2026</div>
+<div class="links"><a href="least-prime-ap.pdf">PDF</a><a href="least-prime-ap.bib">BibTeX</a><a href="https://github.com/charlieoneill11/maths-releases/tree/main/least-prime-ap">Programs and data</a><a href="https://charlieoneill11.github.io/maths-releases/">All ten papers</a></div>
+<h2>Abstract</h2>
+<p>Let <i>P</i>(<i>a</i>,<i>n</i>) denote the least prime congruent to <i>a</i> modulo <i>n</i>. Since the generalised Riemann hypothesis for Dirichlet <i>L</i>-functions is now known, <i>P</i>(<i>a</i>,<i>n</i>)≪(φ(<i>n</i>)log <i>n</i>)<sup>2</sup>, but a bound max<sub>(<i>a</i>,<i>n</i>)=1</sub><i>P</i>(<i>a</i>,<i>n</i>)≪ <i>n</i><sup>2-δ</sup> with a fixed δ&gt;0 is not known for all large <i>n</i>. We show, without using the generalised Riemann hypothesis, that there are absolute constants <i>C</i>,δ&gt;0 such that, in every sufficiently large dyadic interval, more than 58.7% of the integers <i>n</i> satisfy max<sub>(<i>a</i>,<i>n</i>)=1</sub><i>P</i>(<i>a</i>,<i>n</i>)≤Cn<sup>2-δ</sup>. The proof combines Maynard's theorem on primes in all residue classes to large moduli that have a conveniently sized factor with a computer-assisted lower bound, more than 58.71%, for the proportion of integers <i>n</i> having a divisor <i>d</i> with log <i>d</i>/log <i>n</i> in [0.142858,0.199999], a compact subinterval of (1/7,1/5). That bound is obtained from the Donnelly–Grimmett stick-breaking description of the prime factors of a random integer, and an upper bound of 59.56% for the proportion of integers with a divisor in [<i>n</i><sup>1/7</sup>,<i>n</i><sup>1/5</sup>] shows that the divisor condition itself cannot give much more. Both numerical bounds have also been proved in Lean 4 with Mathlib, and so have both theorems, from the theorems of Maynard and of Donnelly and Grimmett taken as hypotheses.</p>
+<p class="meta"><em>2020 Mathematics Subject Classification:</em> 11N13; 11N25, 60C05<br><em>Keywords:</em> least prime in an arithmetic progression, Linnik's theorem, divisors in intervals, stick-breaking</p>
+<h2>AI use and author contributions</h2>
+<p>The mathematical arguments and computer programs in this paper were developed by Astra (GPT-6.2 Astra, OpenAI). Fable (Fable 5.2, Anthropic) worked throughout as a second model: it proposed alternative approaches, reviewed arguments and raised objections. The manuscript was prepared from the project&#x27;s research records with Claude (Anthropic). All computations were re-run before release, and the programs and certificates are available at https://github.com/charlieoneill11/maths-releases.</p>
+<p>Charles O'Neill proposed the problem because the generalised Riemann hypothesis for Dirichlet <i>L</i>-functions, now a theorem, gives <i>P</i>(<i>a</i>,<i>n</i>)≪(φ(<i>n</i>)log <i>n</i>)<sup>2</sup>, and asked whether the quadratic exponent could be beaten. He also proposed aiming first for averaged statements with a quantified exceptional set, which is the form of Theorem 1. The argument that succeeded for most moduli turned out not to need the generalised Riemann hypothesis. Charles O&#x27;Neill has checked the arguments and takes full responsibility for the correctness of the results.</p>
+<h2>Cite</h2>
+<pre>@misc{least-prime-ap-2026,
+  author       = {O&#x27;Neill, Charles and Kirkby, Max and {Astra} and {Fable}},
+  title        = {Primes below {$n^{2-\delta}$} in every residue class, for a majority of moduli},
+  year         = {2026},
+  month        = nov,
+  howpublished = {\url{https://charlieoneill11.github.io/maths-releases/least-prime-ap/}},
+  note         = {Preprint. Programs and data: \url{https://github.com/charlieoneill11/maths-releases/tree/main/least-prime-ap}},
+}
+</pre>
+</body>
+</html>

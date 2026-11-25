@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If you use these papers or programs, please cite them as below."
+title: "Ten papers, November 2026: programs and data"
+authors:
+  - family-names: "O'Neill"
+    given-names: "Charles"
+  - family-names: "Kirkby"
+    given-names: "Max"
+  - name: "Astra"
+  - name: "Fable"
+date-released: 2026-11-24
+url: "https://github.com/charlieoneill11/maths-releases"
+repository-code: "https://github.com/charlieoneill11/maths-releases"
+type: software
+keywords:
+  - Riemann zeta function
+  - Dirichlet L-functions
+  - primes in short intervals
+  - least prime in an arithmetic progression
+  - chromatic number of the plane
+  - Shannon capacity
+  - finite groups

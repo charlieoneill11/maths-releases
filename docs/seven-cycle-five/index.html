@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The fourth strong power of the seven-cycle has independence number at most 112</title>
+<meta name="description" content="Let alpha_n=alpha(C_7spow n) be the largest size of a zero-error code of length n for the seven-cycle channel. Averaging over bands of two adjacent levels gives alpha_4lelfloor7alpha_3/2rfloor=115, and the Lovász theta function gives alpha_4le121 and alpha_5le401. We prove alpha_4le112, and conseque">
+<meta name="citation_title" content="The fourth strong power of the seven-cycle has independence number at most 112">
+<meta name="citation_author" content="O&#x27;Neill, Charles">
+<meta name="citation_author" content="Kirkby, Max">
+<meta name="citation_author" content="Astra">
+<meta name="citation_author" content="Fable">
+<meta name="citation_publication_date" content="2026/11/24">
+<meta name="citation_pdf_url" content="https://charlieoneill11.github.io/maths-releases/seven-cycle-five/seven-cycle-five.pdf">
+<meta name="citation_abstract_html_url" content="https://charlieoneill11.github.io/maths-releases/seven-cycle-five/">
+<meta name="citation_keywords" content="Shannon capacity, seven-cycle, strong product, independence number, zero-error codes">
+<meta name="citation_language" content="en">
+<meta name="dc.creator" content="Charles O&#x27;Neill">
+<meta name="dc.creator" content="Max Kirkby">
+<meta name="dc.creator" content="Astra">
+<meta name="dc.creator" content="Fable">
+<meta name="dc.date" content="2026-11-24">
+<style>
+:root { --bg: #fdfdfb; --fg: #1d1d1b; --muted: #5d5d58; --link: #1f4e8c; --rule: #deded8; }
+@media (prefers-color-scheme: dark) { :root { --bg: #161615; --fg: #e9e9e4; --muted: #a3a39c; --link: #8fb4ec; --rule: #33332f; } }
+html { background: var(--bg); color: var(--fg); }
+body { max-width: 46rem; margin: 0 auto; padding: 2.5rem 1rem 4rem; font: 17px/1.6 Georgia, 'Palatino Linotype', Palatino, serif; }
+a { color: var(--link); }
+h1 { font-size: 1.6rem; line-height: 1.3; margin: 0 0 .4rem; }
+h2 { font-size: 1.15rem; margin-top: 2rem; }
+.meta { color: var(--muted); margin-bottom: 1.5rem; }
+.links a { margin-right: 1.2rem; }
+li { margin-bottom: .9rem; }
+
+.display { display: block; text-align: center; margin: .8rem 0; }
+.note { color: var(--muted); font-size: .92rem; border-top: 1px solid var(--rule); margin-top: 2.5rem; padding-top: 1rem; }
+pre { font: 13px/1.45 ui-monospace, Menlo, Consolas, monospace; background: var(--rule); padding: .8rem 1rem; overflow-x: auto; white-space: pre; }
+</style>
+</head>
+<body>
+<h1>The fourth strong power of the seven-cycle has independence number at most 112</h1>
+<div class="meta">Charles O'Neill, Max Kirkby, Astra and Fable &middot; 24 November 2026</div>
+<div class="links"><a href="seven-cycle-five.pdf">PDF</a><a href="seven-cycle-five.bib">BibTeX</a><a href="https://github.com/charlieoneill11/maths-releases/tree/main/seven-cycle-five">Programs and data</a><a href="https://charlieoneill11.github.io/maths-releases/">All ten papers</a></div>
+<h2>Abstract</h2>
+<p>Let α<sub><i>n</i></sub>=α(<i>C</i><sub>7</sub><sup>⊠ <i>n</i></sup>) be the largest size of a zero-error code of length <i>n</i> for the seven-cycle channel. Averaging over bands of two adjacent levels gives α<sub>4</sub>≤⌊7α<sub>3</sub>/2⌋=115, and the Lovász theta function gives α<sub>4</sub>≤121 and α<sub>5</sub>≤401. We prove α<sub>4</sub>≤112, and consequently α<sub>5</sub>≤392. The best known codes have 108 and 367 words. A code of 113 words in ℤ<sub>7</sub><sup>4</sup> would have, on each of its four coordinates, at least two <em>full</em> bands, whose projections are maximum codes of length three. We split according to the distances between full bands and exclude each of the fifteen resulting cases by an exhaustive computation. The computation rests on a complete atlas of the 16,672,544 codes of size 33 in ℤ<sub>7</sub><sup>3</sup>, which we generate by two independent programs, and on necessary conditions linking the projections of full bands in different directions. Both bounds are also proved in Lean 4 with Mathlib. There the exhaustive searches are run by checkers whose soundness is proved in Lean, and the proof depends only on the standard axioms and on the compiled evaluation of 197 named checks.</p>
+<p class="meta"><em>2020 Mathematics Subject Classification:</em> 05C69; 05C76, 94A24<br><em>Keywords:</em> Shannon capacity, seven-cycle, strong product, independence number, zero-error codes</p>
+<h2>AI use and author contributions</h2>
+<p>The mathematical arguments and computer programs in this paper were developed by Astra (GPT-6.2 Astra, OpenAI). Fable (Fable 5.2, Anthropic) worked throughout as a second model: it proposed alternative approaches, reviewed arguments and raised objections. The manuscript was prepared from the project&#x27;s research records with Claude (Anthropic). All computations were re-run before release, and the programs and certificates are available at https://github.com/charlieoneill11/maths-releases.</p>
+<p>Open-weight models, Kimi K3.1 Pro (Moonshot AI) and DeepSeek V4.1 Flash (DeepSeek), were able to derive a significant proportion of these results when given guidance. We will report the details separately.</p>
+<p>Charles O'Neill proposed the problem because a code of 368 words in five coordinates would give Θ(<i>C</i><sub>7</sub>)≥368<sup>1/5</sup>&gt;3.2596 for the Shannon capacity, larger than any lower bound known to him. He then asked whether such a code could exist at all, which turned the work from constructions towards the upper bounds proved here. Max Kirkby set up and ran the experiments with open-weight models. Charles O&#x27;Neill has checked the arguments and takes full responsibility for the correctness of the results.</p>
+<h2>Cite</h2>
+<pre>@misc{seven-cycle-five-2026,
+  author       = {O&#x27;Neill, Charles and Kirkby, Max and {Astra} and {Fable}},
+  title        = {The fourth strong power of the seven-cycle has independence number at most {$112$}},
+  year         = {2026},
+  month        = nov,
+  howpublished = {\url{https://charlieoneill11.github.io/maths-releases/seven-cycle-five/}},
+  note         = {Preprint. Programs and data: \url{https://github.com/charlieoneill11/maths-releases/tree/main/seven-cycle-five}},
+}
+</pre>
+</body>
+</html>

@@ -1,0 +1,63 @@
+import LeastPrime
+
+#print axioms LeastPrime.window_card
+#print axioms LeastPrime.not_allClassesBelow_three_one
+#print axioms LeastPrime.instIsProbabilityMeasureStickLaw
+#print axioms LeastPrime.stickLaw_one
+#print axioms LeastPrime.E_subset_F
+#print axioms LeastPrime.stickLaw_one_real_E
+#print axioms LeastPrime.sizeBiasedLaw_one
+#print axioms LeastPrime.CitedFacts.maynard
+#print axioms LeastPrime.CitedFacts.donnellyGrimmett
+
+#print axioms LeastPrime.stickLaw_absolutelyContinuous
+#print axioms LeastPrime.stickLaw_frontier_E_null
+#print axioms LeastPrime.stickLaw_frontier_F_null
+#print axioms LeastPrime.p_recursion
+#print axioms LeastPrime.q_recursion
+#print axioms LeastPrime.cell_bounds
+#print axioms LeastPrime.hermite_hadamard_inv
+#print axioms LeastPrime.hermite_hadamard_inv_nonpos
+#print axioms LeastPrime.divisor_reduction
+#print axioms LeastPrime.divisor_of_revealed
+#print axioms LeastPrime.revealed_of_divisor
+#print axioms LeastPrime.eventually_density_lower
+#print axioms LeastPrime.eventually_density_upper
+#print axioms LeastPrime.Checker.probabilityBound_sound
+#print axioms LeastPrime.lowerP_sound
+#print axioms LeastPrime.upperQ_sound
+#print axioms LeastPrime.Checker.checkWindow_sound
+#print axioms LeastPrime.Checker.checkLowerSlice_sound
+#print axioms LeastPrime.Checker.probabilityBound_sixSlices
+#print axioms LeastPrime.Checker.checkLowerSixSlices_sound
+
+#print axioms LeastPrime.Native.tin_checked
+#print axioms LeastPrime.Native.tout_checked
+#print axioms LeastPrime.p6_Tin
+#print axioms LeastPrime.q5_Tout
+#print axioms LeastPrime.main_of_cited
+#print axioms LeastPrime.main_four_of_cited
+#print axioms LeastPrime.density_lower_of_cited
+#print axioms LeastPrime.density_upper_of_cited
+#print axioms LeastPrime.density_lower_of_donnellyGrimmett
+#print axioms LeastPrime.density_upper_of_donnellyGrimmett
+
+#print axioms LeastPrime.Native.dm1420_lower_checked
+#print axioms LeastPrime.Native.dm1420_upper_checked
+#print axioms LeastPrime.Native.dm1519_interior1_checked
+#print axioms LeastPrime.Native.dm1519_interior2_checked
+#print axioms LeastPrime.Native.dm1519_interior3_checked
+#print axioms LeastPrime.Native.dm1519_tail1_checked
+#print axioms LeastPrime.Native.dm1519_tail2_checked
+#print axioms LeastPrime.Native.dm1519_tail3_checked
+#print axioms LeastPrime.Native.dm1519_upper_checked
+#print axioms LeastPrime.Native.dm1520_interior1_checked
+#print axioms LeastPrime.Native.dm1520_interior2_checked
+#print axioms LeastPrime.Native.dm1520_interior3_checked
+#print axioms LeastPrime.Native.dm1520_tail1_checked
+#print axioms LeastPrime.Native.dm1520_tail2_checked
+#print axioms LeastPrime.Native.dm1520_tail3_checked
+#print axioms LeastPrime.Native.dm1520_upper_checked
+#print axioms LeastPrime.drappeauMounier_14_20
+#print axioms LeastPrime.drappeauMounier_15_19
+#print axioms LeastPrime.drappeauMounier_15_20

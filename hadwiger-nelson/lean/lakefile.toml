@@ -1,0 +1,47 @@
+name = "hadwiger-nelson"
+version = "0.1.0"
+defaultTargets = ["HadwigerNelson"]
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.29.1"
+
+[[lean_lib]]
+name = "HadwigerNelson"
+globs = ["HadwigerNelson"]
+
+# Native certificate leaves call these integer kernels over millions of bins.
+[[lean_lib]]
+name = "HadwigerNelsonRuntime"
+roots = []
+globs = ["HadwigerNelson.Arithmetic.Basic", "HadwigerNelson.Data.CompleteWave", "HadwigerNelson.Angular.Runtime"]
+precompileModules = true
+
+[[lean_lib]]
+name = "HadwigerNelsonStarRuntime"
+roots = []
+globs = [
+  "HadwigerNelson.Arithmetic.GaussianInt",
+  "HadwigerNelson.Stars.BoxRuntime",
+  "HadwigerNelson.Stars.MomentsRuntime",
+  "HadwigerNelson.Stars.CreditRuntime",
+]
+precompileModules = true
+
+[[lean_lib]]
+name = "HadwigerNelsonPartialRuntime"
+roots = []
+globs = ["HadwigerNelson.Data.PartialWave", "HadwigerNelson.Angular.Partial.Runtime"]
+precompileModules = true
+
+[[lean_lib]]
+name = "HadwigerNelsonPartialStarRuntime"
+roots = []
+globs = [
+  "HadwigerNelson.Stars.Partial.Runtime",
+  "HadwigerNelson.Stars.Partial.Moments",
+  "HadwigerNelson.Stars.Partial.Data",
+  "HadwigerNelson.Stars.Partial.CertificateRuntime",
+]
+precompileModules = true

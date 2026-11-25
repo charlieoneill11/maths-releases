@@ -1,0 +1,67 @@
+{
+  "machine": "Linux x86-64, Intel Xeon Platinum 8573C, GCC 14.2.0, GMP 6.3.0, four CPU equivalents in the quota",
+  "procedure": "benchmark_interval_pipeline.py, two endpoint jobs per worker",
+  "rates_include": "Search, compression, decompression, independent GMP replay and SHA-256 of the published local archive",
+  "runs": [
+    {
+      "backend": "scalar",
+      "rows_per_job": 1000000,
+      "rows": 2000000,
+      "workers": 1,
+      "pinned_cpu": 1,
+      "core_seconds": 11.40231,
+      "wall_seconds": 11.452878378000605,
+      "bytes": 1747106,
+      "whole_machine_bases_per_second": 174628.58977370468,
+      "projected_days_at_this_concurrency": 1906.8725916718379
+    },
+    {
+      "backend": "scalar",
+      "rows_per_job": 250000,
+      "rows": 2000000,
+      "workers": 4,
+      "pinned_cpu": null,
+      "core_seconds": 19.256815000000003,
+      "wall_seconds": 8.400569691999408,
+      "bytes": 1753399,
+      "whole_machine_bases_per_second": 238079.0914579012,
+      "projected_days_at_this_concurrency": 1398.671632702634
+    },
+    {
+      "backend": "scalar",
+      "rows_per_job": 250000,
+      "rows": 2000000,
+      "workers": 4,
+      "pinned_cpu": null,
+      "core_seconds": 16.639801000000002,
+      "wall_seconds": 4.837898252997547,
+      "bytes": 1753399,
+      "whole_machine_bases_per_second": 413402.65863607323,
+      "projected_days_at_this_concurrency": 805.4966861132942
+    },
+    {
+      "backend": "scalar",
+      "rows_per_job": 250000,
+      "rows": 2000000,
+      "workers": 4,
+      "pinned_cpu": null,
+      "core_seconds": 19.652553,
+      "wall_seconds": 5.326106301999971,
+      "bytes": 1753399,
+      "whole_machine_bases_per_second": 375508.84015382745,
+      "projected_days_at_this_concurrency": 886.7819767581798
+    },
+    {
+      "backend": "IFMA",
+      "rows_per_job": 100000,
+      "rows": 800000,
+      "workers": 4,
+      "pinned_cpu": null,
+      "core_seconds": 4.265016,
+      "wall_seconds": 1.1060162950016093,
+      "bytes": 699346,
+      "whole_machine_bases_per_second": 723316.6487830416,
+      "projected_days_at_this_concurrency": 460.3716396159767
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+name = "least-prime"
+version = "0.1.0"
+defaultTargets = ["LeastPrime"]
+
+[[lean_lib]]
+name = "LeastPrime"
+
+[[lean_lib]]
+name = "LeastPrimeChecker"
+roots = ["LeastPrime.Checker.Compute", "LeastPrime.Checker.CertificateData"]
+precompileModules = true
+leancArgs = ["-O3"]
+
+[[lean_lib]]
+name = "LeastPrimeSliceChecker"
+roots = ["LeastPrime.Checker.SliceData"]
+precompileModules = true
+leancArgs = ["-O3"]
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.29.1"

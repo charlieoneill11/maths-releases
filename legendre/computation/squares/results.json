@@ -1,0 +1,170 @@
+[
+  {
+    "label": "low",
+    "first": 70500001100001,
+    "last": 70500002100000,
+    "count": 1000000,
+    "timings": {
+      "generate": {
+        "wall_s": 1.3087506800002302,
+        "cpu_s": 1.307787,
+        "stderr": "Witnesses 1000000, candidates 5912185, vector batches 149968, seconds 1.30509"
+      },
+      "pack": {
+        "wall_s": 0.11617836699952022,
+        "cpu_s": 0.11556199999999997,
+        "stderr": ""
+      },
+      "compress": {
+        "wall_s": 0.056525797001086175,
+        "cpu_s": 0.05569000000000024,
+        "stderr": ""
+      },
+      "decompress": {
+        "wall_s": 0.01460756899905391,
+        "cpu_s": 0.014001999999999931,
+        "stderr": ""
+      },
+      "unpack": {
+        "wall_s": 0.27527695699973265,
+        "cpu_s": 0.2743669999999998,
+        "stderr": ""
+      },
+      "verify_gmp": {
+        "wall_s": 2.033306014000118,
+        "cpu_s": 2.0306460000000004,
+        "stderr": ""
+      }
+    },
+    "bytes": 855648,
+    "raw_bytes": 1042237,
+    "sha256": "1acde55c031d5a4452d1caa9676c5c2daf3a4cb105f12691fc6c4d6435856444",
+    "text_sha256": "7b7410c3492eb65f85d88de00cc1f2c6a12e303cd3c91a30273d12dda8c82bb4"
+  },
+  {
+    "label": "midpoint85",
+    "first": 85249999000001,
+    "last": 85250000000000,
+    "count": 1000000,
+    "timings": {
+      "generate": {
+        "wall_s": 1.4038845560025948,
+        "cpu_s": 1.4032120000000006,
+        "stderr": "Witnesses 1000000, candidates 5965983, vector batches 151327, seconds 1.40001"
+      },
+      "pack": {
+        "wall_s": 0.11799577599958866,
+        "cpu_s": 0.11739199999999944,
+        "stderr": ""
+      },
+      "compress": {
+        "wall_s": 0.058423065001989016,
+        "cpu_s": 0.057685000000000264,
+        "stderr": ""
+      },
+      "decompress": {
+        "wall_s": 0.018358430999796838,
+        "cpu_s": 0.01796099999999967,
+        "stderr": ""
+      },
+      "unpack": {
+        "wall_s": 0.2626811189984437,
+        "cpu_s": 0.262203,
+        "stderr": ""
+      },
+      "verify_gmp": {
+        "wall_s": 1.9883993579969683,
+        "cpu_s": 1.9860940000000005,
+        "stderr": ""
+      }
+    },
+    "bytes": 854144,
+    "raw_bytes": 1041151,
+    "sha256": "4d0ae913580ecd671939b953d109c889d0540643eb9782e45e69c0bbd7f8e6da",
+    "text_sha256": "27397ccd8cf970267ec0d7ad3c1e178a3d721e39d6b347a4343a8526619ca6b7"
+  },
+  {
+    "label": "target100",
+    "first": 99999999000001,
+    "last": 100000000000000,
+    "count": 1000000,
+    "timings": {
+      "generate": {
+        "wall_s": 1.3974968529983016,
+        "cpu_s": 1.396515,
+        "stderr": "Witnesses 1000000, candidates 5979197, vector batches 151583, seconds 1.39281"
+      },
+      "pack": {
+        "wall_s": 0.12019788399993558,
+        "cpu_s": 0.11943500000000011,
+        "stderr": ""
+      },
+      "compress": {
+        "wall_s": 0.059099065998452716,
+        "cpu_s": 0.058403999999999984,
+        "stderr": ""
+      },
+      "decompress": {
+        "wall_s": 0.017608038000616943,
+        "cpu_s": 0.016534999999999966,
+        "stderr": ""
+      },
+      "unpack": {
+        "wall_s": 0.2860366189997876,
+        "cpu_s": 0.2855179999999998,
+        "stderr": ""
+      },
+      "verify_gmp": {
+        "wall_s": 2.0322047929985274,
+        "cpu_s": 2.031341,
+        "stderr": ""
+      }
+    },
+    "bytes": 855230,
+    "raw_bytes": 1039889,
+    "sha256": "7b50686540d7714c88b6fce92cff037a3425d53ff1a584c600ff29f79099cf16",
+    "text_sha256": "f73f903261f90238c3713f8498dfc436b4f22efc5b6872dd5302775b78854b78"
+  },
+  {
+    "label": "high",
+    "first": 733395927758894,
+    "last": 733395928758893,
+    "count": 1000000,
+    "timings": {
+      "generate": {
+        "wall_s": 2.0435906860002433,
+        "cpu_s": 1.8104970000000002,
+        "stderr": "Witnesses 1000000, candidates 6370794, vector batches 161660, seconds 2.03971"
+      },
+      "pack": {
+        "wall_s": 0.2617791619995842,
+        "cpu_s": 0.19629500000000016,
+        "stderr": ""
+      },
+      "compress": {
+        "wall_s": 0.08990649500265135,
+        "cpu_s": 0.06861599999999979,
+        "stderr": ""
+      },
+      "decompress": {
+        "wall_s": 0.015859283001191216,
+        "cpu_s": 0.015101999999999727,
+        "stderr": ""
+      },
+      "unpack": {
+        "wall_s": 0.5996236549981404,
+        "cpu_s": 0.4224340000000002,
+        "stderr": ""
+      },
+      "verify_gmp": {
+        "wall_s": 5.927451853000093,
+        "cpu_s": 3.522232,
+        "stderr": ""
+      }
+    },
+    "bytes": 872444,
+    "raw_bytes": 1047763,
+    "sha256": "56a4d611f7162691c580dfadb38ef0f4ff03c82b5eb16c8c00598db1b57c064b",
+    "text_sha256": "c3b59b5f0dd217dde1aa6f91efaa418f732447e1a0b533b7909ed2f57c9d4bc6"
+  }
+]

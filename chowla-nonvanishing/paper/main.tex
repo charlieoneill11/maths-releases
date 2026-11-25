@@ -1,0 +1,1338 @@
+\documentclass[11pt,colorlinks]{charlie}
+\input{preamble}
+\usepackage{amssymb}
+\usepackage{longtable}
+
+\newcommand{\sgn}{\operatorname{sgn}}
+\newcommand{\rad}{\operatorname{rad}}
+\newcommand{\cD}{\mathcal{D}}
+\newcommand{\cA}{\mathcal{A}}
+\newcommand{\cM}{\mathcal{M}}
+\newcommand{\Ka}{\mathcal{K}}
+\newcommand{\ho}[1]{#1^{\mathrm{o}}}
+\newcommand{\Wk}[1]{{:}#1{:}}
+\newcommand{\e}{\mathrm{e}}
+\newcommand{\pstar}{p_\ast}
+
+\title{Central nonvanishing of quadratic Dirichlet $L$-functions: beyond the one-level density bound, uniformly in local conditions}
+\author{Charles O'Neill, Max Kirkby, Astra and Fable}
+\date{24 November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We show that $L(\tfrac12,\chi_d)\neq0$ for more than $94.53419890\%$ of fundamental discriminants $d$, counted by $|d|\le X$. This improves the bound $(19-\cot\tfrac14)/16=94.2730\ldots\%$ that follows from the one-level density with Fourier support in $(-2,2)$. Both bounds use the generalised Riemann hypothesis for Dirichlet $L$-functions, which Alp\"oge has proved, so both are unconditional. The bound holds separately in each of the six classes determined by the sign of $d$ and its $2$-adic type. It also holds uniformly after prescribing the splitting type (split, inert or ramified) at every odd prime up to $z=o(\log X)$. The method weights each zero by the square of an amplitude that is a polynomial in centred linear statistics of all the zeros. Evaluating its mean needs mixed moments of linear zero statistics of all orders with total Fourier support below two, which we compute in every class uniformly in the local conditions. The numerical certificate has also been proved in Lean~4 with Mathlib, and so has the main bound, from GRH, two classical facts about quadratic $L$-functions and our moment theorem without local conditions, taken as hypotheses. Finally, for $d=8m>0$ we determine what the first two moments of $L(\tfrac12,\chi_{8m})$ give when they are twisted by an arbitrary function of the symbols $\chi_{8m}(p)$ at the odd primes $p\le y$; this part uses neither the Riemann hypothesis nor GRH. For $y=c\log X$, with $c>0$ a sufficiently small absolute constant, the optimal ratio of the squared first moment to the second moment over all such multipliers is $(6e^\gamma+o(1))\log\log X/\log X$. Conditionally on one pattern of symbols at the odd primes up to $y$, where $3\le y\le c\log X$, the ratio is $O(\log(2y)/\log X)$. For fixed $y$ it is asymptotic to $\kappa(y)/\log X$, with an explicit constant $\kappa(y)>0$. As $y\to\infty$ it is asymptotic to $6e^\gamma\log y/\log X$, uniformly over the patterns in which the logarithms of the prescribed ramified primes sum to at most $(\log\log X)^3$.
+\end{abstract}
+\mscandkeywords{11M06; 11M26, 11M50}{quadratic Dirichlet $L$-functions, central values, nonvanishing, one-level density, low-lying zeros}
+
+\section*{AI use and author contributions}
+\aiusestatement
+
+Open-weight models, Kimi~K3.1~Pro (Moonshot AI) and DeepSeek~V4.1~Flash (DeepSeek), were able to derive a significant proportion of these results when given guidance. We will report the details separately.
+
+Charles O'Neill proposed the problem because the generalised Riemann hypothesis for Dirichlet $L$-functions, now a theorem \cite{Alpoge}, places every nontrivial zero of $L(s,\chi_d)$ on the critical line, so that the one-level density of low-lying zeros bounds the order of vanishing at the central point. His technical contribution was to direct the work to this route, asking for the exact restriction that leaves a positive proportion of possible exceptions and for an estimate that reduces it; the weighted-zero method of this paper is that estimate. Max Kirkby set up and ran the experiments with open-weight models. \responsibilitystatement
+
+\section{Introduction}\label{sec:intro}
+For a fundamental discriminant $d$ let $\chi_d=(\tfrac{d}{\cdot})$ be the associated real primitive character. Chowla conjectured that $L(\tfrac12,\chi_d)\ne0$ for every $d$. Even the weaker statement that the exceptions have density zero is open.
+
+Jutila \cite{Jutila} evaluated the first and second moments of $L(\tfrac12,\chi_d)$; by Cauchy's inequality there are $\gg X/\log X$ fundamental discriminants $|d|\le X$ with $L(\tfrac12,\chi_d)\neq0$ (see the account in \cite[\S1]{Sound}). Soundararajan \cite[Theorem~1]{Sound} proved unconditionally that $L(\tfrac12,\chi_{8m})\neq0$ for at least $7/8$ of odd squarefree $m>0$.
+
+Assuming GRH for Dirichlet $L$-functions, \"Ozl\"uk and Snyder \cite{OS} computed the one-level density of the low-lying zeros of $L(s,(\tfrac d\cdot))$ for test functions with Fourier support in $(-2,2)$. Their average runs over all nonzero integers $d$ with the Gaussian weight $\e^{-\pi d^2/D^2}$. It therefore includes imprimitive Kronecker symbols, and a primitive character occurs for many $d$. For this weighted ensemble they deduce that $L(\tfrac12,(\tfrac d\cdot))=0$ for at most $1/16$ of the $d$ \cite[Corollary~3 and the remark following it]{OS}. For the family of primitive quadratic characters, the one-level density with this support and its symplectic symmetry type are described by Katz and Sarnak \cite[\S4, family~I]{KaS}, also under GRH. For the characters $\chi_{8m}$ it is the case $n=1$ of Gao's theorem \cite{Gao}, and in each of the six classes below it is the case $k=1$ of \Cref{thm:correlations}. Optimising the test function improves $15/16$ to $(19-\cot\tfrac14)/16=0.94273\ldots$. Soundararajan \cite[\S1]{Sound} records this value, under GRH, as a result of Katz and Sarnak. Extremal test functions for problems of this kind are determined in \cite[Appendix~A]{ILS}, where J.~VanderKam is credited with first identifying them by direct analysis. In this paper the value $(19-\cot\tfrac14)/16$ is the case of the empty amplitude in \Cref{thm:variational}, by \Cref{lem:extremal}.
+
+Rubinstein \cite{Rub} computed the $n$-level densities of the primitive characters $\chi_d$ for total support below one, and Gao \cite{Gao} extended this to total support below two for the characters $\chi_{8m}$. Entin, Roditty-Gershon and Rudnick \cite{ERR} showed that Gao's expressions agree with the symplectic random matrix model.
+
+Of the results just cited, the densities of \"Ozl\"uk and Snyder, Katz and Sarnak, and Gao \cite[\S2]{Gao}, and the proportions $15/16$ and $(19-\cot\tfrac14)/16$, assume GRH for Dirichlet $L$-functions. GRH makes the ordinates of the zeros real, so that a nonnegative test function bounds the order of vanishing at $s=\tfrac12$. The theorems of Jutila and Soundararajan are unconditional. Rubinstein does not assume GRH either: he allows complex ordinates \cite[before Theorem~3.1]{Rub}, and GRH is needed only to read his densities as statements about real ordinates. Alp\"oge \cite{Alpoge} has proved GRH for every Dirichlet character: all nontrivial zeros of $L(s,\chi)$ lie on $\Re s=\tfrac12$. His theorem allows a zero at $s=\tfrac12$ itself, which is the question studied here. Every result below that uses GRH is therefore unconditional, and we cite \cite{Alpoge} where it enters. GRH enters through the reality of the ordinates: in the definition of the linear statistics (\Cref{ssec:zeros}), in the explicit formula and the prime sums of \Cref{sec:arith} (\Cref{lem:explicit,lem:grh-primes}), and in the positivity step of \Cref{thm:variational}. Thus \Cref{thm:main,thm:local,thm:correlations,thm:variational} use GRH, and so does the remark at the end of \Cref{sec:twomoment}. \Cref{thm:twomoment} uses neither the Riemann hypothesis nor GRH.
+
+\subsection{Results}
+Every fundamental discriminant $d\neq1$ lies in exactly one of six classes, according to its sign $\epsilon\in\{1,-1\}$ and its $2$-adic type:
+\begin{equation}\label{eq:classes}
+ d=8\epsilon m,\qquad d=4\epsilon m\ (\epsilon m\equiv3\bmod 4),\qquad d=\epsilon m\ (\epsilon m\equiv1\bmod4),
+\end{equation}
+where $m$ is a positive odd squarefree integer, and $m>1$ in the third case.
+
+\begin{theorem}\label{thm:main}
+Let $\pstar=0.9453419890$. Then
+\[
+ \liminf_{X\to\infty}\frac{\#\{d:\ 1<|d|\le X,\ L(\tfrac12,\chi_d)\neq0\}}{\#\{d:\ 1<|d|\le X\}}\ >\ \pstar,
+\]
+where $d$ runs over fundamental discriminants. The same holds with $d$ restricted to any one of the six classes \eqref{eq:classes}.
+\end{theorem}
+
+The improvement over the one-level bound is $0.0026118\ldots$; in other words, the proportion of central vanishing is shown to be below $5.4659\%$ instead of $5.7270\%$.
+
+\begin{theorem}\label{thm:local}
+Let $z=z(X)$ satisfy $z=o(\log X)$. For each odd prime $p\le z$ fix $v_p\in\{-1,0,1\}$. In each of the six classes, consider the fundamental discriminants with $X<|d|\le2X$ and $\chi_d(p)=v_p$ for all odd $p\le z$. For large $X$ this set is nonempty for every choice of $(v_p)$, and the proportion of its members with $L(\tfrac12,\chi_d)\neq0$ is at least $\pstar-o(1)$, uniformly in $(v_p)$.
+
+Consequently, for every $b<\pstar$ there is $c_b>0$ such that for all large $X$ every pattern $(v_p)_{2<p\le c_b\log X}$ occurs in each class and shell, with nonvanishing proportion at least $b$.
+\end{theorem}
+
+The second statement gives no numerical value of $c_b$.
+
+The third result explains why \Cref{thm:local} is not available from mollified first and second moments when the mollifier is a function of the local data that a pattern prescribes. For odd squarefree $m>0$ let $Z_m=L(\tfrac12,\chi_{8m})$, and average over $m$ with a smooth weight $\Phi(m/X)$, $\Phi\in C_c^\infty((1,2))$ nonnegative and not identically zero; $\E$ and $\Pr$ refer to this average, normalised to a probability measure. For $y\ge3$ let $\mathcal F_y$ be the set of all functions
+\[
+ M(m)=\Psi\big((\chi_{8m}(p))_{2<p\le y}\big),\qquad\Psi:\{-1,0,1\}^{\pi(y)-1}\to\R\ \text{arbitrary},
+\]
+and put
+\[
+ C_X(y)=\sup_{M\in\mathcal F_y,\ \E[(Z_mM)^2]>0}\frac{\E[Z_mM]^2}{\E[(Z_mM)^2]}.
+\]
+By Cauchy--Schwarz, $\Pr(Z_m\neq0)\ge C_X(y)$; this is the best bound obtainable from the first two moments of $Z_m$ twisted by local information at primes up to $y$. The family $\mathcal F_y$ contains every Dirichlet polynomial $\sum_nb_n\chi_{8m}(n)$ whose coefficients are supported on integers composed of odd primes $p\le y$, for example the truncated Euler product $M_0$ below. It does not contain the usual mollifiers, Dirichlet polynomials of length a power of $X$ such as those of \cite{Sound}, and \Cref{thm:twomoment} says nothing about them.
+
+For a pattern $v=(v_p)_{2<p\le y}$ write $\E[\,\cdot\mid v]$ for the conditional expectation given $\chi_{8m}(p)=v_p$ for all $2<p\le y$, and $T(v)=\sum_{2<p\le y,\,v_p=0}\log p$ for the logarithm of the product of its ramified primes. Put
+\begin{equation}\label{eq:kappa}
+ \kappa(y)=12\prod_{2<p\le y}\Big(1-\frac1p\Big)^{-1}\prod_{p>y}\frac{\big(1-\frac1{p(p+1)}\big)^2}{\big(1-\frac1p\big)\big(1+\frac{(p-1)^2}{p^2(p+1)}\big)} ;
+\end{equation}
+the last product converges, as its factors are $1+O(p^{-2})$, and $\kappa(y)=(6e^\gamma+o(1))\log y$ as $y\to\infty$ by Mertens' theorem.
+
+\begin{theorem}\label{thm:twomoment}
+There is an absolute constant $c>0$ with the following properties, where $L=\log X$.
+\begin{enumerate}[label=(\alph*)]
+\item (Every pattern.) Uniformly for $3\le y\le cL$ and all patterns $v=(v_p)_{2<p\le y}$, every pattern has positive mass for large $X$ and
+$\E[Z_m\mid v]^2\ll_\Phi\E[Z_m^2\mid v]\,\log(2y)/L$.
+\item (Global optimum.) For $y=cL$, $C_X(y)=(6e^\gamma+o(1))\,\log\log X/\log X$, and the truncated Euler product $M_0=\prod_{2<p\le y}(1-\chi_{8m}(p)p^{-1/2})$ attains this asymptotic.
+\item (Patterns with few ramified primes.) Uniformly for $3\le y\le cL$ and patterns with $T(v)\le(\log L)^3$,
+\[
+ \frac{\E[Z_m\mid v]^2}{\E[Z_m^2\mid v]}=(1+o(1))\frac{\kappa(y)}{L}.
+\]
+In particular, for each fixed $y\ge3$ the ratio is asymptotic to $\kappa(y)/L$ for every pattern $v$, and if $y\to\infty$ with $y\le cL$ it is $(6e^\gamma+o(1))\log y/L$ uniformly over patterns with $T(v)\le(\log L)^3$.
+\end{enumerate}
+\end{theorem}
+
+\Cref{thm:twomoment} uses neither the Riemann hypothesis nor GRH. A multiplier $M\in\mathcal F_y$ is constant on each pattern, so conditionally on a pattern the best bound for the nonvanishing proportion that these twisted moments give is the ratio in (a) and (c). It tends to zero, while \Cref{thm:local} keeps a fixed proportion.
+
+\subsection{Method}
+Let $\tfrac12+i\gamma$ run over the nontrivial zeros of $L(s,\chi_d)$ with multiplicity, and put $x=\gamma\log X/(2\pi)$. The order of vanishing $m_d$ at $s=\tfrac12$ is even, because the root number of a real primitive character is $+1$. Hence, for any real function $A_d$ with $A_d(0)=1$,
+\[
+ 2\cdot\one[L(\tfrac12,\chi_d)=0]\ \le\ m_dA_d(0)^2\ \le\ \sum_xA_d(x)^2 ,
+\]
+and the expected value of the right side bounds twice the proportion of vanishing. With $A_d=G$ deterministic this is the one-level density bound, and the best $G$ gives $(19-\cot\tfrac14)/16$. We let $A_d$ depend on $d$ through all the zeros, including any zero at $s=\tfrac12$ with its multiplicity:
+\[
+ A_d(x)=G(x)-z\sum_kh_k(x)\,\Wk{Z_{a_{k,1}}\cdots Z_{a_{k,r_k}}}(d),
+\]
+where $Z_a$ is the centred linear zero statistic whose test function has Fourier transform the indicator of $[-a,a]$, the colons denote Wick ordering, and the deterministic $h_k$ vanish at $0$. Then $A_d(0)=1$ whatever the zeros are. The mean of $\sum_xA_d(x)^2$ is a quadratic polynomial in $z$ whose coefficients are mixed moments of linear zero statistics. Each term has total Fourier support at most two, provided the support of $\widehat h_k$ is at most $1-\sum_ja_{k,j}$; the extreme case requires a limiting argument.
+
+The arithmetic input is \Cref{thm:correlations}: in each of the six classes, and uniformly after prescribing the symbols at primes up to $o(\log X)$, the mixed moments of linear statistics with total Fourier support below two converge to explicit limits. Their cumulants of order $n\ge3$ are signed convolution tails of the Fourier transforms (\Cref{def:cumulants}); for the family $d=8m>0$ these agree with Gao's $n$-level densities and with the symplectic model \cite{Gao,ERR}. The Wick ordering makes almost every term in the expansion cancel: at most one non-Gaussian cumulant survives in each term (\Cref{lem:contraction}). We choose the amplitude numerically; it is specified by $1{,}882$ integer and rational parameters, and we verify the resulting bound in exact rational arithmetic.
+
+\subsection{Organisation}
+\Cref{sec:notation} sets out notation and defines the restricted cumulants. \Cref{sec:arith} proves \Cref{thm:correlations}. \Cref{sec:profiles} extends the limits to the piecewise polynomial Fourier profiles we use. \Cref{sec:principle} proves the variational bound, and \Cref{sec:wick} evaluates Wick-ordered moments. \Cref{sec:exact} reduces every limit to exact rational arithmetic, and \Cref{sec:certificate} gives the amplitude and proves \Cref{thm:main}. \Cref{sec:local} proves \Cref{thm:local} and \Cref{sec:twomoment} proves \Cref{thm:twomoment}. \Cref{app:replay} describes the programs and data.
+
+\section{Notation and restricted cumulants}\label{sec:notation}
+
+\subsection{Conventions}
+The Fourier transform is $\widehat f(\xi)=\int_\R f(x)\e^{-2\pi i x\xi}\dd x$, and $\e(x)=\e^{2\pi ix}$. Throughout, $X$ is large and $L=\log X$. We write $p$ for primes. Implied constants may depend on fixed test functions and weights, never on the local pattern.
+
+A \emph{profile} is a bounded measurable even function $h:\R\to\R$ with compact support. Its \emph{radius} $\rad(h)$ is the least $b\ge0$ with $h=0$ almost everywhere outside $[-b,b]$. For an even real function $f$ whose Fourier transform is a profile we write $\rad(f)=\rad(\widehat f)$. We put $\ho h(u)=\sgn(u)h(u)$, which is odd.
+
+\subsection{Families}
+For $\epsilon\in\{1,-1\}$ and $\kappa\in\{1,4,8\}$, let $\cD(\kappa,\epsilon)$ be the set of fundamental discriminants of sign $\epsilon$ and absolute value $\kappa m$ with $m$ odd. Thus $\cD(8,\epsilon)=\{8\epsilon m\}$ with $m$ odd and squarefree, $\cD(4,\epsilon)=\{4\epsilon m\}$ with $m$ squarefree and $\epsilon m\equiv3\bmod4$, and $\cD(1,\epsilon)=\{\epsilon m\}$ with $m>1$ squarefree and $\epsilon m\equiv1\bmod4$. We call $m=m(d)=|d|/\kappa$ the \emph{odd part} of $d$. For odd primes $p$ we have $\chi_d(p)=(\tfrac{2\epsilon m}{p})$ when $\kappa=8$, and $\chi_d(p)=(\tfrac{\epsilon m}{p})$ otherwise.
+
+Fix $W\in C_c^\infty((1,2))$ with $W\ge0$ and $W\not\equiv0$. A \emph{pattern} of length $z$ is a vector $v=(v_p)_{2<p\le z}\in\{-1,0,1\}^{\pi(z)-1}$; for $z<3$ it is empty. For a class $\cD$ put $\cD_v=\{d\in\cD:\chi_d(p)=v_p\text{ for all }2<p\le z\}$ and
+\[
+ \E_v[\phi]=\frac{\sum_{d\in\cD_v}W(m(d)/X)\,\phi(d)}{\sum_{d\in\cD_v}W(m(d)/X)} .
+\]
+We write $\E$ when the pattern is empty.
+
+\subsection{Zeros and linear statistics}\label{ssec:zeros}
+By GRH for Dirichlet $L$-functions \cite{Alpoge}, the nontrivial zeros of $L(s,\chi_d)$ are $\tfrac12+i\gamma$ with $\gamma$ real. Let $\Gamma_d$ be the multiset of these $\gamma$, with multiplicity. Since $\chi_d$ is real, $\Gamma_d=-\Gamma_d$. For an even real $f$ with $f(x)\ll(1+x^2)^{-1}$ put
+\[
+ S_f(d)=\sum_{\gamma\in\Gamma_d}f\Big(\frac{\gamma L}{2\pi}\Big),
+\]
+which converges absolutely since $\#\{\gamma\in\Gamma_d:\,T\le|\gamma|\le T+1\}\ll\log(|d|(T+2))$. Let $m_d$ be the order of $L(s,\chi_d)$ at $s=\tfrac12$.
+
+\begin{lemma}\label{lem:even}
+For every fundamental discriminant $d\ne1$, $m_d$ is even.
+\end{lemma}
+\begin{proof}
+Let $\mathfrak a=0$ if $d>0$ and $\mathfrak a=1$ if $d<0$. The completed function $\Lambda(s)=(|d|/\pi)^{(s+\mathfrak a)/2}\Gamma(\tfrac{s+\mathfrak a}2)L(s,\chi_d)$ satisfies $\Lambda(s)=\varepsilon(\chi_d)\Lambda(1-s)$ with $\varepsilon(\chi_d)=\tau(\chi_d)/(i^{\mathfrak a}|d|^{1/2})$ \cite[Ch.~9]{Davenport}. The Gauss sum of the real primitive character $\chi_d$ is $\tau(\chi_d)=i^{\mathfrak a}|d|^{1/2}$ \cite[Ch.~6]{Davenport}; for prime $|d|$ this is Gauss's evaluation \cite[Ch.~2]{Davenport}. So $\Lambda(s)=\Lambda(1-s)$. This can also be seen without Gauss sums. The field $K=\Q(\sqrt d)$ has discriminant $d$, so $\zeta_K(s)=\zeta(s)L(s,\chi_d)$. Put $\Gamma_\R(s)=\pi^{-s/2}\Gamma(s/2)$ and $\Gamma_\C(s)=2(2\pi)^{-s}\Gamma(s)=\Gamma_\R(s)\Gamma_\R(s+1)$. The completed Dedekind zeta functions $\Lambda_K(s)=|d|^{s/2}\Gamma_\R(s)^{2-2\mathfrak a}\Gamma_\C(s)^{\mathfrak a}\zeta_K(s)$ and $\Lambda_\Q(s)=\Gamma_\R(s)\zeta(s)$ are invariant under $s\mapsto1-s$ by Hecke's theorem \cite[Ch.~VII, \S5]{Neukirch}, and their quotient is $|d|^{s/2}\Gamma_\R(s+\mathfrak a)L(s,\chi_d)=|d|^{-\mathfrak a/2}\Lambda(s)$. Therefore $\Lambda(\tfrac12+t)$ is even in $t$. The order of $\Lambda$ at $\tfrac12$ equals $m_d$ because the gamma factor is finite and nonzero there.
+\end{proof}
+
+\subsection{Restricted cumulants}
+\begin{definition}\label{def:cumulants}
+Let $f_1,\dots,f_n$ be even real functions whose Fourier transforms $h_i=\widehat f_i$ are profiles. Put
+\[
+ \Delta(f_1,\dots,f_n)=-\frac{(-2)^n}{2}\int_1^\infty(\ho h_1*\cdots*\ho h_n)(u)\dd u .
+\]
+Define
+\begin{align*}
+ \Ka(f_1)&=h_1(0)-\int_0^1h_1(u)\dd u, \qquad\text{when $h_1$ is continuous at $0$},\\
+ \Ka(f_1,f_2)&=2\int_\R|u|h_1(u)h_2(u)\dd u+\Delta(f_1,f_2),\\
+ \Ka(f_1,\dots,f_n)&=\Delta(f_1,\dots,f_n)\qquad(n\ge3),
+\end{align*}
+and, for $k\ge1$,
+\begin{equation}\label{eq:moment-cumulant}
+ \cM(f_1,\dots,f_k)=\sum_{\pi}\prod_{B\in\pi}\Ka\big((f_i)_{i\in B}\big),
+\end{equation}
+the sum running over all set partitions $\pi$ of $\{1,\dots,k\}$.
+\end{definition}
+
+Since $\ho h_1$ is odd, $\Delta(f_1)=\int_1^\infty h_1$, so that $\Ka(f_1)=h_1(0)-\tfrac12f_1(0)+\Delta(f_1)$; here $f_1(0)=\int h_1=2\int_0^\infty h_1$. The quantities $\Ka$ are symmetric in their arguments. By \Cref{thm:correlations} below, $\cM$ gives the limiting mixed moments of $S_{f_1},\dots,S_{f_k}$ when the $f_i$ are even Schwartz functions with $\widehat f_i\in C_c^\infty(\R)$ and $\sum\rad(f_i)<2$, so for such test functions the $\Ka$ are the limiting joint cumulants. For a general profile the statistic $S_f$ need not be defined: if $\widehat f=\one_{[-a,a]}$ then $f(x)=\sin(2\pi ax)/(\pi x)$, which does not satisfy $f(x)\ll(1+x^2)^{-1}$. For the rectangle and Legendre profiles used below, \Cref{thm:variational} passes to the limit by a separate smoothing argument. We call the $\Ka$ \emph{restricted cumulants}. In the symplectic model they are the joint cumulants of linear statistics in the same range of supports; this is the content of \cite[Theorem~7.2]{ERR} written in cumulant form, and we do not use it.
+
+\begin{lemma}\label{lem:cumulant-basic}
+Let $h_i=\widehat f_i$ be profiles with radii $b_i$.
+\begin{enumerate}[label=(\alph*)]
+\item If $b_1+\dots+b_n\le1$ then $\Delta(f_1,\dots,f_n)=0$.
+\item $|\Delta(f_1,\dots,f_n)|\le2^{n-1}\prod_i\|h_i\|_1$.
+\item Let $B,B'$ be disjoint subsets of $\{1,\dots,k\}$ with $\sum_{i\in B\cup B'}b_i\le2$. Then $\Delta((f_i)_{i\in B})\,\Delta((f_i)_{i\in B'})=0$.
+\item If $h_i^{(j)}\to h_i$ in $L^1$ as $j\to\infty$, with $\sup_j\|h_i^{(j)}\|_\infty<\infty$ and all supports in a fixed compact set, then $\Delta$ and $\Ka$ of order $n\ge2$ converge, and $\Ka(f_1^{(j)})\to\Ka(f_1)$ if in addition $h_1^{(j)}(0)\to h_1(0)$.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+(a) The convolution is supported in $[-\sum b_i,\sum b_i]\subseteq[-1,1]$. (b) Young's inequality gives $\|\ho h_1*\cdots*\ho h_n\|_1\le\prod\|h_i\|_1$. (c) If both factors are nonzero then by (a) $\sum_{B}b_i>1$ and $\sum_{B'}b_i>1$. (d) Telescoping and Young's inequality give convergence of the convolution in $L^1$, hence of $\Delta$. The Gaussian term converges because $|u|$ is bounded on the common support, so $\int|u||h_1^{(j)}h_2^{(j)}-h_1h_2|\ll\|h_1^{(j)}-h_1\|_1\|h_2^{(j)}\|_\infty+\|h_1\|_\infty\|h_2^{(j)}-h_2\|_1$. The case $n=1$ is clear.
+\end{proof}
+
+By \Cref{lem:cumulant-basic}(c), when $\sum_{i\le k}b_i\le2$ each product in \eqref{eq:moment-cumulant} contains at most one nonzero factor $\Delta$.
+
+\section{Restricted correlations in prescribed patterns}\label{sec:arith}
+
+\begin{theorem}\label{thm:correlations}
+Let $\cD$ be one of the six classes and let $z=z(X)\ge2$ satisfy $z=o(L)$. Let $f_1,\dots,f_k$ be even real Schwartz functions with $\widehat f_i\in C_c^\infty(\R)$ and $\sum_i\rad(f_i)<2$. Then
+\[
+ \lim_{X\to\infty}\ \sup_v\ \big|\E_v[S_{f_1}\cdots S_{f_k}]-\cM(f_1,\dots,f_k)\big|=0,
+\]
+the supremum running over all patterns $v$ of length $z$.
+\end{theorem}
+
+For $\cD=\cD(8,1)$ and the empty pattern, \Cref{thm:correlations} is equivalent to Gao's $n$-level density theorem \cite{Gao}, in the form identified with the symplectic model in \cite{ERR}. We give a self-contained proof because we need the five other classes and uniformity in the pattern. The proof follows the structure of Gao's argument, but evaluates the main terms directly and so does not need the comparison with random matrix theory. We use GRH for Dirichlet $L$-functions \cite{Alpoge} in \Cref{lem:explicit,lem:grh-primes} and through them in the rest of the section.
+
+\subsection{Notation for the proof}\label{ssec:arith-notation}
+Fix the class $\cD=\cD(\kappa,\epsilon)$. For $\kappa\in\{1,4\}$ the odd part satisfies $m\equiv b_0\bmod 4$, where $b_0=-\epsilon$ if $\kappa=4$ and $b_0=\epsilon$ if $\kappa=1$; thus $\epsilon b_0=-1$ for $\kappa=4$ and $\epsilon b_0=1$ for $\kappa=1$. Write $\psi_d(p)=\chi_d(p)$ for odd $p$; thus $\psi_d(p)=(\tfrac{2\epsilon m}{p})$ if $\kappa=8$ and $\psi_d(p)=(\tfrac{\epsilon m}p)$ otherwise. We extend this definition to every odd positive integer $m'$ in place of $m$, obtaining the real Dirichlet character $\psi_{m'}$ (of modulus dividing $8m'$) on odd primes.
+
+For a pattern $v$ of length $z$ put
+\[
+ Q=\prod_{2<p\le z}p,\quad r=\prod_{v_p=0}p,\quad s=Q/r,\quad t=\omega(s),\quad e_n=\prod_{p\mid n}v_p\ (n\mid s),
+\]
+\[
+ \cA=\prod_{p\mid Q}\Big(1-\frac1p\Big)\prod_{p\nmid2Q}\Big(1-\frac1{p^2}\Big).
+\]
+Since $z=o(L)$ we have $\log Q\le(1+o(1))z=o(L)$, so $Q$, $2^t\le2^{\pi(z)}$ and $\cA^{-1}\ll\log(2z)$ are all $X^{o(1)}$, uniformly in $v$. All $o(1)$ terms below are uniform in $v$. For a profile $F$ on $[0,\infty)$ (bounded, measurable, compactly supported) put
+\[
+ P_F(d)=\frac1L\sum_{p>2}\frac{\log p}{\sqrt p}\,F\Big(\frac{\log p}L\Big)\chi_d(p).
+\]
+
+\subsection{Counting}
+\begin{lemma}\label{lem:mass}
+Uniformly in $v$,
+\[
+ \mathfrak M_v(X):=\sum_{d\in\cD_v}W\Big(\frac{m(d)}X\Big)=\theta_\kappa\,\widehat W(0)\,\frac{\cA X}{r2^t}\big(1+O(X^{-1/2+o(1)})\big),
+\]
+where $\theta_8=\frac12$ and $\theta_4=\theta_1=\frac14$.
+In particular $\cD_v\ne\varnothing$ for large $X$, and $\mathfrak M_v(X)\ge X^{1-o(1)}$.
+\end{lemma}
+\begin{proof}
+Take $\kappa=8$. The members of $\cD_v$ have $m=rb$ with $b$ odd, squarefree and prime to $Q$, and $\psi_d(p)=v_p$ for $p\mid s$. For such $b$ the last condition has indicator $\prod_{p\mid s}\tfrac12(1+v_p\psi_{rb}(p))=2^{-t}\sum_{n\mid s}e_n\psi_{rb}(n)$, and $\psi_{rb}(n)=(\tfrac{2\epsilon r}{n})(\tfrac bn)$. Hence
+\[
+ \mathfrak M_v(X)=2^{-t}\sum_{n\mid s}e_n\Big(\frac{2\epsilon r}n\Big)\sum_{\substack{b\ \text{squarefree}\\(b,2Q)=1}}\Big(\frac bn\Big)W\Big(\frac{rb}X\Big).
+\]
+Write $\mu^2(b)=\sum_{\alpha^2\mid b}\mu(\alpha)$ and detect $(b,2Q)=1$ by M\"obius inversion. For a character $\xi$ modulo $q$ and $T\ge1$ one has $\sum_c\xi(c)W(c/T)=\one_{\xi=\xi_0}\tfrac{\varphi(q)}qT\widehat W(0)+O(2^{\omega(q)})$ if $\xi$ is principal, and $O(q^{1/2}\log q)$ otherwise, by partial summation and the P\'olya--Vinogradov inequality. With $\alpha\le(2X)^{1/2}$ and at most $2^{\omega(2Q)}$ M\"obius terms, the term $n=1$ is $\tfrac Xr\widehat W(0)\prod_{p\mid2Q}(1-\tfrac1p)\prod_{p\nmid2Q}(1-\tfrac1{p^2})+O(X^{1/2+o(1)})$, and $\prod_{p\mid 2Q}(1-\frac1p)\prod_{p\nmid 2Q}(1-\frac1{p^2})=\cA/2$. For $1<n\mid s$ the character $b\mapsto(\tfrac bn)$ is nonprincipal modulo $n\le Q$, so these terms are $O(X^{1/2+o(1)})$. There are $2^t=X^{o(1)}$ of them, and $\cA/(r2^t)\ge X^{-o(1)}$. For $\kappa\in\{1,4\}$ the same argument applies with the extra condition $b\equiv b_0r\bmod4$, detected by the two characters modulo $4$; this halves the main term.
+
+The argument uses only that $W$ is supported in $[1,2]$ and has bounded variation: partial summation then gives the two character-sum estimates above with an extra factor $\mathrm{TV}(W)$. So the lemma holds, with the same proof, for every fixed weight $W'$ of bounded variation supported in $[1,2]$ in place of $W$, with $\int W'$ in place of $\widehat W(0)$; for example $W'=\one_{(1,2]}$ and $W'=\one_{(1,2]}-W$.
+\end{proof}
+
+\begin{lemma}\label{lem:charmean}
+Let $b\ge1$ be an integer, all of whose prime factors exceed $z$, which is not a perfect square. Then uniformly in $v$,
+$\E_v[\chi_d(b)]\ll X^{-1/2+o(1)}\,b^{1/2+o(1)}$.
+\end{lemma}
+\begin{proof}
+Write $b=b^*c^2$ with $b^*>1$ squarefree. Then $\chi_d(b)=\chi_d(b^*)\one_{(m,c)=1}$, and $\chi_d(b^*)=\psi_{rb'}(b^*)$ where $m=rb'$. Expanding the pattern as in \Cref{lem:mass} expresses $\mathfrak M_v\E_v[\chi_d(b)]$ as $2^t$ sums over squarefree $b'$ prime to $2Qc$ of $W(rb'/X)$ times the character $b'\mapsto(\tfrac{b'}{nb^*})$, which is nonprincipal because $nb^*>1$ is squarefree. The argument of \Cref{lem:mass} bounds each sum by $X^{1/2+o(1)}b^{1/2+o(1)}$, and \Cref{lem:mass} gives the denominator.
+\end{proof}
+
+\subsection{The explicit formula and a priori bounds}
+For $0<\beta\le1$ put
+\[
+ V_\beta(x)=\frac{\cosh(2\pi\beta)-\cos(2\pi\beta x)}{1+x^2}.
+\]
+Then $V_\beta(x)\ge(\cosh2\pi\beta-1)(1+x^2)^{-1}>0$, and from $\int\e^{-2\pi ix\xi}(1+x^2)^{-1}\dd x=\pi\e^{-2\pi|\xi|}$ one finds $\widehat V_\beta(\xi)=\pi\big(\cosh(2\pi\beta)\e^{-2\pi|\xi|}-\e^{-2\pi\beta}\cosh(2\pi\xi)\big)$ for $|\xi|\le\beta$ and $\widehat V_\beta(\xi)=0$ for $|\xi|\ge\beta$. So $\widehat V_\beta$ is a Lipschitz profile of radius $\beta$.
+
+\begin{lemma}[Explicit formula]\label{lem:explicit}
+Let $f$ be even and real with $\widehat f\in C_c^\infty(\R)$, or $f=V_\beta$. For $d\in\cD$ with $X<m(d)\le2X$,
+\[
+ S_f(d)=\widehat f(0)-\int_0^\infty\widehat f(u)\dd u-2P_{\widehat f}(d)+O_f\Big(\frac{\log L}L\Big).
+\]
+\end{lemma}
+\begin{proof}
+For $f$ with $\widehat f\in C_c^\infty$, Weil's explicit formula for the primitive character $\chi_d$ of conductor $|d|$ \cite[Theorem~5.12]{IK} reads
+\begin{multline*}
+ S_f(d)=\frac{\widehat f(0)}L\log\frac{|d|}\pi+\frac1L\int_\R f(x)\,\Re\frac{\Gamma'}{\Gamma}\Big(\frac14+\frac{\mathfrak a}2+\frac{\pi ix}L\Big)\dd x\\
+ -\frac2L\sum_{n\ge1}\frac{\Lambda(n)\chi_d(n)}{\sqrt n}\,\widehat f\Big(\frac{\log n}L\Big),
+\end{multline*}
+with $\mathfrak a\in\{0,1\}$ as in \Cref{lem:even}. By GRH \cite{Alpoge} every zero is $\frac12+i\gamma$ with $\gamma$ real, so the zero side is $S_f(d)$. Since $\log|d|=L+O(1)$ the first term is $\widehat f(0)+O(1/L)$, and the integral is $O_f(1/L)$. The terms $n=p^k$ with $k\ge3$ contribute $O_f(1/L)$, the term $p=2$ contributes $O_f(1/L)$, and the terms $n=p$ with $p>2$ give $-2P_{\widehat f}(d)$. For $n=p^2$ we have $\chi_d(p)^2=1$ unless $p\mid d$. The primes dividing $d$ contribute $O_f(L^{-1}\sum_{p\mid d}\frac{\log p}p)=O_f(\log L/L)$, and by the prime number theorem $\frac2L\sum_p\frac{\log p}p\widehat f(\frac{2\log p}L)=\int_0^\infty\widehat f+O_f(1/L)$. For $d=8m>0$ the resulting formula is Gao's \cite[Lemma~2.3]{Gao} (numbered as in the arXiv version), in which the gamma factor and the higher prime powers are already absorbed into an error term $O(\log\log X/\log X)$; it corroborates the reduction above, which we need in all six classes. For $f=V_\beta$ apply the formula to $V_{\beta,\eta}$ with $\widehat V_{\beta,\eta}=\widehat V_\beta*\rho_\eta$, $\rho_\eta$ a smooth even approximate identity supported in $[-\eta,\eta]$, and let $\eta\to0$: the prime side is a finite sum, and the zero side converges by dominated convergence since $|V_{\beta,\eta}(x)|\ll(1+x^2)^{-1}$ uniformly in $\eta$ (two integrations by parts, $\widehat V_\beta$ being Lipschitz and piecewise smooth). The error term is uniform in $\eta$.
+\end{proof}
+
+\begin{lemma}[Low frequencies]\label{lem:lowfreq}
+Let $a\ge2$ be even and $\delta>0$ with $4a\delta<1$. There is $C_a$ such that for every bounded profile $F$ on $[0,\infty)$ with $F(u)=0$ for all $u>2\delta$, writing $M_F=\sup_{u\ge0}|F(u)|$ for its pointwise supremum,
+\[
+ \limsup_{X\to\infty}\ \sup_v\ \E_v\big[P_F^a\big]\le C_a\big(M_F\delta\big)^a .
+\]
+\end{lemma}
+\begin{proof}
+The primes $p\le z$ contribute at most $M_F L^{-1}\sum_{p\le z}\log p/\sqrt p\ll M_F\sqrt z/L=o(1)$ to $P_F$, pointwise. By Minkowski's inequality it suffices to treat $P_F^{>}$, the sum over $p>z$. Expanding,
+\[
+ \E_v\big[(P_F^{>})^a\big]=L^{-a}\sum_{z<p_1,\dots,p_a}\prod_i\frac{\log p_i}{\sqrt{p_i}}F\Big(\frac{\log p_i}L\Big)\E_v[\chi_d(p_1\cdots p_a)].
+\]
+Suppose first that $p_1\cdots p_a$ is not a square. Since $p_1\cdots p_a\le X^{2a\delta}$, \Cref{lem:charmean} bounds the mean by $X^{-1/2+o(1)}\cdot X^{(1/2+o(1))2a\delta}$. The number of such tuples, weighted by $\prod\log p_i/\sqrt{p_i}$, is $\le X^{a\delta+o(1)}$, so these terms contribute $M_F^aX^{2a\delta-1/2+o(1)}=o(1)$. If $p_1\cdots p_a$ is a square, every prime occurs an even number of times. Bounding the mean by $1$ and grouping indices into blocks of equal primes, each block of size $2$ contributes at most $M_F^2L^{-2}\sum_{p\le X^{2\delta}}(\log p)^2/p\le M_F^2(2\delta^2+O(L^{-1}))$ and each larger block $O(M_F^{|B|}L^{-|B|})$.
+\end{proof}
+
+\begin{lemma}[Bounded moments]\label{lem:bounded}
+Let $f$ be even and real with $\widehat f\in C_c^\infty$, and $k\ge1$. Then $\E_v|S_f|^k$ and $\E_v|P_{\widehat f}|^k$ are bounded uniformly in $v$ for large $X$.
+\end{lemma}
+\begin{proof}
+Choose an even $a\ge k$ and $\beta\in(0,1)$ with $2a\beta<1$. Since $|f(x)|\ll_f(1+x^2)^{-1}\ll_\beta V_\beta(x)$ and the ordinates are real, $|S_f|\ll S_{V_\beta}$. By \Cref{lem:explicit}, $S_{V_\beta}=O(1)-2P_{\widehat V_\beta}$, and \Cref{lem:lowfreq} with $2\delta=\beta$ bounds $\E_v[P_{\widehat V_\beta}^a]$. Hölder's inequality gives the claim for $S_f$, and \Cref{lem:explicit} then gives it for $P_{\widehat f}$.
+\end{proof}
+
+\subsection{Reduction to distinct primes}
+For profiles $F_1,\dots,F_a$ on $[0,\infty)$ define the distinct-prime statistic and its predicted mean
+\begin{align*}
+ \mathcal P^*(F_1,\dots,F_a)(d)&=L^{-a}\sideset{}{^*}\sum_{p_1,\dots,p_a}\prod_{i=1}^a\frac{\log p_i}{\sqrt{p_i}}F_i\Big(\frac{\log p_i}L\Big)\chi_d(p_1\cdots p_a),\\
+ \Xi(F_1,\dots,F_a)&=-\frac12\sum_{I\subseteq\{1,\dots,a\}}(-1)^{|I|}\int_{[0,\infty)^a}\one\big[{\textstyle\sum_i}\tau_iu_i>1\big]\prod_iF_i(u_i)\dd u,
+\end{align*}
+where $\tau_i=-1$ for $i\in I$ and $\tau_i=1$ for $i\notin I$, and $\sum^*$ runs over pairwise distinct odd primes; put $\mathcal P^*(\varnothing)=\Xi(\varnothing)=1$. If $h_i$ is the even extension of $F_i$, then substituting $y_i=\tau_iu_i$ shows
+\begin{equation}\label{eq:Xi-Delta}
+\begin{split}
+ \Xi(F_1,\dots,F_a)&=-\frac12\int_1^\infty(\ho h_1*\cdots*\ho h_a)(x)\dd x\\
+ &=(-2)^{-a}\Delta(f_1,\dots,f_a),\qquad \widehat f_i=h_i.
+\end{split}
+\end{equation}
+
+We say that profiles $F_1,\dots,F_a$ are \emph{admissible splines} if each $F_i$ is a $C^1$ function on $[0,\infty)$ that is a polynomial on each interval between consecutive points of a finite set of knots, vanishes outside $[d_0,\sigma_i]$ for some $d_0>0$, with $\sum_i\sigma_i<2$; and if they are in \emph{general position}: no sum $\sum_{i\in I'}\tau_i\kappa_i$, with $\varnothing\ne I'\subseteq\{1,\dots,a\}$, signs $\tau_i$, and $\kappa_i$ a knot of $F_i$, equals $1$. (The endpoints of the support count as knots.)
+
+\begin{proposition}\label{prop:distinct}
+If $F_1,\dots,F_a$ ($a\ge1$) are admissible splines, then $\sup_v|\E_v\mathcal P^*(F_1,\dots,F_a)-\Xi(F_1,\dots,F_a)|\to0$.
+\end{proposition}
+
+We prove \Cref{prop:distinct} in \Cref{ssec:poisson,ssec:odd}. First we deduce the moments of the prime sums.
+
+\begin{proposition}\label{prop:primemoments}
+Let $f_1,\dots,f_k$ be as in \Cref{thm:correlations} and $F_i=\widehat f_i|_{[0,\infty)}$. Uniformly in $v$,
+\[
+ \E_v\Big[\prod_{i=1}^kP_{F_i}\Big]=\sum_\mu\ \prod_{\{i,j\}\in\mu}\Big(\int_0^\infty uF_i(u)F_j(u)\dd u\Big)\cdot\Xi\big((F_i)_{i\notin\cup\mu}\big)+o(1),
+\]
+the sum running over all partial matchings $\mu$ of $\{1,\dots,k\}$ (sets of disjoint pairs, including $\mu=\varnothing$).
+\end{proposition}
+\begin{proof}
+Let $b_i=\rad(f_i)$. Fix an even $a\ge k$ and $\delta>0$ with $4a\delta<1$, and a smooth $\chi_\delta:[0,\infty)\to[0,1]$ equal to $1$ on $[0,\delta]$ and $0$ on $[2\delta,\infty)$. Write $F_i=F_i^\flat+F_i^\sharp$ with $F_i^\flat=\chi_\delta F_i$. By \Cref{lem:lowfreq}, $\|P_{F_i^\flat}\|_{L^a(\E_v)}\ll\delta$, and by \Cref{lem:bounded} $\|P_{F_i^\sharp}\|_{L^a(\E_v)}\ll1$, in the limit superior uniformly in $v$. By Hölder's inequality,
+\begin{equation}\label{eq:low-cut}
+ \E_v\Big[\prod_iP_{F_i}\Big]=\E_v\Big[\prod_iP_{F_i^\sharp}\Big]+O(\delta)+o(1).
+\end{equation}
+
+Next fix $\eta>0$. Each $F_i^\sharp$ is smooth and supported in $[\delta,b_i]$. Choose $C^1$ piecewise cubic splines $G_i$ (cubic Hermite interpolation of the values and first derivatives of $F_i^\sharp$ on a fine mesh) such that $G_i$ is supported in $[\delta/2,b_i+\eta]$ with $\sum_i(b_i+\eta)<2$, $\|F_i^\sharp-G_i\|_\infty+\|(F_i^\sharp-G_i)''\|_{L^1}\le\eta$, and such that $G_1,\dots,G_k$ are in general position. The last condition excludes finitely many affine hyperplanes in the space of mesh nodes, so it holds after an arbitrarily small perturbation of the nodes. Let $g_i$ be the even function with $\widehat g_i$ the even extension of $F_i^\sharp-G_i$. Since $F_i^\sharp-G_i$ vanishes near $0$, two integrations by parts give $|g_i(x)|\ll\eta(1+x^2)^{-1}$, so $|S_{g_i}|\ll\eta S_{V_{1/(4a)}}$. \Cref{lem:explicit} extends to $g_i$ (approximate $\widehat g_i$ by smooth profiles as in its proof), and so $P_{F_i^\sharp}-P_{G_i}=\tfrac12(O(\eta)-S_{g_i})+o(1)$ has $L^a(\E_v)$ norm $O(\eta)+o(1)$ by \Cref{lem:bounded}'s argument. By Hölder's inequality again, $\E_v[\prod P_{F_i^\sharp}]=\E_v[\prod P_{G_i}]+O(\eta)+o(1)$.
+
+We now expand $\E_v[\prod_iP_{G_i}]$. Write $w_i(p)=L^{-1}(\log p)p^{-1/2}G_i(\log p/L)$; it vanishes unless $p\ge X^{\delta/2}$, so all primes involved exceed $z$ once $X$ is large. Grouping the $k$-tuples of primes by the partition $\rho$ of $\{1,\dots,k\}$ into classes of equal primes,
+\[
+ \prod_iP_{G_i}(d)=\sum_\rho\ \sideset{}{^*}\sum_{(q_B)_{B\in\rho}}\ \prod_{B\in\rho}\Big(\prod_{i\in B}w_i(q_B)\Big)\chi_d(q_B)^{|B|},
+\]
+with the $q_B$ pairwise distinct. M\"obius inversion on the partition lattice removes the distinctness at the cost of merging blocks: the inner sum is a finite signed combination of products, over partitions $\rho'$ coarser than $\rho$, of unrestricted sums $\sum_q\prod_{i\in B'}w_i(q)\chi_d(q)^{|B'|}$. For $|B'|=1$ such a sum is $O(L^{O(1)})$ for every $d$ by \Cref{lem:grh-primes} below and partial summation, since $\chi_d$ is nonprincipal. For $|B'|=2$ it is $O(L^2)$, and for $|B'|\ge3$ it is $O(X^{-\delta/4}L^3)$. Hence every $\rho$ with a block of size at least $3$ contributes $O(X^{-\delta/4}L^{O(1)})$ pointwise. For $\rho$ with blocks of size $1$ and $2$, the same inversion shows that removing the distinctness conditions that involve the pairs costs $O(X^{-\delta/4}L^{O(1)})$. For a pair $\{i,j\}$,
+\begin{align*}
+ \sum_qw_i(q)w_j(q)\chi_d(q)^2&=\frac1{L^2}\sum_q\frac{(\log q)^2}qG_iG_j\Big(\frac{\log q}L\Big)+O\Big(\frac{L^2}{X^{\delta/2}}\Big)\\
+ &=\int_0^\infty uG_i(u)G_j(u)\dd u+O\Big(\frac1L\Big),
+\end{align*}
+because at most $2/\delta$ primes $q\ge X^{\delta/2}$ divide $m\le2X$, and by the prime number theorem. Therefore
+\[
+ \E_v\Big[\prod_iP_{G_i}\Big]=\sum_\mu\prod_{\{i,j\}\in\mu}\Big(\int_0^\infty uG_iG_j\Big)\,\E_v\big[\mathcal P^*((G_i)_{i\notin\cup\mu})\big]+o(1).
+\]
+The splines $(G_i)_{i\in R}$ are admissible for every $R\subseteq\{1,\dots,k\}$, so \Cref{prop:distinct} evaluates each mean as $\Xi((G_i)_{i\in R})+o(1)$.
+
+Finally let $\eta\to0$ and then $\delta\to0$. The integrals $\int uG_iG_j$ converge to $\int uF_iF_j$, and $\Xi((G_i)_{i\in R})\to\Xi((F_i)_{i\in R})$ by \eqref{eq:Xi-Delta} and \Cref{lem:cumulant-basic}(d), because $G_i\to F_i^\sharp\to F_i$ in $L^1$ with uniformly bounded norms and supports. The errors $O(\delta)+O(\eta)$ are uniform in $v$ and in $X$.
+\end{proof}
+
+\begin{lemma}\label{lem:grh-primes}
+Let $\xi$ be a nonprincipal Dirichlet character modulo $q$. For $y\ge2$ we have $\sum_{p\le y}\xi(p)\log p\ll y^{1/2}\log^2(qy)$. Hence $\sum_{N<p\le N'}\xi(p)(\log p)/p\ll N^{-1/2}\log^2(qN)$ for $2\le N<N'\le2N$.
+\end{lemma}
+\begin{proof}
+This follows from GRH for the primitive character inducing $\xi$ \cite{Alpoge} by the classical argument \cite[\S20]{Davenport}, \cite[Theorem~5.15]{IK}; the primes dividing $q$ contribute $O(\log q)$. The second bound follows by partial summation.
+\end{proof}
+
+\subsection{Distinct primes: the classes \texorpdfstring{$\cD(8,\pm1)$}{D(8,±1)}}\label{ssec:poisson}
+Let $F_1,\dots,F_a$ be admissible splines, supported in $[d_0,\infty)$, with $\sigma=\sum\sigma_i<2$, and take $\kappa=8$. Throughout this subsection $p_1,\dots,p_a$ are distinct primes with $p_i\ge X^{d_0}$, $P=p_1\cdots p_a\le X^\sigma$ and $u_i=\log p_i/L$. Constants may depend on $a$, the splines, $W$ and $d_0$.
+
+\paragraph{Step 1: a pointwise bound.}
+For every odd $m'\le2X$ the character $\psi_{m'}$ is nonprincipal, since $8\epsilon m'$ has odd $2$-adic valuation and so is not a square. Hence, by \Cref{lem:grh-primes}, multivariable partial summation, and inclusion--exclusion over coincidences (as in the proof of \Cref{prop:primemoments}),
+\begin{equation}\label{eq:pointwise}
+ L^{-a}\sideset{}{^*}\sum_{p_1,\dots,p_a}\prod_i\frac{\log p_i}{\sqrt{p_i}}F_i(u_i)\,\psi_{m'}(p_1\cdots p_a)\ll L^{O(1)}\qquad\text{uniformly in }m'.
+\end{equation}
+
+\paragraph{Step 2: opening the pattern and the sieve.}
+The members of $\cD_v$ have $m=rb'$ with $b'$ odd, squarefree and prime to $Q$. For $b'$ odd and prime to $Q$ (squarefree or not) let $\one_v(rb')=2^{-t}\sum_{n\mid s}e_n\psi_{rb'}(n)$ be the pattern indicator. Insert $\mu^2(b')=\sum_{\alpha^2\mid b'}\mu(\alpha)$ and put $Z=2^{2t}(1+L)^C$ with $C=C(a)$ large. The terms with $\alpha>Z$ involve $O(X/(rZ))$ values of $b'\le2X/r$, and by \eqref{eq:pointwise} each contributes $O(L^{O(1)})$. Relative to $\mathfrak M_v$ (\Cref{lem:mass}) their total is $O(2^tL^{O(1)}/(\cA Z))=o(1)$. Since $b'$ is odd and prime to $Q$, only $\alpha$ with $(\alpha,2Q)=1$ occur, and this condition is kept explicitly in the sums over $\alpha$ below. For $\alpha\le Z$ we have $\alpha=X^{o(1)}$, and $\alpha<X^{d_0}$ for large $X$. Write $b'=\alpha^2b''$. Since $\psi_{rb'}(n)=0$ when $(b'',n)>1$, the remaining condition $(b'',Q)=1$ reduces to $(b'',Q/n)=1$, which we detect by $\sum_{\ell\mid(b'',Q/n)}\mu(\ell)$. Writing $b''=\ell u$ and $M=nP$, the product of characters is
+\[
+ \psi_{r\alpha^2\ell u}(n)\,\psi_{r\alpha^2\ell u}(P)=\Big(\frac{2\epsilon r\alpha^2\ell u}{M}\Big)=\Big(\frac{2\epsilon r\ell}M\Big)\Big(\frac uM\Big),
+\]
+because $(\alpha,M)=1$. Thus, with $T=X/(r\ell\alpha^2)$,
+\begin{multline}\label{eq:opened}
+ \mathfrak M_v\,\E_v[\mathcal P^*]=\sum_{\substack{\alpha\le Z\\(\alpha,2Q)=1}}\mu(\alpha)\,2^{-t}\sum_{n\mid s}e_n\sum_{\ell\mid Q/n}\mu(\ell)\,L^{-a}\sideset{}{^*}\sum_{p_i}\prod_i\frac{\log p_i}{\sqrt{p_i}}F_i(u_i)\\
+ \times\Big(\frac{2\epsilon r\ell}M\Big)\sum_{u\text{ odd}}\Big(\frac uM\Big)W\Big(\frac uT\Big)+o(\mathfrak M_v).
+\end{multline}
+
+\paragraph{Step 3: Poisson summation.}
+For odd squarefree $M>1$ let $\varepsilon_M=1$ if $M\equiv1\bmod4$ and $\varepsilon_M=i$ if $M\equiv3\bmod4$, so that $\sum_{c\bmod M}(\tfrac cM)\e(kc/M)=\varepsilon_M\sqrt M(\tfrac kM)$.
+
+\begin{lemma}\label{lem:oddlattice}
+For odd squarefree $M>1$ and $T>0$,
+\[
+ \Big(\frac2M\Big)\sum_{u\ \mathrm{odd}}\Big(\frac uM\Big)W\Big(\frac uT\Big)=\frac{T\varepsilon_M}{2\sqrt M}\sum_{k\in\Z}(-1)^k\Big(\frac kM\Big)\widehat W\Big(\frac{kT}{2M}\Big).
+\]
+\end{lemma}
+\begin{proof}
+Poisson summation in residue classes modulo $M$ gives, for every $U>0$,
+\[
+ \sum_u\Big(\frac uM\Big)W\Big(\frac uU\Big)=\frac{U\varepsilon_M}{\sqrt M}\sum_k\Big(\frac kM\Big)\widehat W\Big(\frac{kU}M\Big).
+\]
+Subtract the even $u$, using this with $U=T/2$ and $(\tfrac{2u}M)=(\tfrac2M)(\tfrac uM)$, and write $\widehat W(kT/M)=\widehat W(2k\cdot T/(2M))$ with $(\tfrac kM)=(\tfrac2M)(\tfrac{2k}M)$ in the first sum.
+\end{proof}
+
+Since $(\tfrac2M)(\tfrac{2\epsilon r\ell}M)(\tfrac kM)=(\tfrac{\epsilon kr\ell}M)$, replacing $k$ by $\epsilon k$ turns the inner sum in \eqref{eq:opened}, including its character, into
+\[
+ \frac{T\varepsilon_M}{2\sqrt M}\sum_{k\ne0}(-1)^k\Big(\frac{kr\ell}M\Big)\widehat W\Big(\frac{\epsilon kT}{2M}\Big);
+\]
+the term $k=0$ vanishes as $M>1$. Dividing by $\mathfrak M_v$, the prefactors combine with the prime weights into
+\begin{equation}\label{eq:prefactor}
+ \frac{\mu(\alpha)e_n\mu(\ell)}{\widehat W(0)\,\cA\,\alpha^2\ell\sqrt n}\cdot\prod_i\frac{\log p_i}{p_iL}F_i(u_i)\cdot\varepsilon_M\sum_{k\ne0}(-1)^k\Big(\frac{kr\ell}M\Big)\widehat W\Big(\frac{\epsilon kT}{2M}\Big),
+\end{equation}
+up to a factor $1+O(X^{-1/2+o(1)})$.
+
+Let $g=(r,\ell)$ and $s_0=r\ell/g^2$, which is odd and squarefree. Call $k$ \emph{principal} if $k=\pm s_0j^2$ with $j\ge1$. Note that $\varepsilon_M=\tfrac{1+i}2+\tfrac{1-i}2(\tfrac{-1}M)$ and $(\tfrac{-1}M)=(\tfrac{-1}n)\prod_i(\tfrac{-1}{p_i})$.
+
+\paragraph{Step 4: nonprincipal frequencies.}
+If $k$ is not principal then neither $kr\ell$ nor $-kr\ell$ is a square, so $p\mapsto(\tfrac{\pm kr\ell}p)$ are nonprincipal characters of modulus dividing $4|k|r\ell$. Split each $p_i$ into dyadic ranges $(N_i,2N_i]$, put $N=\prod N_i$ and $H=r\ell\alpha^2nN/X$. In each of the two terms of $\varepsilon_M$, the dependence on $p_i$ is a nonprincipal character times $\frac{\log p_i}{p_i}F_i(u_i)$ times the smooth factor $\widehat W(\epsilon kT/(2nP))$. Since $F_i$ is piecewise polynomial and $p\,\partial_p$ applied to $\widehat W(c/P)$ gives $-\tfrac cP\widehat W'(\tfrac cP)$, all mixed derivatives $\prod_{i\in J}(p_i\partial_{p_i})$ of the weight are $O_A((1+|k|/H)^{-A})$. Multivariable partial summation with \Cref{lem:grh-primes}, and inclusion--exclusion for distinctness (a coincidence of $l\ge2$ primes near $N_i$ costs $O(N_i^{1-l}L^l)\le O(N_i^{-l/2}L^l)$), bound the sum over the box by $O(N^{-1/2}L^{O(1)}\log^{2a}(|k|+2)(1+|k|/H)^{-A})$. Since $\sum_{k\ne0}\log^{2a}(|k|+2)(1+|k|/H)^{-A}\ll HL^{O(1)}$ for $A\ge2$, and after the prefactor in \eqref{eq:prefactor}, the nonprincipal frequencies contribute
+\[
+ \ll\sum_{\alpha\le Z}\sum_{n\mid s}\sum_{\ell\mid Q}\sum_{\text{boxes}}\frac1{\cA\alpha^2\ell\sqrt n}\cdot\frac{r\ell\alpha^2n\sqrt N}XL^{O(1)}\ll X^{\sigma/2-1+o(1)}=o(1).
+\]
+
+\paragraph{Step 5: principal frequencies and the kernel.}
+For $k=\pm s_0j^2$ we have $(\tfrac{kr\ell}M)=(\tfrac{\pm1}M)\one_{(j,M)=1}$, because $kr\ell=\pm(r\ell/g)^2j^2$ and $(r\ell,M)=1$; also $(-1)^k=(-1)^j$. Put $y_j=s_0j^2T/(2M)=j^2X/(2g^2\alpha^2M)$ and
+\[
+ V(y)=\Re\big[(1+i)\widehat W(\epsilon y)\big],\qquad V^\star(y)=\Re\big[(1-i)\widehat W(\epsilon y)\big].
+\]
+Checking $M\equiv1$ and $M\equiv3\bmod4$ separately (using $\widehat W(-y)=\overline{\widehat W(y)}$) gives
+\[
+ \varepsilon_M\Big[\widehat W(\epsilon y)+\Big(\frac{-1}M\Big)\widehat W(-\epsilon y)\Big]=V(y)+\Big(\frac{-1}M\Big)V^\star(y).
+\]
+So the principal frequencies contribute
+\[
+ \sum_{\substack{j\ge1\\(j,M)=1}}(-1)^j\Big[V(y_j)+\Big(\frac{-1}M\Big)V^\star(y_j)\Big]
+\]
+in place of the $k$-sum in \eqref{eq:prefactor}. Expand
+\[
+ \one_{(j,M)=1}=\sum_{h\mid n}\mu(h)\sum_{I\subseteq\{1,\dots,a\}}(-1)^{|I|}\one[hh'\mid j],\qquad h'=\prod_{i\in I}p_i,
+\]
+and write $j=hh'l$. As $hh'$ is odd, $(-1)^j=(-1)^l$, and
+\[
+ y_j=l^2\e^{-b},\qquad b=L\Big(\sum_i\tau_iu_i-1\Big)+w,\qquad w=\log\frac{2g^2\alpha^2n}{h^2},
+\]
+with $\tau_i$ as in the definition of $\Xi$. Note $|w|\ll\log Q+\log Z=o(L)$. Define, for an even Schwartz $\Phi$,
+\[
+ B_\Phi(b)=\sum_{l\ge1}(-1)^l\Phi\big(l^2\e^{-b}\big).
+\]
+
+\begin{lemma}\label{lem:kernel}
+Let $\Phi$ be a real Schwartz function on $[0,\infty)$. Then $B_\Phi(b)=-\tfrac12\Phi(0)+O_A(\e^{-Ab})$ for $b\ge0$, $B_\Phi(b)=O_A(\e^{Ab})$ for $b\le0$, and for each $j\ge1$ the derivative $B_\Phi^{(j)}(b)$ is $O_{A,j}(\e^{-A|b|})$.
+\end{lemma}
+\begin{proof}
+Let $\phi(x)=\Phi(x^2)$, an even Schwartz function, and $Y=\e^{b/2}$. Poisson summation gives $\sum_{l\in\Z}(-1)^l\phi(l/Y)=Y\sum_{k\in\Z}\widehat\phi(Y(k+\tfrac12))=O_A(Y^{-A})$ for $Y\ge1$, so $B_\Phi=\tfrac12(\sum_{l\in\Z}-\phi(0))=-\tfrac12\Phi(0)+O_A(Y^{-A})$. For $Y\le1$, $|B_\Phi|\le\sum_{l\ge1}|\phi(l/Y)|\ll_AY^A$. Finally $\frac{\dd}{\dd b}=\frac12Y\frac{\dd}{\dd Y}$, and $Y\frac{\dd}{\dd Y}\phi(l/Y)=\phi_1(l/Y)$ with $\phi_1(x)=-x\phi'(x)$ even, Schwartz and vanishing at $0$; iterate.
+\end{proof}
+
+We first dispose of $V^\star$. In that term the factor $(\tfrac{-1}M)$ carries the nonprincipal character $(\tfrac{-1}{\cdot})$ on every $p_i$, and $a\ge1$. For fixed $\alpha,n,\ell,h,I$ the weight $B_{V^\star}(b)$ has bounded derivatives in each $u_i$ after the factor $L^{-1}$, by \Cref{lem:kernel}. Partial summation in $p_1$ with \Cref{lem:grh-primes}, and trivial bounds for the other primes, give $O(X^{-d_0/2}L^{O(1)})$, which is $X^{-d_0/2+o(1)}$ after the sums over $\alpha,n,\ell,h,I$ and the prefactors.
+
+The remaining principal contribution, after \eqref{eq:prefactor}, is
+\begin{multline*}
+ \sum_{\substack{\alpha\le Z\\(\alpha,2Q)=1}}\sum_{n\mid s}\sum_{\ell\mid Q/n}\sum_{h\mid n}\sum_{I}\frac{\mu(\alpha)e_n\mu(\ell)\mu(h)(-1)^{|I|}}{\widehat W(0)\cA\alpha^2\ell\sqrt n}\\
+ \times\sideset{}{^*}\sum_{p_i}\prod_i\frac{\log p_i}{p_iL}F_i(u_i)\,B_V\Big(L\Big(\sum_i\tau_iu_i-1\Big)+w\Big).
+\end{multline*}
+
+\paragraph{Step 6: integration over the primes.}
+Since $B_V$ is bounded, removing the distinctness of the $p_i$ costs $O(L^{O(1)}\sum_{p\ge X^{d_0}}(\log p)^2/p^2)=O(X^{-d_0/2})$ per term. For the unrestricted sums, replace one prime at a time by an integral: by the prime number theorem with the error term from GRH and partial summation, $\sum_p\frac{\log p}{p}\Psi(\frac{\log p}L)=L\int_0^\infty\Psi(u)\dd u+O(X^{-d_0/2}L^{O(1)}\mathrm{TV}(\Psi))$ for $\Psi$ supported in $[d_0,\infty)$; the total variation of $u_i\mapsto F_i(u_i)B_V(L(\dots)+w)$ is bounded uniformly by \Cref{lem:kernel}. The errors are $X^{-d_0/2+o(1)}$ in total. Thus the sum over primes becomes
+\begin{align*}
+ J_I(w)&=\int_{[0,\infty)^a}\prod_iF_i(u_i)\,B_V\Big(L\Big(\sum_i\tau_iu_i-1\Big)+w\Big)\dd u\\
+ &=\int_\R G_I(x)\,B_V\big(L(x-1)+w\big)\dd x,
+\end{align*}
+where $G_I$ is the density of $\sum_i\tau_iu_i$, that is, the convolution of the functions $x\mapsto F_i(\tau_ix)$.
+
+\begin{lemma}[Polynomial transition]\label{lem:transition}
+There are $\eta_0>0$, $D\ge0$ and real numbers $c_0(L),\dots,c_D(L)$, bounded independently of $L$, such that uniformly for $|w|\le\eta_0L/2$,
+\begin{gather*}
+ J_I(w)=\sum_{j=0}^Dc_j(L)\Big(\frac wL\Big)^j+O(\e^{-\eta_0L/4}),\\
+ c_0(L)=-\frac{\widehat W(0)}2\int_1^\infty G_I(x)\dd x+O\Big(\frac1L\Big).
+\end{gather*}
+\end{lemma}
+\begin{proof}
+Each function $x\mapsto F_i(\tau_ix)$ is a compactly supported piecewise polynomial whose knots are the points $\tau_i\kappa_i$, $\kappa_i$ a knot of $F_i$. Expanding it by its derivative jumps, as in \Cref{sec:exact}, writes it as a finite combination of the right-facing truncated powers $E_{c,j}(x)=(x-c)_+^j/j!$ with $c$ among these knots. This is needed also when $\tau_i=-1$: a convolution of oppositely facing truncated powers need not converge. For right-facing truncated powers the convolution integral runs over a bounded interval, and the beta integral gives $E_{c,j}*E_{c',j'}=E_{c+c',j+j'+1}$. Hence $G_I$, the convolution of the compactly supported functions $x\mapsto F_i(\tau_ix)$, is a finite combination of truncated powers $E_{c,j}$ with $c$ among the sums $\sum_i\tau_i\kappa_i$ of knots $\kappa_i$ of $F_i$; so it is piecewise polynomial with knots among these sums. By general position $1$ is not a knot, so $G_I$ agrees with a polynomial $g_I$ on $(1-\eta_0,1+\eta_0)$ for some $\eta_0>0$. Write $B_V=-\frac{\widehat W(0)}2\one_{[0,\infty)}+R$, where $|R(b)|\ll\e^{-|b|}$ by \Cref{lem:kernel} (note $V(0)=\widehat W(0)$). The step part contributes $-\frac{\widehat W(0)}2\big(\int_1^\infty G_I+\int_{1-w/L}^1g_I\big)$, and the second integral is a polynomial in $w/L$ without constant term. In $\int G_I(x)R(L(x-1)+w)\dd x$, the range $|x-1|\ge\eta_0$ contributes $O(\e^{-\eta_0L/2})$, and replacing $G_I$ by $g_I$ there costs $O(\e^{-\eta_0L/4})$. Finally $\int_\R g_I(x)R(L(x-1)+w)\dd x=\frac1L\int_\R g_I\big(1+\frac{\beta-w}L\big)R(\beta)\dd\beta$ is a polynomial in $w/L$ with coefficients $O(1/L)$, as $R$ has finite moments of all orders.
+\end{proof}
+
+\paragraph{Step 7: summation over $h$, $n$, $\ell$ and $\alpha$.}
+For fixed $\alpha,n,\ell,I$ put $w_0=\log(2g^2\alpha^2n)$, so that $w=w_0-2\log h$. By \Cref{lem:transition}, $\sum_{h\mid n}\mu(h)J_I(w_0-2\log h)$ is, up to $O(2^{\omega(n)}\e^{-\eta_0L/4})$, the product over $p\mid n$ of the difference operators $\mathrm{id}-(\text{shift by }-2\log p/L)$ applied to a polynomial of degree $\le D$ with bounded coefficients, evaluated at $w_0/L=o(1)$. It vanishes if $\omega(n)>D$ and is $O(\prod_{p\mid n}(\log p)/L)$ otherwise. Therefore the terms with $n>1$ contribute
+\begin{align*}
+ &\ll\cA^{-1}\sum_\alpha\frac1{\alpha^2}\sum_{\ell\mid Q}\frac1\ell\sum_{1<n\mid s}\frac1{\sqrt n}\prod_{p\mid n}\frac{2\log p}L\\
+ &\ll\log^2(2z)\Big(\exp\Big(\sum_{p\le z}\frac{2\log p}{\sqrt pL}\Big)-1\Big)\ll\frac{\sqrt z\log^2(2z)}L=o(1).
+\end{align*}
+For $n=1$ we have $h=1$, $w=\log(2g^2\alpha^2)$, and \Cref{lem:transition} gives $J_I(w)=-\frac{\widehat W(0)}2\int_1^\infty G_I+O((1+\log\alpha+\log g)/L)$. The error terms total $O(\cA^{-1}\sum_\alpha\alpha^{-2}\sum_{\ell\mid Q}\ell^{-1}(1+\log\alpha+\log\ell)/L)=O(\log^3(2z)/L)=o(1)$, using $\sum_{\ell\mid Q}\log\ell/\ell\ll\log^2(2z)$. Extending the sum over $\alpha$ to all $\alpha$ prime to $2Q$ costs $O(\cA^{-1}/Z)=o(1)$, and
+\[
+ \sum_{(\alpha,2Q)=1}\frac{\mu(\alpha)}{\alpha^2}\sum_{\ell\mid Q}\frac{\mu(\ell)}\ell=\prod_{p\nmid2Q}\Big(1-\frac1{p^2}\Big)\prod_{p\mid Q}\Big(1-\frac1p\Big)=\cA.
+\]
+Since $e_1=1$, the limit is $-\frac12\sum_I(-1)^{|I|}\int_1^\infty G_I=\Xi(F_1,\dots,F_a)$. This proves \Cref{prop:distinct} for $\kappa=8$.
+
+\subsection{Distinct primes: the classes with \texorpdfstring{$\kappa\in\{1,4\}$}{κ = 1, 4}}\label{ssec:odd}
+Now let $\kappa\in\{1,4\}$, so $m\equiv b_0\bmod4$ and $\psi_{m'}(p)=(\tfrac{\epsilon m'}p)$. We indicate the changes to \Cref{ssec:poisson}.
+
+\paragraph{Pointwise bound.}
+For $\kappa=4$ the integers $m'\equiv b_0\bmod 4$ satisfy $\epsilon m'\equiv3\bmod4$, and for $\epsilon=-1$ we have $\epsilon m'<0$; in both cases $\epsilon m'$ is not a square and $\psi_{m'}$ is nonprincipal. For $(\kappa,\epsilon)=(1,1)$ we delete all perfect squares $m'$ from the ambient sum \emph{before} inserting the squarefree sieve. This does not change the family, since a squarefree $m>X$ is not a square, and afterwards \eqref{eq:pointwise} holds for every remaining $m'$. The truncation of the sieve is then as before.
+
+\paragraph{Poisson summation.}
+Here $u$ runs over $u\equiv b_1\bmod 4$ with $b_1\equiv b_0r\ell\bmod4$, and the character is $(\tfrac{\epsilon r\ell}M)(\tfrac uM)$. By the Chinese remainder theorem over $4M$, using that $M$ is its own inverse modulo $4$ and that $4$ is a square modulo $M$,
+\[
+ \sum_{u\equiv b_1(4)}\Big(\frac uM\Big)W\Big(\frac uT\Big)=\frac T{4M}\sum_{k\in\Z}i^{kb_1M}\,\varepsilon_M\sqrt M\Big(\frac kM\Big)\widehat W\Big(\frac{kT}{4M}\Big).
+\]
+The factor $\frac14$ matches $\theta_\kappa=\frac14$ in \Cref{lem:mass}, so the prefactor \eqref{eq:prefactor} is unchanged. Pair $k$ with $-k$ for $k>0$ and put $x=kT/(4M)$. Checking $M\equiv1,3\bmod4$ separately, the coefficient of $(\tfrac{kr\ell}M)\sqrt M$ is $A_k(x)+(\tfrac{-1}M)B_k(x)$ with
+\[
+ A_k(x)=\Re\big[(i^{kb_1}+i\epsilon\,i^{-kb_1})\widehat W(x)\big],\qquad B_k(x)=\Re\big[(i^{kb_1}-i\epsilon\,i^{-kb_1})\widehat W(x)\big].
+\]
+The $B_k$ terms carry the character $(\tfrac{-kr\ell}{p})$ on each $p_i$, nonprincipal because $-kr\ell<0$. The $A_k$ terms carry $(\tfrac{kr\ell}p)$, nonprincipal unless $k=s_0j^2$. All of these are bounded exactly as in Step~4. No splitting of the primes into residue classes is needed.
+
+\paragraph{Principal frequencies.}
+For $k=s_0j^2$ we have $(\tfrac{kr\ell}M)=\one_{(j,M)=1}$ and $s_0b_1\equiv b_0\bmod 4$, because $(r\ell/g)^2\equiv1\bmod 8$. Hence $A_{s_0j^2}(x)=c(j)V_\epsilon(x)$ with
+\[
+ V_\epsilon(x)=\Re\big[(1+i\epsilon)\widehat W(x)\big],\qquad c(j)=1\ (j\text{ even}),\qquad c(j)=\epsilon b_0\ (j\text{ odd}),
+\]
+and $x=(j/y)^2$ with $y=2g\alpha\sqrt{M/X}$. For $\kappa=4$ we have $\epsilon b_0=-1$, so $c(j)=(-1)^j$, and Steps~5--7 apply verbatim with $V_\epsilon$ in place of $V$ (and no $V^\star$ term), with $w=\log(4g^2\alpha^2n/h^2)$. Note $V_\epsilon(0)=\widehat W(0)$.
+
+For $\kappa=1$ we have $c(j)=1$ and the sum over $j$ is not alternating. Put $I_\epsilon=\int_0^\infty V_\epsilon(u^2)\dd u$. Since $\int_0^\infty\e^{-2\pi i tu^2}\dd u=\e^{-\pi i/4}/\sqrt{8t}$ for $t>0$ (with Gaussian regularisation to justify exchanging integrals, $t$ ranging over the support of $W$),
+\begin{equation}\label{eq:fresnel}
+ I_1=\int_0^\infty W(u^2)\dd u,\qquad I_{-1}=0 .
+\end{equation}
+Using $\frac{\varphi(M)}M=\sum_{e\mid M}\frac{\mu(e)}e$ and the same expansion of $(j,M)=1$ as before,
+\begin{gather*}
+ \sum_{\substack{j\ge1\\(j,M)=1}}V_\epsilon\Big(\frac{j^2}{y^2}\Big)-yI_\epsilon\frac{\varphi(M)}M=\sum_{h\mid n}\sum_{I}\mu(h)(-1)^{|I|}\,\mathfrak K\Big(\frac y{hh'}\Big),\\
+ \mathfrak K(a)=\sum_{l\ge1}V_\epsilon\Big(\frac{l^2}{a^2}\Big)-aI_\epsilon .
+\end{gather*}
+Poisson summation of the even Schwartz function $x\mapsto V_\epsilon(x^2)$ gives $\mathfrak K(a)=-\frac12\widehat W(0)+O_A(a^{-A})$ for $a\ge1$, and trivially $\mathfrak K(a)=O(a)$ for $a\le1$. The same holds for $(a\frac{\dd}{\dd a})^j\mathfrak K$, with main term $0$: for $j=1$ the function $x\mapsto-2x^2V_\epsilon'(x^2)$ has integral $I_\epsilon$ over $[0,\infty)$ by parts, which cancels $-aI_\epsilon$. Thus $b\mapsto\mathfrak K(\e^{b/2})$ satisfies the conclusions of \Cref{lem:kernel} with exponent $\frac12$ for $b\le0$, which suffices for \Cref{lem:transition} and Steps~6--7.
+
+It remains to account for the linear term. If $\epsilon=-1$ it vanishes by \eqref{eq:fresnel}. If $\epsilon=1$, restoring the factor $T/(4\sqrt M)$ shows that it contributes exactly
+\[
+ \frac{T}{4\sqrt M}\,yI_1\frac{\varphi(M)}M=\frac{g\sqrt X}{2r\ell\alpha}\,\frac{\varphi(M)}M\int_0^\infty W(u^2)\dd u
+\]
+for fixed $\alpha,n,\ell,P$. The squares deleted from the ambient sum have $u=s_0l^2$, which forces $l$ odd and $s_0\equiv b_1\bmod4$ (true, as $\epsilon b_0=1$), with $(\tfrac{s_0l^2r\ell}M)=\one_{(l,M)=1}$. Their contribution is
+\[
+ \sum_{(l,2M)=1}W\Big(\frac{(r\ell\alpha l/g)^2}X\Big)=\frac{g\sqrt X}{2r\ell\alpha}\,\frac{\varphi(M)}M\int_0^\infty W(u^2)\dd u+O\big(2^{\omega(M)+1}\big),
+\]
+by M\"obius inversion over divisors of $2M$ and $|\sum_{l\ge1}\Phi(l/U)-U\int_0^\infty\Phi|\le\mathrm{TV}(\Phi)$. So the deleted squares cancel the linear term. The errors $O(2^{\omega(M)+1})$, restored with the prime weights and divided by $\mathfrak M_v\ge X^{1-o(1)}$, total $O(X^{-1+o(1)}\sum_{P\le X^\sigma}P^{-1/2})=O(X^{\sigma/2-1+o(1)})$, since each $P$ has at most $a!$ ordered factorisations. Steps~6--7 now apply to the residual kernel and give $\Xi(F_1,\dots,F_a)$. This completes the proof of \Cref{prop:distinct}.
+
+\subsection{Proof of \texorpdfstring{\Cref{thm:correlations}}{Theorem 7}}
+Put $c_i=\widehat f_i(0)-\int_0^\infty\widehat f_i$ and $F_i=\widehat f_i|_{[0,\infty)}$. By \Cref{lem:explicit}, $S_{f_i}=c_i-2P_{F_i}+E_i$ with $|E_i|\ll\log L/L$ uniformly, and by \Cref{lem:bounded} and Hölder's inequality
+\[
+ \E_v\Big[\prod_iS_{f_i}\Big]=\sum_{J\subseteq\{1,\dots,k\}}\prod_{i\notin J}c_i\,(-2)^{|J|}\,\E_v\Big[\prod_{i\in J}P_{F_i}\Big]+o(1).
+\]
+\Cref{prop:primemoments} evaluates each mean, and the theorem follows from the next lemma.
+
+\begin{lemma}\label{lem:reassemble}
+If $\sum_i\rad(f_i)\le2$, then
+\[
+ \sum_{J}\prod_{i\notin J}c_i\,(-2)^{|J|}\sum_{\mu}\prod_{\{i,j\}\in\mu}\Big(\int_0^\infty uF_iF_j\Big)\,\Xi\big((F_i)_{i\in J\setminus\cup\mu}\big)=\cM(f_1,\dots,f_k),
+\]
+where $\mu$ runs over partial matchings of $J$.
+\end{lemma}
+\begin{proof}
+Put $\Delta(\varnothing)=1$. We have $(-2)^2\int_0^\infty uF_iF_j=2\int_\R|u|h_ih_j=:\gamma_{ij}$, and $(-2)^{|R|}\Xi(F_R)=\Delta(f_R)$ by \eqref{eq:Xi-Delta}. So the left side is the sum, over decompositions of $\{1,\dots,k\}$ into a set $C$, a matching $\mu$ and a remainder $R$, of $\prod_{i\in C}c_i\prod_\mu\gamma_{ij}\,\Delta(f_R)$. On the right, write $\Ka(f_i)=c_i+\Delta(f_i)$, $\Ka(f_i,f_j)=\gamma_{ij}+\Delta(f_i,f_j)$ and $\Ka=\Delta$ for larger blocks, and expand each product in \eqref{eq:moment-cumulant}. By \Cref{lem:cumulant-basic}(c) the terms with two factors $\Delta$ vanish, and blocks of size $\ge3$ have no non-$\Delta$ part. The remaining terms are indexed by a partition into singletons, pairs and at most one block $R$ carrying $\Delta$, which is the same index set with the same summands.
+\end{proof}
+
+\section{Amplitudes and the model inner product}\label{sec:profiles}
+
+\subsection{Model moments}
+Let $\mathfrak S$ be the polynomial algebra over $\R$ generated by formal symbols $S_f$, one for each even real function $f$ whose Fourier transform is a profile continuous at $0$. The \emph{model expectation} is the linear functional $\mathbb E^{\mathrm{mod}}$ on $\mathfrak S$ with $\mathbb E^{\mathrm{mod}}[S_{f_1}\cdots S_{f_k}]=\cM(f_1,\dots,f_k)$ and $\mathbb E^{\mathrm{mod}}[1]=1$. By \Cref{thm:correlations}, if every monomial of $\Pi\in\mathfrak S$ has total radius $<2$ and all its $\widehat f$ lie in $C_c^\infty$, then $\E_v[\Pi(d)]\to\mathbb E^{\mathrm{mod}}[\Pi]$ uniformly in patterns of length $o(L)$, where $\Pi(d)$ is obtained by substituting $S_f(d)$ for $S_f$.
+
+For $a>0$ let $T_a$ be the even function with $\widehat T_a=\one_{[-a,a]}$, and in $\mathfrak S$ put $Z_a=S_{T_a}-\Ka(T_a)$. For $a,b\in(0,1]$ put
+\begin{equation}\label{eq:vab}
+ v(a,b)=\Ka(T_a,T_b)=2\min(a,b)^2-(a+b-1)_+^2 ;
+\end{equation}
+the second term is $\Delta(T_a,T_b)$, since for $u>1$ the convolution $(\ho{\one_{[-a,a]}}*\ho{\one_{[-b,b]}})(u)=(a+b-u)_+$. For a list $A=(a_1,\dots,a_r)$ of widths define the \emph{Wick product}
+\[
+ \Wk{Z_A}=\sum_{\mu}(-1)^{|\mu|}\prod_{\{i,j\}\in\mu}v(a_i,a_j)\prod_{i\notin\cup\mu}Z_{a_i}\in\mathfrak S,
+\]
+the sum running over partial matchings $\mu$ of $\{1,\dots,r\}$. Thus $\Wk{Z_\varnothing}=1$, $\Wk{Z_{(a)}}=Z_a$ and $\Wk{Z_{(a,b)}}=Z_aZ_b-v(a,b)$. Since centring removes singletons from the moment--cumulant expansion,
+\begin{equation}\label{eq:centred}
+ \mathbb E^{\mathrm{mod}}\Big[S_{f_0}\prod_{i=1}^nZ_{a_i}\Big]=\sum_\pi\prod_{B\in\pi}\Ka\big((g_i)_{i\in B}\big),\qquad g_0=f_0,\ g_i=T_{a_i},
+\end{equation}
+summed over the partitions $\pi$ of $\{0,1,\dots,n\}$ with no singleton block $\{i\}$, $i\ge1$.
+
+\subsection{Amplitudes}
+For $s>0$ and $c=(c_1,\dots,c_J)\in\R^J$ define the \emph{Legendre profile}
+\[
+ \ell_{s,c}(u)=\one_{[-s,s]}(u)\sum_{j=1}^Jc_jP_{2j}(u/s),
+\]
+where $P_n$ is the Legendre polynomial of degree $n$. Since $\int_{-1}^1P_{2j}=0$ for $j\ge1$, $\int\ell_{s,c}=0$. Also $\|\ell_{s,c}\|_\infty\le\|c\|_1$ and $\|\ell_{s,c}\|_1\le2s\|c\|_1$, because $|P_n|\le1$ on $[-1,1]$.
+
+\begin{definition}\label{def:amplitude}
+An \emph{amplitude} is a finite list of \emph{rows} $(A_k,\eta_k)$, $1\le k\le K$, where $A_k=(a_{k,1},\dots,a_{k,r_k})$ is a list of widths in $(0,1)$ ($r_k\ge0$) and $\eta_k$ is a profile with $\int\eta_k=0$ and $\rad(\eta_k)\le1-\sum A_k$, where $\sum A_k=\sum_ja_{k,j}$. We write $\check\eta_k$ for the even function with Fourier transform $\eta_k$, and
+\[
+ F(x)=\sum_{k=1}^K\check\eta_k(x)\,\Wk{Z_{A_k}} .
+\]
+\end{definition}
+
+Let $G$ be the even function with $\widehat G=H$, where
+\begin{equation}\label{eq:H}
+ H(u)=\Big(\mathsf A\cos\frac{|u|}2+\Big(\frac14-\mathsf A\Big)\sin\frac{|u|}2\Big)\one_{[-1,1]}(u),\qquad\mathsf A=\frac{1+\cot(1/4)}8 .
+\end{equation}
+For rows $k,l$ define the model inner products
+\begin{gather*}
+ \langle G,G\rangle=\Ka(G^2),\qquad\langle G,k\rangle=\mathbb E^{\mathrm{mod}}\big[S_{G\check\eta_k}\Wk{Z_{A_k}}\big],\\
+ \langle k,l\rangle=\mathbb E^{\mathrm{mod}}\big[S_{\check\eta_k\check\eta_l}\Wk{Z_{A_k}}\Wk{Z_{A_l}}\big],
+\end{gather*}
+and extend bilinearly: $\langle G,F\rangle=\sum_k\langle G,k\rangle$, $\langle F,F\rangle=\sum_{k,l}\langle k,l\rangle$. These are formal versions of $\lim\E_v\sum_xG(x)F(x)$ and $\lim\E_v\sum_xF(x)^2$, where $x$ runs over $\gamma L/(2\pi)$, $\gamma\in\Gamma_d$; the products $G\check\eta_k$ and $\check\eta_k\check\eta_l$ have Fourier transforms $H*\eta_k$ and $\eta_k*\eta_l$, which are continuous profiles.
+
+\subsection{The one-level extremal function}
+\begin{lemma}\label{lem:extremal}
+$\int H=G(0)=1$. For every profile $\rho$ with $\rad(\rho)\le1$, writing $\check\rho$ for the even function with $\widehat{\check\rho}=\rho$,
+\begin{gather*}
+ \Ka(G\check\rho)=(H*\rho)(0)-\int_0^1(H*\rho)(u)\dd u=\lambda\int\rho,\\
+ \lambda=H(0)-\frac12=\frac{\cot(1/4)-3}8 .
+\end{gather*}
+In particular $\langle G,G\rangle=\lambda$, and $\langle G,k\rangle=0$ for every row with $r_k=0$.
+\end{lemma}
+\begin{proof}
+Put $\theta=\frac14$, so $\mathsf A=(\cos\theta+\sin\theta)/(8\sin\theta)$. Using $\sin2\theta+\cos2\theta-1=2\sin\theta(\cos\theta-\sin\theta)$ and $\cos2\theta=(\cos\theta-\sin\theta)(\cos\theta+\sin\theta)$,
+\[
+ \int_{-1}^1H=4\mathsf A\sin\tfrac12+(1-4\mathsf A)\big(1-\cos\tfrac12\big)=1-\cos\tfrac12+4\mathsf A\big(\sin\tfrac12+\cos\tfrac12-1\big)=1 .
+\]
+Next, for $0<u<1$ we claim $H'(u)=-\frac12H(1-u)$. Expanding $\cos(\frac12-\frac u2)$ and $\sin(\frac12-\frac u2)$, the claim is equivalent to the two identities $4\mathsf A(\sin\frac12+\cos\frac12-1)=\cos\frac12$ and $4\mathsf A(1+\sin\frac12-\cos\frac12)=1+\sin\frac12$; the first was just used, and the second is equivalent to it since $\cos\frac12(1+\sin\frac12-\cos\frac12)=(1+\sin\frac12)(\sin\frac12+\cos\frac12-1)$.
+
+Since $H$ and $\rho$ are even, $\int_0^1(H*\rho)=\frac12\int_{-1}^1(H*\rho)$, and this equals $\frac12\int\rho(s)\int_{s-1}^{s+1}H(t)\dd t\dd s$. Hence
+\[
+ (H*\rho)(0)-\int_0^1(H*\rho)=\int\rho(s)\Psi(s)\dd s,\qquad\Psi(s)=H(s)-\frac12\int_{s-1}^{s+1}H(t)\dd t .
+\]
+$\Psi$ is even. For $0<s<1$, $\Psi'(s)=H'(s)-\frac12(H(s+1)-H(s-1))=H'(s)+\frac12H(1-s)=0$, and $\Psi(0)=H(0)-\frac12\int H=\mathsf A-\frac12=\lambda$. So $\Psi=\lambda$ on $[-1,1]$, which proves the formula. Taking $\rho=H$ gives $\langle G,G\rangle=\lambda\int H=\lambda$; taking $\rho=\eta_k$ with $\int\eta_k=0$ gives the last claim.
+\end{proof}
+
+Note that $1-\lambda/2=(19-\cot\frac14)/16$.
+
+\section{The variational bound}\label{sec:principle}
+
+\begin{theorem}\label{thm:variational}
+Let $F$ be an amplitude, and put $C=\langle G,F\rangle$ and $D=\langle F,F\rangle$. Let $\cD$ be one of the six classes and $z=o(L)$. Then
+\[
+ \limsup_{X\to\infty}\ \sup_v\ \frac{\sum_{d\in\cD_v}W(m(d)/X)\,\one[L(\frac12,\chi_d)=0]}{\sum_{d\in\cD_v}W(m(d)/X)}\ \le\ \frac12\big(\lambda-2C+D\big),
+\]
+the supremum running over patterns $v$ of length $z$. If $D>0$, the right side may be replaced by $\frac12(\lambda-C^2/D)$. Equivalently, the lower limit of the weighted nonvanishing proportion is at least $(19-\cot\frac14)/16+C-D/2$, and at least $(19-\cot\frac14)/16+C^2/(2D)$ if $D>0$, uniformly in $v$.
+\end{theorem}
+
+\begin{proof}
+\emph{Smoothing.} Fix an even nonnegative $\rho\in C_c^\infty([-1,1])$ with $\int\rho=1$. For $\lambda'\in(\frac12,1)$ and $\eta'>0$ define, for a profile $h$,
+\[
+ \mathfrak S h=\big(\lambda'^{-1}h(\cdot/\lambda')\big)*\rho_{\eta'},\qquad\rho_{\eta'}(u)=\eta'^{-1}\rho(u/\eta').
+\]
+Then $\mathfrak Sh\in C_c^\infty$, $\int\mathfrak Sh=\int h$, $\rad(\mathfrak Sh)\le\lambda'\rad(h)+\eta'$, $\|\mathfrak Sh\|_\infty\le2\|h\|_\infty$, and $\mathfrak Sh\to h$ in $L^1$ as $(\lambda',\eta')\to(1,0)$, with supports in a fixed compact set.
+
+Apply $\mathfrak S$ to $H$, to each $\eta_k$ and to each $\one_{[-a,a]}$, and put $\eta_k^\natural=\mathfrak S\eta_k$. Let $G^\natural$, $\check\eta_k^\natural$ and $T_a^\natural$ be the inverse Fourier transforms of the smoothed profiles: the even functions with $\widehat{G^\natural}=\mathfrak SH$, $\widehat{\check\eta_k^\natural}=\eta_k^\natural$ and $\widehat{T_a^\natural}=\mathfrak S\one_{[-a,a]}$. They are Schwartz functions, since the smoothed profiles lie in $C_c^\infty$. Let $Z_a^\natural=S_{T_a^\natural}-\Ka(T_a^\natural)$ and form the Wick products $\Wk{Z^\natural_{A}}$ with the constants $v^\natural(a,b)=\Ka(T_a^\natural,T_b^\natural)$. For $z_0\in\R$ and $d\in\cD_v$ define
+\[
+ \mathcal A_d(x)=G^\natural(x)-z_0\sum_k\check\eta_k^\natural(x)\,\Wk{Z^\natural_{A_k}}(d).
+\]
+Since $\int\mathfrak Sh=\int h$, we have $G^\natural(0)=G(0)=1$ and $\check\eta_k^\natural(0)=0$, so $\mathcal A_d(0)=1$ for every $d$.
+
+\emph{Pointwise inequality.} By \Cref{lem:even}, if $L(\frac12,\chi_d)=0$ then $\Gamma_d$ contains $0$ with multiplicity $m_d\ge2$, so
+\[
+ 2\cdot\one[L(\tfrac12,\chi_d)=0]\le\sum_{\gamma\in\Gamma_d}\mathcal A_d\Big(\frac{\gamma L}{2\pi}\Big)^2=:N(d).
+\]
+Expanding the square,
+\[
+ N=S_{(G^\natural)^2}-2z_0\sum_kS_{G^\natural\check\eta_k^\natural}\Wk{Z^\natural_{A_k}}+z_0^2\sum_{k,l}S_{\check\eta_k^\natural\check\eta_l^\natural}\Wk{Z^\natural_{A_k}}\Wk{Z^\natural_{A_l}},
+\]
+a polynomial in linear statistics of functions with $C_c^\infty$ Fourier transforms. Let $r=\max_kr_k$. A monomial of the last sum is $S_{\check\eta_k^\natural\check\eta_l^\natural}$ times at most $r_k+r_l\le2r$ statistics $S_{T_a^\natural}$ with $a$ from $A_k$ and $A_l$; its total radius is at most
+\begin{multline*}
+ \lambda'\Big(2-\sum A_k-\sum A_l\Big)+2\eta'+\lambda'\Big(\sum A_k+\sum A_l\Big)+(r_k+r_l)\eta'\\
+ \le2\lambda'+(2r+2)\eta' .
+\end{multline*}
+The other sums are similar. Choose $(2r+2)\eta'<2(1-\lambda')$; then every monomial has total radius $<2$.
+
+\emph{Limit in $X$.} By \Cref{thm:correlations}, $\E_v[N]\to\mathbb E^{\mathrm{mod}}[N]=:\mathcal Q^\natural(z_0)$ uniformly in $v$, so the left side of the theorem is at most $\frac12\mathcal Q^\natural(z_0)$.
+
+\emph{Removing the smoothing.} $\mathcal Q^\natural(z_0)$ is a finite combination of products of restricted cumulants of the functions $G^\natural$, $\check\eta_k^\natural$, $T_a^\natural$ and their pairwise products, with coefficients that are products of the constants $v^\natural$. The Fourier transforms involved are $\mathfrak Sh$ for the elementary profiles $h$, and convolutions $\mathfrak Sh_1*\mathfrak Sh_2$ for the products; the latter converge uniformly, by Young's inequality, and in $L^1$. By \Cref{lem:cumulant-basic}(d), as $(\lambda',\eta')\to(1,0)$ every cumulant converges to the corresponding cumulant of the unsmoothed functions (means only occur for the products, whose transforms converge at $0$, and for the $T_a$, whose centring constants cancel in \eqref{eq:centred}). Hence $\mathcal Q^\natural(z_0)\to\mathcal Q(z_0)=\langle G,G\rangle-2z_0C+z_0^2D$, and the left side of the theorem is at most $\frac12\mathcal Q(z_0)$ for every $z_0$. Use $\langle G,G\rangle=\lambda$ from \Cref{lem:extremal}, and take $z_0=1$, or $z_0=C/D$ if $D>0$.
+\end{proof}
+
+\begin{remark}
+In the same way $\langle F,F\rangle=\lim\lim\E_v\sum_xF^\natural(x)^2\ge0$ for every amplitude, and $\langle F,F\rangle\langle G,G\rangle\ge\langle G,F\rangle^2$.
+\end{remark}
+
+We shall build the amplitude in stages, and to avoid recomputing old norms we use the following trivial consequence of \Cref{thm:variational}'s quadratic form.
+
+\begin{lemma}[Chaining]\label{lem:chain}
+Let $F=F'+F''$ be amplitudes with $0<\langle G,F'\rangle\le U$ and $\langle G,F'\rangle^2\ge2g\langle F',F'\rangle$ for some $g>0$. Then $\langle F,F\rangle\le U^2/(2g)+2\langle F',F''\rangle+\langle F'',F''\rangle$.
+\end{lemma}
+
+\section{Wick-ordered moments}\label{sec:wick}
+Fix lists $A=(a_1,\dots,a_r)$ and $B=(b_1,\dots,b_s)$ of widths in $(0,1)$ with $\sum A\le1$ and $\sum B\le1$, and an even function $\phi$ whose Fourier transform is a profile continuous at $0$ with $\rad(\phi)+\sum A+\sum B\le2$. We label the variables by $0$ (the \emph{marked} variable $S_\phi$) and by the entries of $A$ and $B$. For a set $\beta$ of labels write $\Ka(\beta)$ for the restricted cumulant of the corresponding functions ($\phi$ for $0$, $T_a$ for an entry $a$).
+
+\begin{lemma}\label{lem:connected}
+$\mathbb E^{\mathrm{mod}}[S_\phi\Wk{Z_A}\Wk{Z_B}]=\sum_\pi\prod_{\beta\in\pi}\Ka(\beta)$, summed over the partitions $\pi$ of the labels in which every block not containing $0$ meets both $A$ and $B$.
+\end{lemma}
+\begin{proof}
+Expand both Wick products and apply \eqref{eq:centred}. A term is indexed by matchings $\mu_A$ of $A$, $\mu_B$ of $B$ and a partition $\pi'$ of the remaining labels without unmarked singletons, with weight $(-1)^{|\mu_A|+|\mu_B|}\prod_{\mu_A\cup\mu_B}v\cdot\prod_{\pi'}\Ka$. Let $\pi=\pi'\cup\mu_A\cup\mu_B$. For a pair $\{i,j\}$ inside $A$, $v(a_i,a_j)=\Ka(T_{a_i},T_{a_j})$. Hence, for a fixed partition $\pi$ without unmarked singletons, the terms producing it are indexed by subsets of the set $\mathcal I(\pi)$ of its blocks that are pairs inside $A$ or inside $B$, and they sum to $(1-1)^{|\mathcal I(\pi)|}\prod_\pi\Ka$. So only partitions with no such pairs survive. An unmarked block of size $\ge3$ inside $A$ has $\Ka=\Delta=0$ by \Cref{lem:cumulant-basic}(a), since $\sum A\le1$; similarly for $B$.
+\end{proof}
+
+\begin{lemma}[Contraction formula]\label{lem:contraction}
+Write $\Delta(S)$ for $\Delta((T_a)_{a\in S})$ when $|S|\ge2$ and $\Delta(S)=0$ when $|S|\le1$, and $\Ka(\phi;S)$ for the cumulant of $\phi$ together with $(T_a)_{a\in S}$. Then
+\begin{multline*}
+ \mathbb E^{\mathrm{mod}}[S_\phi\Wk{Z_A}\Wk{Z_B}]\\
+ =\sum_P\gamma(P)\Big[\Ka(\phi;S)+\Delta(S)\,\Ka(\phi;\varnothing)+\sum_{i\in S}\Delta(S\setminus\{i\})\,\Ka(\phi;\{i\})\Big],
+\end{multline*}
+where $P$ runs over the partial matchings between $A$ and $B$ (each pair has one entry from each list), $\gamma(P)=\prod_{(a,b)\in P}2\min(a,b)^2$, and $S$ is the list of entries of $A$ and $B$ not covered by $P$.
+\end{lemma}
+\begin{proof}
+In \Cref{lem:connected} write the cumulant of each unmarked block $\beta$ as $\gamma(\beta)+\Delta(\beta)$, where $\gamma(\beta)=2\min(a,b)^2$ if $\beta=\{a,b\}$ is a pair and $\gamma(\beta)=0$ otherwise, and expand. A term with two unmarked factors $\Delta(\beta)\Delta(\beta')\ne0$ would need $\sum_\beta>1$ and $\sum_{\beta'}>1$, contradicting $\sum A+\sum B\le2$. If no unmarked factor $\Delta$ occurs, the unmarked blocks are pairs, each meeting both lists, so they form a cross-matching $P$, and the marked block is $\{0\}\cup S$; this gives $\gamma(P)\Ka(\phi;S)$. If exactly one unmarked block $\beta$ contributes $\Delta(\beta)\ne0$, then $\sum_\beta>1$, the other unmarked blocks form a cross-matching $P$ with $\beta\subseteq S$, and the marked block $\{0\}\cup S'$, $S'=S\setminus\beta$, has total radius $\rad(\phi)+\sum S'<1$. If $|S'|\ge2$ its cumulant is $\Delta=0$ by \Cref{lem:cumulant-basic}(a). So $S'=\varnothing$ or $S'=\{i\}$, giving the last two terms; blocks $\beta$ of size one do not occur, which is the convention $\Delta(S)=0$ for $|S|\le1$. Conversely each term on the right arises once.
+\end{proof}
+
+\begin{corollary}\label{cor:central}
+For a row $(A,\eta)$ of an amplitude with $r\ge1$, $\langle G,(A,\eta)\rangle=\Ka(G\check\eta;(T_a)_{a\in A})$, the restricted cumulant of order $r+1$.
+\end{corollary}
+\begin{proof}
+Apply \Cref{lem:contraction} with $\phi=G\check\eta$ and $B=\varnothing$: then $P=\varnothing$, $S=A$, and $\Delta(A)=\Delta(A\setminus\{i\})=0$ since $\sum A\le1$. The radius condition is $\rad(H*\eta)+\sum A\le1+(1-\sum A)+\sum A=2$.
+\end{proof}
+
+For two rows $k,l$ of an amplitude, \Cref{lem:contraction} with $\phi=\check\eta_k\check\eta_l$, $A=A_k$, $B=A_l$ evaluates $\langle k,l\rangle$. The radius condition holds because $\rad(\eta_k*\eta_l)\le\rad(\eta_k)+\rad(\eta_l)\le2-\sum A_k-\sum A_l$ by \Cref{def:amplitude}. For the rows of \Cref{sec:certificate}, whose profiles have radius exactly $1-\sum A$, it holds with equality. When $A_k$ and $A_l$ contain repeated widths, the matchings may be grouped by multiplicity: if $A$ consists of $j_1$ copies of $a$ and $B$ of $j_2$ copies of $b$, there are $\binom{j_1}j\binom{j_2}jj!$ matchings of size $j$.
+
+\section{Exact evaluation}\label{sec:exact}
+All profiles in our amplitude are piecewise polynomial with rational knots and rational coefficients, except $H$, which we approximate. We now reduce every restricted cumulant needed to finitely many rational operations.
+
+\subsection{Truncated powers}
+For $c\in\Q$ and $j\ge0$ let $E_{c,j}(u)=(u-c)_+^j/j!$. A compactly supported piecewise polynomial $h$ is the finite sum $h=\sum_c\sum_{j}\big(h^{(j)}(c^+)-h^{(j)}(c^-)\big)E_{c,j}$ over its knots $c$. We have
+\[
+ E_{c,j}*E_{c',j'}=E_{c+c',\,j+j'+1},\qquad\int_{-\infty}^xE_{c,j}=E_{c,j+1}(x),
+\]
+the first by the beta integral. Hence for piecewise polynomial profiles $h_1,h_2$ with rational data, all lower primitives $B_k(x)=\int_{-\infty}^x\int\cdots\int(h_1*h_2)$ ($k$-fold) are piecewise polynomial with rational coefficients, and take rational values at rational points.
+
+\begin{lemma}\label{lem:mean-cov}
+Let $\phi$ be even with $\widehat\phi=h$ a profile continuous at $0$, and $0<t\le1$. Then
+\begin{gather*}
+ \Ka(\phi)=h(0)-\int_0^1h,\\
+ \Ka(\phi,T_t)=4\int_0^tuh(u)\dd u-2\int_{1-t}^{1+t}\big(t-|1-u|\big)h(u)\dd u .
+\end{gather*}
+\end{lemma}
+\begin{proof}
+The first is the definition. For the second, the Gaussian term is $2\int|u|h\one_{[-t,t]}=4\int_0^tuh$. For $x>1\ge t$ and $|y|<t$ we have $x-y>0$, so $(\ho h*\ho{\one_{[-t,t]}})(x)=\int_0^t(h(x-y)-h(x+y))\dd y$, and integrating over $x>1$ gives $\int_0^t\int_{1-y}^{1+y}h=\int_{1-t}^{1+t}(t-|1-u|)h(u)\dd u$. Multiply by $-\frac{(-2)^2}2=-2$.
+\end{proof}
+
+\begin{lemma}\label{lem:shift}
+Let $\phi$ be as above, $n\ge3$, and $a_1,\dots,a_{n-1}\in(0,1]$. Let $B_k$ be the $k$-fold lower primitive of $h=\widehat\phi$ and define
+\[
+ A_n(x)=\begin{cases}-B_n(x),&x<0,\\ B_n(x)-2\sum_{k=0}^{n-1}\frac{x^k}{k!}B_{n-k}(0),&x\ge0.\end{cases}
+\]
+Then, with $(\mathsf E_a\Psi)(x)=\Psi(x+a)$,
+\[
+ \Ka(\phi,T_{a_1},\dots,T_{a_{n-1}})=\frac{(-2)^n}2\Big[\prod_{j=1}^{n-1}\big(2-\mathsf E_{a_j}-\mathsf E_{-a_j}\big)A_n\Big](1).
+\]
+\end{lemma}
+\begin{proof}
+$A_n$ is the $n$-fold lower primitive of $\ho h$: for $n=1$ this is $\int_{-\infty}^x\ho h=-B_1(x)$ for $x<0$ and $-B_1(0)+(B_1(x)-B_1(0))$ for $x\ge0$, and the general case follows by induction. The distributional derivative of $\ho{\one_{[-a,a]}}$ is $2\delta_0-\delta_a-\delta_{-a}$, so convolving with $\ho{\one_{[-a,a]}}$ is the operator $2-\mathsf E_a-\mathsf E_{-a}$ applied to the lower primitive. Hence $\Pi:=\prod_j(2-\mathsf E_{a_j}-\mathsf E_{-a_j})A_n$ is the lower primitive of $\ho h*\ho{\one_{[-a_1,a_1]}}*\cdots$. This convolution has compact support and total integral $\int\ho h\cdot\prod\int\ho{\one}=0$, so $\int_1^\infty=-\Pi(1)$, and the definition of $\Delta$ gives the claim.
+\end{proof}
+
+\subsection{The extremal function}
+\begin{lemma}\label{lem:Hstar}
+Let $\mathsf A^*=61453967058074\cdot10^{-14}$ and let $H^*$ be the even function, vanishing outside $[-1,1]$, that equals on $[0,1]$ the Taylor polynomial of degree $12$ at $0$ of $\mathsf A^*\cos(u/2)+(\frac14-\mathsf A^*)\sin(u/2)$. Then $|H-H^*|\le10^{-12}$ everywhere, hence $\|H-H^*\|_1\le2\cdot10^{-12}$.
+\end{lemma}
+\begin{proof}
+The alternating Taylor series of $\cos$ and $\sin$ at $\frac14$, truncated after degrees $12,14$ and $13,15$, give rational enclosures of $\cot\frac14$ which imply $|\mathsf A-\mathsf A^*|<5\cdot10^{-15}$. The Taylor remainders of $\cos(u/2)$ and $\sin(u/2)$ for $|u|\le1$ are at most $2^{-14}/14!$ and $2^{-13}/13!$, and $|\mathsf A|,|\frac14-\mathsf A|<1$. Altogether $|H-H^*|\le2^{-14}/14!+2^{-13}/13!+10^{-14}<10^{-12}$.
+\end{proof}
+
+Write $G^*$ for the even function with $\widehat{G^*}=H^*$.
+
+\begin{lemma}\label{lem:central-error}
+Let $(A,\eta)$ be a row with $r=|A|\ge1$ and $\eta=\ell_{s,c}$, $s=1-\sum A$. Then
+\[
+ \big|\Ka(G\check\eta;T_A)-\Ka(G^*\check\eta;T_A)\big|\le\begin{cases}8a^2s\|c\|_1\cdot10^{-12},&A=(a),\\ 2^{r}\cdot2\cdot10^{-12}\cdot2s\|c\|_1\prod_{a\in A}(2a),&r\ge2.\end{cases}
+\]
+\end{lemma}
+\begin{proof}
+The difference is the cumulant with $h=(H-H^*)*\eta$. For $r=1$, \Cref{lem:mean-cov} bounds it by $(2a^2+2a^2)\|h\|_\infty$, and $\|h\|_\infty\le\|H-H^*\|_\infty\|\eta\|_1\le10^{-12}\cdot2s\|c\|_1$. For $r\ge2$ use \Cref{lem:cumulant-basic}(b) with $n=r+1$ and $\|h\|_1\le\|H-H^*\|_1\|\eta\|_1$.
+\end{proof}
+
+\begin{lemma}\label{lem:cot}
+We have $\cot\frac14<3.916317365$, and consequently $p_0:=(19-3.916317365)/16<(19-\cot\frac14)/16$.
+\end{lemma}
+\begin{proof}
+At $z=\frac14$, the alternating partial sums $\sum_{k\le6}(-1)^kz^{2k}/(2k)!$ and $\sum_{k\le7}(-1)^kz^{2k+1}/(2k+1)!$ are an upper bound for $\cos z$ and a lower bound for $\sin z>0$; their quotient is a rational number below $3.916317365$.
+\end{proof}
+
+\section{The amplitude and the certificate: proof of \texorpdfstring{\Cref{thm:main}}{Theorem 1}}\label{sec:certificate}
+
+\subsection{The rows}
+The amplitude is assembled in eight stages from ten families of rows (R0)--(R9). Every profile is a rational multiple of a Legendre profile $\ell_{s,c}$ with $s=1-\sum A$, so the conditions of \Cref{def:amplitude} hold; the largest number of widths in a row is $8$. The coefficient vectors $c$ multiply $P_2,P_4,\dots$ in order. The first six families are as follows.
+\begin{enumerate}
+\item[(R0)] One deterministic row, $A=\varnothing$, $s=1$, with $c\in\Z^{19}$ given by
+\[
+ (1132213,\,308439,\,-659459,\,149443,\,-294892,\,-26906,\,-225320)
+\]
+for $P_2,\dots,P_{14}$, followed by
+\begin{gather*}
+ (-29178,\,-49586,\,38499,\,143,\,39925,\,-9921,\\
+ 27126,\,-14745,\,19252,\,-16741,\,12735,\,-14251)
+\end{gather*}
+for $P_{16},\dots,P_{38}$.
+\item[(R1)] Linear rows $A=(l/640)$, $1\le l\le639$, with $c=(c_{l,1},\dots,c_{l,7})\in\Z^7$ defined below; and, for the nine values $i\in\{5,20,40,60,80,\allowbreak100,120,140,155\}$, linear rows $A=(i/160)$ whose coefficient vectors have zeros for $P_2,\dots,P_{14}$ followed by four integers for $P_{16},\dots,P_{22}$, listed in \Cref{tab:added}.
+\item[(R2)] Forty-seven quadratic rows $A=(a,b)$ with $a,b\in\frac1{40}\Z$, $a+b\le\frac{34}{40}$, and $c\in\Z^5$, listed in \Cref{tab:quadratic}.
+\item[(R3)] Fourteen cubic rows with $c\in\Q^3$, listed in \Cref{tab:cubic}.
+\item[(R4)] Six quartic rows $A=(a,a,a,a)$ with $c\in\Z^2$, and
+\item[(R5)] six quintic rows with $c\in\Z^2$, listed in \Cref{tab:quartic}.
+\end{enumerate}
+
+\emph{The linear coefficients.} Let $(w_{i,j})_{1\le i\le159,\,1\le j\le7}$ be the integer array of linear coefficients published with the programs at \coderepo, and put $w_{0,j}=w_{160,j}=0$. Let $a_{i,j}=w_{i,j}$ if $8\nmid i$ and $a_{i,j}=\frac12(w_{i-1,j}+w_{i+1,j})$ if $8\mid i$. Start from $c_{l,j}=0$ for $0\le l\le640$. For each $1\le i\le159$ and $1\le j\le7$, add $w_{i,j}$ to $c_{4i,j}$, and for $k=1,2,3$ let $\beta$ be the integer nearest to $a_{i,j}(4-k)/16$ (ties to even), add $\beta$ to $c_{4i-k,j}$ and to $c_{4i+k,j}$, and subtract $2\beta$ from $c_{4i,j}$. This spreads each coefficient of a $\frac1{160}$-grid over its neighbours on the $\frac1{640}$-grid while preserving the total in each Legendre degree.
+
+\begin{table}[ht]\centering\small
+\caption{Higher Legendre modes of the linear rows in (R1): coefficients of $P_{16},P_{18},P_{20},P_{22}$ for $A=(i/160)$.}\label{tab:added}
+\setlength{\tabcolsep}{4.5pt}\begin{tabular}{@{}rrrrr@{\quad}rrrrr@{}}
+\toprule
+$i$&&&&&$i$&&&&\\\midrule
+5&$-870168$&$89725$&$33939$&$97095$&100&$16892$&$-1307$&$8248$&$5824$\\
+20&$-270416$&$176980$&$-33503$&$39115$&120&$78$&$1409$&$-2550$&$1369$\\
+40&$-21424$&$55884$&$8610$&$50448$&140&$1127$&$1531$&$5319$&$3412$\\
+60&$45099$&$2172$&$32428$&$41136$&155&$-2324$&$148$&$5272$&$4760$\\
+80&$39661$&$-4705$&$24324$&$18822$&&&&&\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[ht]\centering\small
+\caption{Cubic rows (R3): widths $A$ (in units of $\frac1{160}$) and coefficients of $P_2,P_4,P_6$.}\label{tab:cubic}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+$160A$&$c_1$&$c_2$&$c_3$\\\midrule
+$(16,16,16)$&$-\frac{843632985}{1024}$&$\frac{4527783555}{2048}$&$-\frac{1382901975}{1024}$\\[2pt]
+$(24,24,24)$&$-\frac{2156795735}{4096}$&$\frac{3256426715}{2048}$&$-\frac{2836411325}{4096}$\\[2pt]
+$(28,28,28)$&$\frac{150750809}{256}$&$\frac{185921351}{256}$&$-\frac{54735791}{128}$\\[2pt]
+$(32,32,32)$&$\frac{1709829173}{4096}$&$\frac{2969684575}{4096}$&$-\frac{76174163}{512}$\\[2pt]
+$(36,36,36)$&$\frac{282792425}{512}$&$\frac{3214325}{16}$&$\frac{75487905}{512}$\\[2pt]
+$(40,40,40)$&$\frac{90726253}{256}$&$\frac{54642395}{1024}$&$-\frac{38032237}{512}$\\[2pt]
+$(44,44,44)$&$\frac{694679571}{4096}$&$-\frac{8283357}{512}$&$-\frac{88300827}{2048}$\\[2pt]
+$(48,48,48)$&$\frac{10795455}{256}$&$-\frac{230175}{512}$&$\frac{4070385}{512}$\\[2pt]
+$(16,20,84)$&$-\frac{260794455}{512}$&$\frac{27361435}{512}$&$-\frac{921335}{16}$\\[2pt]
+$(16,32,80)$&$-\frac{2148009149}{4096}$&$\frac{85191821}{2048}$&$\frac{230378291}{4096}$\\[2pt]
+$(8,20,92)$&$-\frac{1150920225}{1024}$&$\frac{342556025}{512}$&$-\frac{222565425}{1024}$\\[2pt]
+$(12,32,88)$&$-\frac{300094123}{4096}$&$\frac{500910361}{4096}$&$-\frac{133210399}{2048}$\\[2pt]
+$(24,40,64)$&$\frac{287061755}{2048}$&$\frac{334905713}{2048}$&$-\frac{5247569}{512}$\\[2pt]
+$(24,32,56)$&$\frac{4299524187}{4096}$&$\frac{947160299}{4096}$&$-\frac{462839355}{2048}$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[ht]\centering\small
+\caption{Quartic rows (R4) and quintic rows (R5): widths in units of $\frac1{160}$, coefficients of $P_2,P_4$.}\label{tab:quartic}
+\begin{tabular}{@{}lrr@{\qquad}lrr@{}}
+\toprule
+$160A$&$c_1$&$c_2$&$160A$&$c_1$&$c_2$\\\midrule
+$(16)^4$&$-510386$&$-291874$&$(16)^5$&$1779892$&$-8867799$\\
+$(20)^4$&$-1974752$&$1240532$&$(20)^5$&$4580$&$-5962351$\\
+$(24)^4$&$1295990$&$-2402543$&$(24)^5$&$-4232853$&$814887$\\
+$(28)^4$&$2797966$&$-473911$&$(28)^5$&$-1185699$&$-85106$\\
+$(32)^4$&$1264735$&$124269$&$(8,12,16,24,64)$&$22938237$&$0$\\
+$(36)^4$&$211240$&$-41256$&$(12,16,20,32,48)$&$-11687453$&$0$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The remaining four families are as follows. For $j\ge1$ write $e_j$ for the coefficient vector of $P_{2j}$ alone, so that $\ell_{s,e_j}(u)=P_{2j}(u/s)\one_{[-s,s]}(u)$.
+\begin{enumerate}
+\item[(R6)] Nine rows $A=(a,\dots,a)$ ($k$ equal widths, $k\in\{6,7\}$) with profile $w\,\ell_{s,e_j}$, listed in \Cref{tab:septic}.
+\item[(R7)] Thirteen rows with four or eight widths and profile $w\,\ell_{s,e_j}$, listed in \Cref{tab:octic}.
+\item[(R8)] One hundred and three rows with $r\in\{0,1,2\}$ and profile $10^{-9}\ell_{s,c}$, $c\in\Z^6$ (if $r\le1$) or $c\in\Z^{\le3}$ (if $r=2$), listed in \Cref{tab:mixed} in \Cref{app:replay}. There is one row with $r=0$, nineteen with $r=1$ and eighty-three with $r=2$.
+\item[(R9)] Twenty-six rows with $r=3$ and profile $10^{-9}\ell_{s,c}$, $c\in\Z^2$, listed in \Cref{tab:triple}.
+\end{enumerate}
+In all four families the widths are multiples of $\frac1{160}$ with $\sum A\le\frac{152}{160}$.
+
+\begin{table}[ht]\centering\small
+\caption{Rows (R6): $k$ equal widths $a$, the Legendre degree $2j$, and the weight $w$.}\label{tab:septic}
+\begin{tabular}{@{}rrrr@{}}
+\toprule
+$k$&$160a$&$2j$&$10^7w$\\\midrule
+6 & 20 & 2 & $-53945511$\\
+6 & 20 & 4 & 45352129\\
+7 & 16 & 2 & $-11243176$\\
+6 & 18 & 2 & 9261068\\
+6 & 20 & 6 & $-7416954$\\
+6 & 16 & 4 & 36415509\\
+6 & 24 & 2 & $-8230813$\\
+6 & 24 & 4 & 939245\\
+7 & 20 & 2 & 11527588\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[ht]\centering\small
+\caption{Rows (R7): widths in units of $\frac1{160}$ (an exponent denotes repetition), the Legendre degree $2j$, and the weight $w$.}\label{tab:octic}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+$160A$&$2j$&$10^8w$\\\midrule
+(8,16,32,64) & 2 & 30312549\\
+(8,16,32,64) & 4 & $-5245954$\\
+(8,20,32,68) & 2 & $-62542918$\\
+(12,16,24,64) & 2 & $-66526833$\\
+(12,16,24,64) & 4 & 59046867\\
+(12,20,32,60) & 2 & $-27804655$\\
+(12,20,32,60) & 4 & 63571537\\
+$(14)^{8}$ & 4 & $-5630338346$\\
+$(14)^{8}$ & 6 & 7851010526\\
+$(16)^{8}$ & 2 & 5266380051\\
+$(16)^{8}$ & 4 & $-4222736926$\\
+(16,24,40,48) & 2 & 49847039\\
+$(18)^{8}$ & 2 & 1657319238\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[ht]\centering\small
+\caption{Rows (R9): widths in units of $\frac1{160}$ and the coefficients $c_1,c_2$ of $P_2,P_4$; the profile is $10^{-9}\ell_{s,c}$.}\label{tab:triple}
+\begin{tabular}{@{}lrr@{\qquad}lrr@{}}
+\toprule
+$160A$&$c_1$&$c_2$&$160A$&$c_1$&$c_2$\\\midrule
+(8,12,24) & $-121717517$ & 491610893 & (16,32,80) & 20845072 & $-13504451$\\
+(8,16,80) & $-14064566$ & $-132741707$ & (16,44,64) & 28046350 & 21683205\\
+(8,24,64) & $-26652553$ & 174310795 & (20,20,60) & 12736579 & 66406823\\
+(8,28,48) & $-66504478$ & 127384262 & (20,36,52) & 93880390 & $-6395813$\\
+(8,48,64) & 38776636 & $-2023335$ & (20,36,68) & $-11293709$ & $-1725090$\\
+(12,24,48) & 82266724 & 130618646 & (24,24,64) & $-5068851$ & $-6379821$\\
+(12,28,60) & 185849866 & 11551660 & (24,32,72) & $-43669224$ & 115682\\
+(12,32,40) & $-116997456$ & 284382384 & (24,40,56) & $-5891849$ & $-3126459$\\
+(12,36,84) & $-3460378$ & 2595712 & (24,48,64) & 6578063 & 2318498\\
+(12,40,64) & 70680011 & 47058362 & (32,32,64) & 29119324 & $-19344054$\\
+(12,52,72) & 19681327 & $-1896137$ & (32,40,48) & 27089147 & $-1290595$\\
+(16,24,72) & $-33517020$ & $-53977051$ & (32,40,64) & $-18632458$ & 2244473\\
+(16,32,56) & $-15400926$ & 156214903 & (32,48,64) & $-2867142$ & 907756\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+All coefficients were found by numerical optimisation, which plays no role in the proof.
+
+\subsection{The certificate}
+Let $F_1$ consist of the rows (R0)--(R2), and let $F_2,F_3,F_4$ add the rows (R3), (R4), (R5) in turn. Put
+\[
+ z=1014885461\cdot10^{-16},
+\]
+let $F_5$ consist of the rows of $F_4$ with their profiles multiplied by $z$, together with the rows (R6), and let $F_6,F_7,F_8=F$ add the rows (R7), (R8), (R9) in turn. Put $p_0=(19-3.916317365)/16$ as in \Cref{lem:cot},
+\begin{align*}
+ p_1&=0.94531427448210, & p_2&=0.945321516147,\\
+ p_3&=0.945325433280444, & p_4&=0.945325784098260,\\
+ p_5&=0.94532732177059, & p_6&=0.9453286989,\\
+ p_7&=0.9453391726, & p_8&=\pstar=0.9453419890,
+\end{align*}
+and, for an amplitude $F'$,
+\[
+ \mathcal Q(F')=p_0+\langle G,F'\rangle-\tfrac12\langle F',F'\rangle .
+\]
+
+\begin{proposition}\label{prop:certificate}
+\begin{enumerate}
+\item For $\nu=1,2,3,4$ we have $\langle G,F_\nu\rangle>0$, $\langle F_\nu,F_\nu\rangle>0$ and
+\[
+ p_0+\frac{\langle G,F_\nu\rangle^2}{2\langle F_\nu,F_\nu\rangle}>p_\nu .
+\]
+\item For $\nu=5,6,7,8$ we have $\mathcal Q(F_\nu)>p_\nu$.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+Every quantity below is a finite sum of restricted cumulants given by \Cref{lem:extremal,lem:contraction,cor:central}, and each cumulant is evaluated exactly in rational arithmetic by \Cref{lem:mean-cov,lem:shift}, except that $H$ is replaced by $H^*$ in the products $G\check\eta_k$. The programs listed in \Cref{app:replay} carry out these computations; they use only integer and rational arithmetic, and every comparison is an exact comparison of rationals.
+
+\emph{The central products.} By \Cref{lem:extremal} the row (R0) contributes $0$ to $\langle G,F\rangle$, and by \Cref{cor:central} each other row contributes the cumulant $\Ka(G\check\eta_k;T_{A_k})$. The program computes $\Ka(G^*\check\eta_k;T_{A_k})$ exactly, and \Cref{lem:central-error} gives an interval of rational numbers containing $\langle G,k\rangle$. Summing gives rational enclosures $C_\nu^-<\langle G,F_\nu\rangle<C_\nu^+$ with $C_\nu^->0$.
+
+\emph{Stage $\nu=1$.} The program evaluates $\langle k,l\rangle$ exactly for all pairs of rows of $F_1$ (no approximation is involved, as $G$ does not occur), groups them by the first row, rounds each group upwards to a multiple of $10^{-8}$, and adds the results to obtain $D_1^+\ge\langle F_1,F_1\rangle$. It then checks $D_1^+>0$ and $p_0+(C_1^-)^2/(2D_1^+)>p_1$.
+
+\emph{Stages $\nu=2,3,4$.} Let $g_{\nu-1}=p_{\nu-1}-p_0$. By the previous stage, $\langle G,F_{\nu-1}\rangle^2\ge2g_{\nu-1}\langle F_{\nu-1},F_{\nu-1}\rangle$. By \Cref{lem:chain}, with $F''$ the new rows,
+\[
+ \langle F_\nu,F_\nu\rangle\le D_\nu^+:=\frac{(C_{\nu-1}^+)^2}{2g_{\nu-1}}+2\langle F_{\nu-1},F''\rangle+\langle F'',F''\rangle,
+\]
+where the last two terms are computed exactly. The program checks $D_\nu^+>0$ and $p_0+(C_\nu^-)^2/(2D_\nu^+)>p_\nu$. Since $\langle F_\nu,F_\nu\rangle\ge0$ (Remark after \Cref{thm:variational}) and $\langle G,F_\nu\rangle>0$, Cauchy--Schwarz in the form $\langle G,F_\nu\rangle^2\le\lambda\langle F_\nu,F_\nu\rangle$ gives $\langle F_\nu,F_\nu\rangle>0$. This proves (1).
+
+\emph{Stage $\nu=5$.} Write the rows (R6) as $H_1,\dots,H_9$, regarded as one-row amplitudes. By bilinearity,
+\begin{multline*}
+ \mathcal Q(F_5)=p_0+z\langle G,F_4\rangle+\sum_i\langle G,H_i\rangle\\
+ -\frac12\Big(z^2\langle F_4,F_4\rangle+2z\sum_i\langle F_4,H_i\rangle+\sum_{i,j}\langle H_i,H_j\rangle\Big).
+\end{multline*}
+Since $z>0$, we have $z\langle G,F_4\rangle>zC_4^-$. Stage $4$ gives $\langle F_4,F_4\rangle<\langle G,F_4\rangle^2/(2g_4)<(C_4^+)^2/(2g_4)$ with $g_4=p_4-p_0$. For each $i$, \Cref{lem:central-error} gives a rational interval containing $\langle G,H_i\rangle$, and we use its lower endpoint. (The program encloses $\langle G,\cdot\rangle$ for the row with profile $\ell_{s,e_j}$ and multiplies by $w$, taking the lower or the upper endpoint according as $w>0$ or $w<0$.) The Gram entries $\langle F_4,H_i\rangle=\sum_k\langle k,H_i\rangle$, summed over the rows $k$ of $F_4$, and $\langle H_i,H_j\rangle$ are evaluated exactly by \Cref{lem:contraction}. The result is a rational number $R_5<\mathcal Q(F_5)$, and the program checks $R_5>p_5$.
+
+\emph{Stages $\nu=6,7,8$.} For amplitudes $F'$ and $H$,
+\begin{equation}\label{eq:Qstep}
+ \mathcal Q(F'+H)=\mathcal Q(F')+\langle G,H\rangle-\langle F',H\rangle-\tfrac12\langle H,H\rangle .
+\end{equation}
+The program starts from the bound $\mathcal Q(F_5)>p_5$ of stage $5$ and adds the rows of (R7), (R8), (R9) one at a time, in the order of \Cref{tab:octic}, then \Cref{tab:mixed}, then \Cref{tab:triple}. At each step $F'$ is the current amplitude and $H$ the new row. A lower bound for $\langle G,H\rangle$ is $0$ if $H$ has no widths (\Cref{lem:extremal}), and otherwise the endpoint of the interval of \Cref{lem:central-error} chosen as in stage $5$. The term $\langle F',H\rangle$ is $z$ times the sum of $\langle k,H\rangle$ over the rows $k$ of $F_4$, plus the sum of $\langle H',H\rangle$ over the rows $H'$ of (R6)--(R9) added before $H$; it and $\langle H,H\rangle$ are evaluated exactly by \Cref{lem:contraction}. By \eqref{eq:Qstep} the running total remains a lower bound for $\mathcal Q$ of the current amplitude. After the last row of (R7), (R8) and (R9) the running totals $R_6$, $R_7$, $R_8$ satisfy $R_\nu>p_\nu$. This proves (2).
+\end{proof}
+
+The enclosures produced by the programs are, in decimal approximation,
+\begin{center}\small\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}cllll@{}}
+\toprule
+$\nu$&$C_\nu^-$&$C_\nu^+$&$D_\nu^+$&$p_0+(C_\nu^-)^2/(2D_\nu^+)$\\\midrule
+1&$50553.4662326$&$50553.4664934$&$4.94493878215\times10^{11}$&$0.945314274482106\ldots$\\
+2&$50636.8088192$&$50636.8090970$&$4.94739221446\times10^{11}$&$0.945321516147273\ldots$\\
+3&$51074.7317985$&$51074.7320816$&$5.02573844454\times10^{11}$&$0.945325433280444\ldots$\\
+4&$51079.4486250$&$51079.4489122$&$5.02598736360\times10^{11}$&$0.945325784098260\ldots$\\
+\bottomrule
+\end{tabular}
+\end{center}
+The upper enclosure $C_4^+$ is computed in stage $5$. For the later stages the running totals are
+\begin{center}\small
+\begin{tabular}{@{}cll@{}}
+\toprule
+$\nu$&$R_\nu$&$R_\nu-p_\nu$\\\midrule
+5&$0.945327321770591656\ldots$&$1.65\cdot10^{-15}$\\
+6&$0.945328698910093200\ldots$&$1.00\cdot10^{-11}$\\
+7&$0.945339172651395717\ldots$&$5.13\cdot10^{-11}$\\
+8&$0.945341989313383391\ldots$&$3.13\cdot10^{-10}$\\
+\bottomrule
+\end{tabular}
+\end{center}
+Several margins are close to the precision of the decimals shown, so these decimals cannot replace the exact comparisons. For example, in stage $3$ the program shows that the margin lies strictly between two consecutive multiples of $10^{-40}$, and in stage $5$ the margin is $1.656\ldots\cdot10^{-15}$.
+
+\begin{proof}[Proof of \Cref{thm:main}]
+Let $\cD$ be one of the six classes and $p'=\mathcal Q(F)=p_0+\langle G,F\rangle-\frac12\langle F,F\rangle$, so $p'>\pstar$ by \Cref{prop:certificate}(2) with $\nu=8$. By \Cref{thm:variational} with the empty pattern and \Cref{lem:cot}, the lower limit of the $W$-weighted nonvanishing proportion in $\cD$ is at least $(19-\cot\frac14)/16+\langle G,F\rangle-\frac12\langle F,F\rangle>p'$, for every admissible $W$.
+
+Let $\varepsilon>0$ and choose $W$ with $0\le W\le\one_{(1,2)}$ and $\int(\one_{(1,2)}-W)<\varepsilon$. For $Y\ge1$, the number of $d\in\cD$ with $Y<m(d)\le2Y$ and $L(\frac12,\chi_d)=0$ is at most
+\begin{multline*}
+ \sum_{d\in\cD}W\Big(\frac{m(d)}Y\Big)\one[L(\tfrac12,\chi_d)=0]+\sum_{d\in\cD}\Big(\one_{(1,2]}-W\Big)\Big(\frac{m(d)}Y\Big)\\
+ \le\big(1-p'+o(1)\big)\mathfrak M(Y)+(c_\cD\varepsilon+o(1))Y,
+\end{multline*}
+where $\mathfrak M(Y)$ is the mass of \Cref{lem:mass} (empty pattern) and $c_\cD Y$ is the asymptotic number of $d\in\cD$ with $Y<m(d)\le2Y$, by the elementary count of squarefree integers in progressions. As $\mathfrak M(Y)\le(1+o(1))c_\cD Y$, the proportion of vanishing in the sharp shell is at most $1-p'+O(\varepsilon)+o(1)$. Now decompose $\{d\in\cD:|d|\le X\}$ into the shells $X/2^{j+1}<|d|\le X/2^j$, $0\le j<J$, and a remainder of relative size $O(2^{-J})$. Letting $X\to\infty$, then $\varepsilon\to0$ and $J\to\infty$, the lower limit of the nonvanishing proportion in $\cD$ is at least $p'>\pstar$. The six classes partition the fundamental discriminants $d\ne1$, and the proportion of each class among $1<|d|\le X$ converges; so the same bound holds for all $d$.
+\end{proof}
+
+\section{Prescribed local conditions: proof of \texorpdfstring{\Cref{thm:local}}{Theorem 2}}\label{sec:local}
+
+\begin{proof}[Proof of \Cref{thm:local}]
+Let $\cD$ be a class and $z=o(\log X)$. Since $|d|=\kappa m(d)$, the shell $X<|d|\le2X$ is the shell $X/\kappa<m\le2X/\kappa$, and $z=o(\log(X/\kappa))$. \Cref{lem:mass} shows that every pattern occurs for large $X$, uniformly. \Cref{thm:variational} applies with the amplitude of \Cref{sec:certificate} and is uniform in the pattern, so the $W$-weighted nonvanishing proportion in $\cD_v$ is at least $p'-o(1)$ uniformly in $v$, with $p'>\pstar$ as above. The passage from $W$ to the sharp shell is as in the proof of \Cref{thm:main}. Let $\varepsilon>0$ and choose $W$ with $0\le W\le\one_{(1,2)}$ and $\int(\one_{(1,2)}-W)<\varepsilon$. The weights $\one_{(1,2]}$ and $\one_{(1,2]}-W$ are fixed, of bounded variation and supported in $[1,2]$, so by \Cref{lem:mass} and the remark at the end of its proof (with $X/\kappa$ in place of $X$) their masses on $\cD_v$ are $(1+o(1))\,\theta_\kappa\cA (X/\kappa)\int(\cdot)/(r2^t)$, uniformly in $v$. The first is the number of members of $\cD_v$ in the shell. Hence the number of those with $L(\frac12,\chi_d)=0$ is at most
+\begin{multline*}
+ \big(1-p'+o(1)\big)\mathfrak M_v(X/\kappa)+\mathfrak M_v^{\one_{(1,2]}-W}(X/\kappa)\\
+ \le\big(1-p'+\varepsilon+o(1)\big)\,\#\{d\in\cD_v:X<|d|\le2X\},
+\end{multline*}
+uniformly in $v$, where $\mathfrak M_v^{\one_{(1,2]}-W}$ denotes the mass with that weight. Taking $\varepsilon<p'-\pstar$ proves the first statement.
+
+For the second, let $b<\pstar$ and suppose no $c_b$ exists. Then for each $j\ge1$ there are arbitrarily large $X$ (we choose $X_j$ increasing to infinity with $(\log X_j)/j\ge3$) and a class and a pattern on the odd primes $p\le(\log X_j)/j$ which either does not occur in the shell or has nonvanishing proportion below $b$. Since there are six classes, one class occurs for infinitely many $j$; pass to that subsequence. Define $z(X)=(\log X_j)/j$ if $X=X_j$ and $z(X)=3$ otherwise. Then $z=o(\log X)$, and along $X_j$ the failing patterns contradict the uniform statement just proved.
+\end{proof}
+
+Averaging over atoms, the bound in \Cref{thm:local} holds for every nonempty union of patterns, even one that varies with $X$.
+
+\section{The two-moment ceiling: proof of \texorpdfstring{\Cref{thm:twomoment}}{Theorem 3}}\label{sec:twomoment}
+
+In this section $m$ runs over odd squarefree positive integers, weighted by $\Phi(m/X)$ and normalised to a probability measure; $\E$ and $\Pr$ refer to it. Write $\chi=\chi_{8m}$, $Z=Z_m=L(\frac12,\chi_{8m})$, and $h$ for odd positive integers. Everything in this section except the final remark uses neither the Riemann hypothesis nor GRH.
+
+\subsection{Local factors and twisted moments}
+For an odd prime $p$ let $x$ be a random variable with $\Pr(x=0)=r_p(0)=1/(p+1)$ and $\Pr(x=\pm1)=r_p(\pm1)=p/(2p+2)$; this is the limiting law of $\chi(p)$. Put $x^0=1$. For $j=0,1,2$ let
+\begin{gather*}
+ U_{j,p}=\E\Big[\Big(1-\frac x{\sqrt p}\Big)^{-j}\Big],\qquad a_j(h)=\prod_{p^e\parallel h}\frac{\E[x^e(1-x/\sqrt p)^{-j}]}{U_{j,p}},\\
+ A_{j,v}=\prod_{2<p\le y}\frac{r_p(v_p)(1-v_p/\sqrt p)^{-j}}{U_{j,p}}
+\end{gather*}
+for a pattern $v$ on $2<p\le y$. Thus $a_0(h)=\one_{h=\square}\prod_{p\mid h}\frac p{p+1}$, and for $e\ge1$, $a_1(p^e)=\beta_pp^{-(e\bmod2)/2}$ with $\beta_p=p^2/(p^2+p-1)$. A direct computation gives $(1-\frac1p)U_{1,p}=1-\frac1{p(p+1)}$ and $(1-\frac1p)^2U_{2,p}=h(p):=1+\frac1p+\frac1{p^2}-\frac4{p(p+1)}$; in particular $U_{1,p}=1+\frac1p+O(p^{-2})$ and $U_{2,p}=1+\frac3p+O(p^{-2})$.
+
+\begin{lemma}[Soundararajan]\label{lem:sound}
+Let $\varepsilon>0$. For odd $h$, write $h_1$ for the product of the primes dividing $h$ to an odd power. Then
+\begin{align*}
+ \E[\chi(h)]&=a_0(h)+O_\varepsilon(X^{-1/2+\varepsilon}h^{1/2}),\\
+ \E[Z\chi(h)]&=K_1a_1(h)\Big(L-2\log h_1+C_0+\sum_{p\mid h}C(p)\frac{\log p}p\Big)\\
+ &\qquad+O_\varepsilon(X^{-1/4+\varepsilon}h^{1/2+\varepsilon}),\\
+ \E[Z^2\chi(h)]&=K_2a_2(h)\,\mathcal P_2(L;h)+O_\varepsilon(X^{-1/4+\varepsilon}h^{1/2+\varepsilon}),
+\end{align*}
+with $K_1=\frac14\prod_{p>2}(1-\frac1p)U_{1,p}$, $K_2=\frac1{192}\prod_{p>2}(1-\frac1p)^3U_{2,p}=\frac1{192}\prod_{p>2}(1-\frac1p)h(p)$, constants $C_0$ and $C(p)=O(1)$ depending only on $\Phi$, and
+\begin{multline*}
+ \mathcal P_2(L;h)=(L-\log h_1)^3-3(L-\log h_1)\sum_{p\mid h_1}\log^2p+C_1\sum_{p\mid h_1}\log^2p\\
+ +\sum_{i,k\le3}\sum_{\substack{\varsigma\mid h\\ \varrho\mid h_1}}\frac{\Lambda_i(\varsigma)\Lambda_k(\varrho)}{\varsigma\varrho}D(\varsigma,\varrho)Q_{ik}(L-\log h_1),
+\end{multline*}
+where $Q_{ik}$ are polynomials of degree $\le2$ depending only on $\Phi$, $D(\varsigma,\varrho)$ is bounded, and $\Lambda_i$ is supported on integers with at most $i$ distinct prime factors and satisfies $0\le\Lambda_i(n)\ll(1+\log n)^i$, $\Lambda_0=\one_{\{1\}}$, $\sum_{n\mid h}\Lambda_i(n)=(\log h)^i$.
+\end{lemma}
+\begin{proof}
+The first line follows from squarefree orthogonality and the P\'olya--Vinogradov inequality; it is \cite[Lemma~3.2]{Gao2}. The second line is the twisted first moment \cite[Proposition~1.2]{Sound}, in the form \cite[Lemma~3.3]{Gao2}. The third line is the twisted second moment \cite[Proposition~1.3]{Sound}. In both we take the square-divisor cutoff $Y=X^{1/4}$ and bound the contribution of the non-squarefree terms by \cite[Proposition~1.1]{Sound} with the trivial mollifier, since $|\chi(h)|\le1$. We have divided by the family mass $\frac4{\pi^2}X\int\Phi\,(1+O(X^{-1/2}))$ and rewritten the arithmetic factors in terms of $a_j(h)$, which is a local computation at each prime. In the arXiv version of \cite{Sound}, the product defining the leading constant $D$ in Proposition~1.3 is printed over $p>3$; we use the product over all $p\ge3$, as in $K_2$. The leading term comes from the diagonal terms $n=k^2$, $k$ odd, of the approximate functional equation for $L(\frac12,\chi_{8m})^2$. Their Dirichlet series, divided by $(1-2^{-1-2s})^3\zeta(1+2s)^3$, has at $s=0$ the Euler factor $(1-\frac1p)^3U_{2,p}=(1-\frac1p)h(p)$ at every odd prime $p$, and the prime $3$ plays no special role. The same computation for the first moment gives the constant $C$ of \cite[Proposition~1.2]{Sound}, whose product is printed over $p\ge3$.
+\end{proof}
+
+\subsection{Patterns}
+Let $P=\prod_{2<p\le y}p$, so $\log P\le(1+o(1))y$. The indicator of the pattern $v$ is $\one_v=\prod_{2<p\le y}\iota_p$ with $\iota_p=1-\chi(p)^2$ if $v_p=0$ and $\iota_p=\frac12(\chi(p)^2+v_p\chi(p))$ if $v_p=\pm1$. Expanding, $\one_v=\sum_{h\mid P^2}b_v(h)\chi(h)$ with $\sum_h|b_v(h)|\le2^{\pi(y)}$. Since $\iota_p$ evaluated at $x$ is $\one_{x=v_p}$, multiplicativity gives
+\begin{equation}\label{eq:Ajv}
+ \sum_hb_v(h)a_j(h)=A_{j,v}\qquad(j=0,1,2).
+\end{equation}
+Also $A_{j,v}\ge\e^{-O(y)}$. By \Cref{lem:sound}, $\Pr(v)=A_{0,v}+O(2^{\pi(y)}PX^{-1/2+\varepsilon})=A_{0,v}(1+O(X^{-1/3}))$ when $y\le cL$ with $c$ small. In particular every pattern has positive probability. We fix $c$ small enough for all the requirements below; they are finitely many and independent of $X$.
+
+\emph{Local weights.} In a sum $\sum_hb_v(h)a_j(h)\Omega(h)$, where $\Omega$ marks a condition on the exponent $e=v_p(h)$ at one prime $p$, the marked sum equals $A_{j,v}$ times a local factor, the ratio of the marked to the unmarked local sum at $p$. Direct computation gives: for $e\ge1$ or $e=2$, the factor is $O(1)$ if $v_p=\pm1$ and $O(p)$ if $v_p=0$; for $e=1$, it is $O(p^{-1/2})$ if $v_p=\pm1$ and $0$ if $v_p=0$. Conditions at distinct primes multiply.
+
+\subsection{The first moment on every pattern}
+Let $T(v)=\sum_{2<p\le y,\,v_p=0}\log p$, and let $n\le N=X^{1/100}$ be squarefree with all prime factors greater than $y$.
+
+\begin{lemma}\label{lem:first-pattern}
+Uniformly in such $n$, in $3\le y\le cL$ and in $v$,
+\[
+ \frac{\E[Z\chi(n)\one_v]}{K_1A_{1,v}a_1(n)}=L-2\log n+O_\Phi\Big(1+\sqrt y+T(v)+\sum_{p\mid n}\frac{\log p}p\Big)+O(X^{-1/10}).
+\]
+In particular the left side lies between $L/2$ and $2L$.
+\end{lemma}
+\begin{proof}
+Write $\E[Z\chi(n)\one_v]=\sum_hb_v(h)\E[Z\chi(hn)]$ and apply \Cref{lem:sound}. Since $(h,n)=1$ we have $a_1(hn)=a_1(h)a_1(n)$ and $(hn)_1=h_1n$. By \eqref{eq:Ajv}, the terms of the polynomial not depending on $h$ give $A_{1,v}a_1(n)(L-2\log n+C_0+\sum_{p\mid n}C(p)\frac{\log p}p)$. The term $-2\log h_1=-2\sum_{p\le y}\log p\,\one_{p\mid h_1}$ costs, by the local weights, $O(A_{1,v}\sum_{p\le y}\log p/\sqrt p)=O(A_{1,v}\sqrt y)$, and $\sum_{p\mid h}C(p)\frac{\log p}p$ costs $O(A_{1,v}(\log y+T(v)))$. The power errors total $O(2^{\pi(y)}P^{1+2\varepsilon}N^{1/2+\varepsilon}X^{-1/4+\varepsilon})$, which is $O(X^{-1/10}A_{1,v}a_1(n))$ because $A_{1,v}\ge X^{-O(c)}$ and $a_1(n)\gg n^{-1/2-\varepsilon}$. For the last assertion: $2\log n\le L/50$; $\sqrt y+T(v)\ll\sqrt{cL}+cL$; and $\sum_{p\mid n}\frac{\log p}p\le\sum_{p\le\sqrt L}\frac{\log p}p+\omega(n)\frac{\log\sqrt L}{\sqrt L}\ll\log L+\sqrt L$.
+\end{proof}
+
+\subsection{Proof of part (a)}
+Let $\mathcal N$ be the set of squarefree $n\le N$ with all prime factors greater than $y$, $B=\sum_{n\in\mathcal N}\chi(n)n^{-1/2}$ and $S=\sum_{n\in\mathcal N}n^{-1}$. For distinct $n,n'\in\mathcal N$ and $h\mid P^2$, $hnn'$ is not a square, so by \Cref{lem:sound} the off-diagonal part of $\E[B^2\one_v]$ is $O(2^{\pi(y)}PN^2X^{-1/2+\varepsilon})=o(\Pr(v))$; the diagonal is at most $S\Pr(v)$. Hence $\E[B^2\mid v]\le S+o(1)$. By \Cref{lem:first-pattern}, for $n\in\mathcal N$, $\E[Z\chi(n)\one_v]\ge\frac14\E[Z\one_v]a_1(n)$, and $a_1(n)n^{-1/2}=\prod_{p\mid n}\beta_p/p$. So
+\[
+ \E[ZB\mid v]\ge\frac14\E[Z\mid v]\sum_{n\in\mathcal N}\frac1n\prod_{p\mid n}\beta_p\gg\E[Z\mid v]\,S .
+\]
+For the last step note $\log\beta_p\ge-2/p$, and under the probability measure on $\mathcal N$ proportional to $1/n$ the mean of $\sum_{p\mid n}1/p$ is at most $\sum_pp^{-2}$, since $\sum_{n\in\mathcal N,\,p\mid n}\frac1n\le\frac1p\sum_{n\in\mathcal N}\frac1n$; apply Jensen's inequality to $\exp$.
+
+We have $S\asymp\log N/\log(2y)$. The upper bound is $S\le\prod_{y<p\le N}(1+\frac1p)$ and Mertens' theorem. For the lower bound fix a small $\delta>0$ and consider the measure on squarefree $n$ with prime factors in $(y,N^\delta]$ proportional to $1/n$; its total mass is $\prod_{y<p\le N^\delta}(1+\frac1p)\gg\delta\log N/\log(2y)$ and the mean of $\log n$ is $\sum_{y<p\le N^\delta}\frac{\log p}{p+1}\le2\delta\log N$, so by Markov's inequality at least half of the mass lies on $n\le N$ when $\delta\le\frac14$.
+
+By Cauchy--Schwarz, $\E[Z\mid v]^2S^2\ll\E[ZB\mid v]^2\le\E[Z^2\mid v](S+o(1))$, so $\E[Z\mid v]^2\ll\E[Z^2\mid v]/S\ll\E[Z^2\mid v]\log(2y)/L$. \qed
+
+\subsection{The second moment on most patterns}
+\begin{lemma}\label{lem:second-pattern}
+Fix $c<\frac14$ small. Uniformly for $3\le y\le cL$ and patterns with $T(v)\le(\log L)^3$,
+\[
+ \E[Z^2\one_v]=K_2L^3A_{2,v}(1+o(1)),\qquad\E[Z\one_v]=K_1LA_{1,v}(1+o(1)).
+\]
+\end{lemma}
+\begin{proof}
+The second statement is \Cref{lem:first-pattern} with $n=1$, since $\sqrt y+T(v)=o(L)$. For the first, write $\E[Z^2\one_v]=\sum_{b\mid P^2}b_v(b)\E[Z^2\chi(b)]$ and use \Cref{lem:sound}. The power errors total $X^{-1/4+c+o(1)+O(\varepsilon)}$, which is $o(L^3A_{2,v})$ because $A_{2,v}\ge\exp(-O(\pi(y)+T(v)))=X^{-o(1)}$ on these patterns. The leading term $(L-\log b_1)^3$ expands as $L^3$ plus terms $L^{3-r}(\log b_1)^r$, $1\le r\le3$. By \eqref{eq:Ajv} the term $L^3$ gives $K_2L^3A_{2,v}$. We show that every other term is $o(L^3A_{2,v})$ after summation against $b_v(b)a_2(b)$. Taking absolute values before summing over $b$ would lose this, so we use the local weights.
+
+\emph{Logarithmic marks.} $(\log b_1)^r=\sum_{q_1,\dots,q_r\le y}\prod_i\log q_i\,\one_{q_i\parallel_{\rm odd}b}$. Group the indices by equal primes; a block of size $d$ at a prime $q$ carries the condition $e=1$ (as $b\mid P^2$), with local factor $O(q^{-1/2})$ or $0$, and weight $(\log q)^d$. Summing, the block contributes $O(\sum_{q\le y}(\log q)^d/\sqrt q)=O(\sqrt y(1+\log y)^d)$. Hence $\sum_bb_v(b)a_2(b)(\log b_1)^r=O(A_{2,v}(1+\sqrt y)^r(1+\log y)^r)$, and the terms $L^{3-r}(\log b_1)^r$ contribute $o(L^3A_{2,v})$. The term $\sum_{p\mid b_1}\log^2p$ is treated in the same way, giving $O(A_{2,v}(L\sqrt y+y)(1+\log y)^3)$.
+
+\emph{Divisor marks.} Fix $\varsigma\mid b$ and $\varrho\mid b_1$; the set $J$ of their prime factors has at most six elements. For $p\mid\varsigma$ the condition is $e\ge v_p(\varsigma)$, and for $p\mid\varrho$ it is $e=1$. After including the factor $1/(\varsigma\varrho)$, the cost at $p\in J$ is $O(1/p)$ if $v_p=\pm1$; if $v_p=0$ the only possibility is $p\mid\varsigma$, $p\nmid\varrho$, with cost $O(1)$ since $p^{v_p(\varsigma)}\ge p$. As $\log(\varsigma\varrho)\le18\log y$ on the support, the divisor marks, including the factors $\Lambda_i\Lambda_k$, cost at most
+\[
+ C(1+\log y)^6\Big(1+\sum_{p\le y}\frac1p+\#\{p:v_p=0\}\Big)^6\ll(1+\log L)^{C'}
+\]
+relative to $A_{2,v}$, because $\#\{p:v_p=0\}\le T(v)/\log3$. Combined with logarithmic marks from $Q_{ik}(L-\log b_1)$ as above, these terms contribute $O(A_{2,v}L^2(1+\log L)^{C''})=o(L^3A_{2,v})$.
+\end{proof}
+
+\begin{lemma}\label{lem:rare}
+For every fixed $A>0$, $\Pr(T(v)>(\log L)^3)=O_A(L^{-A})$ uniformly for $3\le y\le L$, where $T$ is evaluated at the pattern of $m$.
+\end{lemma}
+\begin{proof}
+For squarefree $\delta\mid P$, $\Pr(\delta\mid m)\ll1/\delta$ by counting multiples of $\delta$ up to $2X$. Hence $\E[\e^{T/\log y}]\le\sum_{\delta\mid P}\prod_{p\mid\delta}(p^{1/\log y}-1)\Pr(\delta\mid m)\le\prod_{p\le y}\big(1+\frac{C(e-1)\log p}{p\log y}\big)\ll1$. By Markov's inequality, $\Pr(T>(\log L)^3)\ll\exp(-(\log L)^3/\log y)\le\exp(-(\log L)^2)$.
+\end{proof}
+
+\subsection{Proof of parts (b) and (c)}
+Call a pattern \emph{good} if $T(v)\le(\log L)^3$. For a good pattern, \Cref{lem:second-pattern} and $\Pr(v)=A_{0,v}(1+o(1))$ give
+\begin{align*}
+ \frac{\E[Z\mid v]^2}{\E[Z^2\mid v]}=\frac{\E[Z\one_v]^2}{\E[Z^2\one_v]\Pr(v)}&=(1+o(1))\frac{K_1^2}{K_2L}\cdot\frac{A_{1,v}^2}{A_{0,v}A_{2,v}}\\
+ &=(1+o(1))\frac{K_1^2}{K_2L}\prod_{2<p\le y}\frac{U_{2,p}}{U_{1,p}^2},
+\end{align*}
+since the factors $r_p(v_p)$ and $(1-v_p/\sqrt p)$ cancel. The dependence on $v$ has disappeared. Regrouping the convergent products,
+\[
+ \frac{K_1^2}{K_2}\prod_{2<p\le y}\frac{U_{2,p}}{U_{1,p}^2}=12\prod_{2<p\le y}\Big(1-\frac1p\Big)^{-1}\prod_{p>y}\Big(1-\frac1p\Big)^{-1}\frac{U_{1,p}^2}{U_{2,p}} .
+\]
+Since $(1-\frac1p)U_{1,p}=1-\frac1{p(p+1)}$ and $(1-\frac1p)^2U_{2,p}=h(p)=1+\frac{(p-1)^2}{p^2(p+1)}$, the right side is $\kappa(y)$ as defined in \eqref{eq:kappa}. This proves the asymptotic in (c). For fixed $y$ every pattern has $T(v)\le\sum_{p\le y}\log p\le(\log L)^3$ once $X$ is large. Finally, the last product is $\prod_{p>y}(1+O(p^{-2}))=1+O(1/y)$, and $\prod_{2<p\le y}(1-\frac1p)^{-1}=(\frac12+o(1))\e^\gamma\log y$ by Mertens' theorem, so $\kappa(y)=(6\e^\gamma+o(1))\log y$ as $y\to\infty$. This proves (c).
+
+For (b), by Cauchy--Schwarz in the finite space of pattern values,
+\[
+ C_X(y)=\sum_v\frac{\E[Z\one_v]^2}{\E[Z^2\one_v]},
+\]
+attained by $M(v)=\E[Z\one_v]/\E[Z^2\one_v]$ (terms with zero denominator are omitted). Each term is at most $\Pr(v)$ by Cauchy--Schwarz. By \Cref{lem:rare} the patterns that are not good contribute $O(L^{-2})$. The good patterns contribute $(1+o(1))\frac{K_1^2}{K_2L}\prod_{2<p\le y}U_{2,p}U_{1,p}^{-2}\cdot\Pr(\text{good})=(1+o(1))\kappa(y)\Pr(\text{good})/L$, and for $y=cL$ this is $(6\e^\gamma+o(1))\log L/L$ by the computation above, since $\log(cL)=(1+o(1))\log L$.
+
+\emph{The Euler product $M_0$.} Expand $M_0^j=\sum_hb_j(h)\chi(h)$ for $j=1,2$, so $\sum_hb_j(h)a_j(h)=\prod_{2<p\le y}U_{j,p}^{-1}$ by the definition of the local laws. For each fixed $k$,
+\begin{align*}
+ \sum_h|b_j(h)|a_j(h)(1+\log h)^k&\ll_k(1+\log y)^k\sum_h|b_j(h)|a_j(h)h^{1/\log y}\\
+ &\ll(1+\log y)^{O_k(1)},
+\end{align*}
+since in the absolute Euler product both odd and positive even exponents contribute $O(1/p)$ at each $p\le y$, also with the factor $p^{2/\log y}$. The nonleading terms of the polynomials in \Cref{lem:sound}, relative to $K_ja_j(h)$, are $O(L^{d_j-1}(1+\log h)^{10})$ for $h\mid P^2$, where $d_1=1$, $d_2=3$; here we use $\Lambda_i\ge0$ and $\sum_{n\mid h}\Lambda_i(n)=(\log h)^i$. The products $\prod U_{j,p}^{-1}$ are powers of $\log y$ up to bounded factors, so these terms are $o(L^{d_j}\prod_pU_{j,p}^{-1})$. The power errors are $O(X^{-1/4+O(c)+\varepsilon})$, since $\sum_h|b_j(h)|\le\prod_{p\le y}(1+p^{-1/2})^j=X^{o(1)}$. Hence $\E[ZM_0]=K_1L\prod U_{1,p}^{-1}(1+o(1))$ and $\E[Z^2M_0^2]=K_2L^3\prod U_{2,p}^{-1}(1+o(1))$, and the ratio has the same asymptotic. \qed
+
+\begin{remark}
+By GRH \cite{Alpoge} and the bound of Lamzouri, Li and Soundararajan for the least prime outside the kernel of a nonprincipal character \cite{LLS}, the values $\chi_{8m}(p)$ for $p\le C(\log X)^2$ determine $m$. At that scale the identity for $C_X(y)$ above gives $C_X(y)=\Pr(Z\neq0)$ exactly, but the maximising $M$ involves $1/Z$, so this says nothing new. It also shows that the uniformity in \Cref{thm:correlations} cannot extend to $z\asymp(\log X)^2$: a centred linear statistic with Fourier support in $(-\frac14,\frac14)$ has positive limiting variance by \Cref{thm:correlations}, while on singleton patterns its conditional variance is zero. This argument says nothing about the proportion in \Cref{thm:local}, since a singleton pattern may consist of a discriminant with $L(\frac12,\chi_d)\neq0$. The assertion of \Cref{thm:local} that every pattern occurs fails for a simpler reason as soon as $z\ge(1+\delta)\log X$ for a fixed $\delta>0$: the pattern with $v_p=0$ for every odd $p\le z$ requires $\prod_{2<p\le z}p$ to divide $m(d)\le2X$, whereas $\prod_{2<p\le z}p=\e^{(1+o(1))z}$ by the prime number theorem.
+\end{remark}
+
+\appendix
+\section{Programs, data and checks}\label{app:replay}
+The programs are available at \coderepo. They use only the Python standard library and exact integer and rational arithmetic. Each program asserts the exact inequality of \Cref{prop:certificate} for its stages. On a shared $2.1$\,GHz Xeon, stage $1$ took about a minute and a half on four cores, and stages $2$--$5$ took under two minutes each. On one core the program for stage $6$ took about two and a half minutes, the program for stages $6$--$7$ about five and a half minutes, and the last program, which carries out stages $6$--$8$, about eight minutes. The programs for stages $6$--$8$ start from the rational $p_5$, so they rely on the stage-$5$ program having passed; the last of them carries the running total through all the rows of (R7)--(R9) and checks $R_8>p_8$. The spline arithmetic is implemented twice, in rational and in integer arithmetic. All eight stages and both cross-check programs of (ii) below were re-run on 24 November 2026 with Python~3.13, and stages $3$ and $4$ also with Python~3.9; all passed. The two cross-check programs took about half a minute and three and a half minutes.
+
+\emph{Internal checks.} (i) The shift formula of \Cref{lem:shift} is checked against an independent evaluation of $\Ka(\phi,T_a,T_b)$ from sine-kernel traces at four width pairs, and against a direct bounded-simplex inclusion--exclusion for four and five equal widths. (ii) Stages $2$ and $3$ evaluate \Cref{lem:connected} by enumerating partitions; stage $4$ evaluates \Cref{lem:contraction} by enumerating matchings. Stages $5$--$8$ use the matching implementation of stage $4$. Two programs recompute Gram entries by the other method and assert exact agreement. The first recomputes by enumerating labelled partitions all $208$ Gram entries between a row of (R7) and a row of (R6) or (R7). The second recomputes all $4{,}287$ inner products of stage $3$ by enumerating matchings. By enumerating labelled partitions it recomputes all $8{,}385$ entries among the rows of (R8) and (R9), all $2{,}838$ entries between those rows and the rows of (R6)--(R7), and $3{,}000$ distinct entries, chosen at random, between those rows and the rows of $F_4$. Both methods use the same routine for the individual cumulants $\Ka(\phi;S)$, so these checks do not replace an independent implementation. (iii) The integer spline arithmetic is compared with the rational one at several orders and points.
+
+\emph{Quadratic rows.} \Cref{tab:quadratic} lists the rows (R2): widths $(a,b)$ in units of $\frac1{40}$ and the coefficients of $P_2,\dots,P_{10}$.
+
+{\small
+\begin{longtable}{@{}rr rrrrr@{}}
+\caption{Quadratic rows (R2): widths $(a,b)$ in units of $\frac1{40}$ and the coefficients $c_1,\dots,c_5$ of $P_2,P_4,\dots,P_{10}$.}\label{tab:quadratic}\\
+\toprule $40a$ & $40b$ & $c_1$ & $c_2$ & $c_3$ & $c_4$ & $c_5$\\\midrule\endfirsthead
+\toprule $40a$ & $40b$ & $c_1$ & $c_2$ & $c_3$ & $c_4$ & $c_5$\\\midrule\endhead
+2 & 2 & $242110$ & $545784$ & $893667$ & $883633$ & $480446$\\
+2 & 4 & $399826$ & $923502$ & $1472691$ & $1116727$ & $55790$\\
+2 & 6 & $429521$ & $873446$ & $1226538$ & $579765$ & $-458315$\\
+2 & 8 & $490775$ & $809395$ & $916890$ & $29337$ & $-590695$\\
+2 & 10 & $489843$ & $674629$ & $634881$ & $-330118$ & $-532222$\\
+4 & 4 & $217218$ & $449937$ & $618872$ & $293787$ & $-293958$\\
+4 & 6 & $514063$ & $890271$ & $992554$ & $154772$ & $-919678$\\
+4 & 8 & $526481$ & $757227$ & $656167$ & $-176942$ & $-911451$\\
+4 & 10 & $526596$ & $609495$ & $400839$ & $-373146$ & $-680588$\\
+6 & 6 & $273666$ & $408179$ & $364064$ & $-3445$ & $-568669$\\
+6 & 8 & $552147$ & $638418$ & $341114$ & $-129783$ & $-982016$\\
+6 & 10 & $660272$ & $548561$ & $-63408$ & $-432779$ & $-383129$\\
+8 & 8 & $316143$ & $252997$ & $-99152$ & $-155639$ & $-227397$\\
+8 & 10 & $549018$ & $429099$ & $-404970$ & $-659213$ & $311778$\\
+10 & 10 & $81797$ & $135236$ & $-66936$ & $-161016$ & $61184$\\
+2 & 12 & $788703$ & $501648$ & $61582$ & $-921403$ & $-91304$\\
+2 & 16 & $404366$ & $490165$ & $334000$ & $-947519$ & $-342215$\\
+2 & 20 & $747200$ & $703555$ & $-372707$ & $-565778$ & $-196129$\\
+2 & 24 & $441560$ & $395135$ & $-380397$ & $-298028$ & $162976$\\
+2 & 28 & $392991$ & $-89046$ & $-241727$ & $25331$ & $23069$\\
+2 & 32 & $31459$ & $-10862$ & $-69852$ & $62918$ & $-35954$\\
+4 & 12 & $933394$ & $460991$ & $-332047$ & $-1012033$ & $401941$\\
+4 & 16 & $252131$ & $210084$ & $298855$ & $-624900$ & $-375488$\\
+4 & 20 & $724885$ & $665993$ & $-418774$ & $-444113$ & $-55054$\\
+4 & 24 & $444178$ & $120995$ & $-295143$ & $-188998$ & $155622$\\
+4 & 28 & $233882$ & $-31352$ & $-178523$ & $36282$ & $44244$\\
+4 & 32 & $-29032$ & $-21044$ & $1175$ & $6480$ & $4663$\\
+6 & 12 & $544089$ & $417066$ & $-190042$ & $-961356$ & $532361$\\
+6 & 16 & $433758$ & $95376$ & $-115720$ & $-393861$ & $-182619$\\
+6 & 20 & $587281$ & $397771$ & $-410872$ & $-393042$ & $163973$\\
+6 & 24 & $399738$ & $42399$ & $-381018$ & $22024$ & $91487$\\
+6 & 28 & $143749$ & $-105449$ & $-55640$ & $52991$ & $-15023$\\
+8 & 12 & $167988$ & $165073$ & $-162821$ & $-404555$ & $280858$\\
+8 & 16 & $544125$ & $174395$ & $-383810$ & $-352024$ & $62241$\\
+8 & 20 & $545526$ & $95805$ & $-367782$ & $-211724$ & $195705$\\
+8 & 24 & $255550$ & $-9931$ & $-271845$ & $85180$ & $44635$\\
+8 & 28 & $39090$ & $-56179$ & $4958$ & $3250$ & $3477$\\
+10 & 12 & $330379$ & $148946$ & $-458207$ & $-63893$ & $91533$\\
+10 & 16 & $389213$ & $123909$ & $-401577$ & $-113210$ & $58649$\\
+10 & 20 & $449703$ & $-76163$ & $-348853$ & $21675$ & $117961$\\
+10 & 24 & $215391$ & $-120834$ & $-94593$ & $71968$ & $484$\\
+12 & 12 & $187476$ & $-16085$ & $-360832$ & $289597$ & $-150378$\\
+12 & 16 & $203527$ & $-92892$ & $-69071$ & $-138138$ & $111003$\\
+12 & 20 & $295773$ & $-116331$ & $-211832$ & $91469$ & $31203$\\
+12 & 24 & $97850$ & $-99964$ & $-3197$ & $7625$ & $3344$\\
+14 & 16 & $152777$ & $-98123$ & $-94669$ & $38153$ & $11524$\\
+14 & 20 & $87181$ & $-71263$ & $-48929$ & $36369$ & $-7029$\\
+\bottomrule\end{longtable}
+}
+
+\emph{Rows (R8).} \Cref{tab:mixed} lists the rows (R8): widths in units of $\frac1{160}$ and the coefficients $c_1,\dots,c_6$ of $P_2,\dots,P_{12}$. The profile of each row is $10^{-9}\ell_{s,c}$ with $s=1-\sum A$.
+
+{\small
+\begin{longtable}{@{}l rrrrrr@{}}
+\caption{Rows (R8): widths in units of $\frac1{160}$ and the coefficients $c_1,\dots,c_6$; blank entries are absent.}\label{tab:mixed}\\
+\toprule $160A$ & $c_1$ & $c_2$ & $c_3$ & $c_4$ & $c_5$ & $c_6$\\\midrule\endfirsthead
+\toprule $160A$ & $c_1$ & $c_2$ & $c_3$ & $c_4$ & $c_5$ & $c_6$\\\midrule\endhead
+$\varnothing$ & 1749815 & 726190 & $-1588340$ & $-347357$ & 0 & $-9557$\\
+8 & 499022 & $-1296616$ & $-4521807$ & $-2080341$ & 0 & $-6036267$\\
+16 & $-2612232$ & $-3643729$ & 4082174 & 4336558 & 0 & 1838789\\
+24 & $-2050418$ & $-4218237$ & 422531 & 2884471 & 0 & $-5679359$\\
+32 & 1052539 & 282620 & $-2670391$ & 1103750 & 0 & $-561546$\\
+40 & $-997931$ & $-1762882$ & $-1203356$ & $-2197389$ & 0 & 4677424\\
+48 & $-103024$ & $-2653974$ & $-1781297$ & $-2458696$ & 0 & 1834261\\
+56 & $-3338897$ & $-2157820$ & 70613 & $-527419$ & 0 & $-1374624$\\
+64 & 438161 & $-3628713$ & $-3823106$ & $-1982383$ & 0 & $-832315$\\
+72 & $-2916307$ & $-406279$ & 2679413 & $-4052298$ & 0 & 1224721\\
+80 & $-174475$ & $-2606263$ & $-3455414$ & 2763980 & 0 & $-2233244$\\
+88 & $-1367930$ & 96536 & 422475 & $-294443$ & 0 & $-1311238$\\
+96 & $-1019779$ & $-259309$ & $-1020603$ & 399824 & 0 & $-1390334$\\
+104 & $-1710048$ & $-49009$ & 1031901 & $-1695932$ & 0 & $-953339$\\
+112 & 284691 & 801204 & $-331862$ & $-630206$ & 0 & $-698813$\\
+120 & $-378568$ & 2208959 & $-1969551$ & 966279 & 0 & $-247805$\\
+128 & $-1484157$ & 1833101 & $-1848830$ & 1605008 & 0 & $-194920$\\
+136 & 1266121 & $-2581888$ & 1195917 & 144472 & 0 & 273212\\
+144 & 4298 & 254373 & 581506 & $-410373$ & 0 & $-139048$\\
+152 & $-562231$ & 475507 & 173123 & 171793 & 0 & $-99721$\\
+8,8 & $-4988569$ & $-7371431$ & $-9508373$ &  &  & \\
+8,16 & $-1283392$ & 3283372 & $-3352633$ &  &  & \\
+8,24 & $-342277$ & 424261 & $-12314560$ &  &  & \\
+8,32 & $-5309736$ & $-3661433$ & 5000713 &  &  & \\
+8,40 & $-5173031$ & 1883946 & 13466438 &  &  & \\
+8,48 & $-35671562$ & 8375311 & 51420543 &  &  & \\
+8,56 & 60253421 & 32482673 & $-32544235$ &  &  & \\
+8,64 & $-11729527$ & $-23649365$ & 1432462 &  &  & \\
+8,72 & 608651 & 13111334 & $-3434638$ &  &  & \\
+8,80 & $-30596123$ & $-20423372$ & 43407792 &  &  & \\
+8,88 & 35548323 & 33136759 & $-44929465$ &  &  & \\
+8,96 & $-26699318$ & $-18768589$ & 27044028 &  &  & \\
+8,104 & 13480473 & 10891380 & $-27313915$ &  &  & \\
+8,112 & $-12187815$ & 4133393 & 10413784 &  &  & \\
+8,120 & 13872953 & $-9859489$ & $-532964$ &  &  & \\
+16,16 & $-1348704$ & $-7619986$ & 16052846 &  &  & \\
+16,24 & 3246383 & 7029442 & $-4579900$ &  &  & \\
+16,32 & $-3557565$ & 5228042 & 9426199 &  &  & \\
+16,40 & 1001572 & 8056471 & 13438581 &  &  & \\
+16,48 & $-31202048$ & 7441704 & 43055681 &  &  & \\
+16,56 & 48166270 & 30629941 & $-20975891$ &  &  & \\
+16,64 & $-16757256$ & 2050221 & 8229115 &  &  & \\
+16,72 & 37458703 & 24747679 & $-35668452$ &  &  & \\
+16,80 & $-32854584$ & $-30533389$ & 36247056 &  &  & \\
+16,88 & 30653220 & 21642494 & $-35278486$ &  &  & \\
+16,96 & $-24056984$ & 1370938 & 12110092 &  &  & \\
+16,104 & 26740205 & $-11506013$ & $-16658726$ &  &  & \\
+16,112 & 495118 & $-8245978$ & 16118833 &  &  & \\
+16,120 & $-136633$ & 1596502 & $-2034265$ &  &  & \\
+22,44 & 0 & 23243196 &  &  &  & \\
+24,24 & $-1608190$ & $-8992825$ & 9168698 &  &  & \\
+24,32 & $-10622380$ & $-3312677$ & 19474153 &  &  & \\
+24,40 & $-3666704$ & $-6688686$ & 19238657 &  &  & \\
+24,48 & $-4764365$ & $-3413879$ & 17047376 &  &  & \\
+24,56 & 17318746 & 20613999 & 9843991 &  &  & \\
+24,64 & $-15714917$ & 10458472 & 9125947 &  &  & \\
+24,72 & 35074755 & 16731685 & $-29401254$ &  &  & \\
+24,80 & $-28257196$ & $-10649702$ & 24032541 &  &  & \\
+24,88 & 24942117 & 4287734 & $-27777511$ &  &  & \\
+24,96 & $-13196143$ & $-7677739$ & 19303779 &  &  & \\
+24,104 & 14917642 & $-10402076$ & $-4679036$ &  &  & \\
+24,112 & $-11538800$ & 13536074 & $-2129386$ &  &  & \\
+24,120 & 4668438 & $-3795300$ & 817494 &  &  & \\
+32,32 & $-5477242$ & $-1362023$ & 13231721 &  &  & \\
+32,40 & $-18774572$ & 6951759 & 38011329 &  &  & \\
+32,48 & $-18460024$ & 7022205 & 8183674 &  &  & \\
+32,56 & 23883768 & 12658729 & $-12998383$ &  &  & \\
+32,64 & $-25342874$ & $-3524829$ & 17396999 &  &  & \\
+32,72 & 23272903 & 4107748 & $-23486568$ &  &  & \\
+32,80 & $-29194057$ & 5724803 & 12635936 &  &  & \\
+32,88 & 21881703 & $-12236162$ & $-15119598$ &  &  & \\
+32,96 & $-12333084$ & 146454 & 14649842 &  &  & \\
+32,104 & 792611 & $-1908595$ & $-2845332$ &  &  & \\
+32,112 & $-950393$ & 3510452 & $-1120597$ &  &  & \\
+34,44 & 37380175 &  &  &  &  & \\
+38,46 & 28545901 & $-9432832$ &  &  &  & \\
+40,40 & $-17771517$ & 3923407 & 15246820 &  &  & \\
+40,44 & 10845935 &  &  &  &  & \\
+40,48 & $-19169407$ & 21006591 & $-9273929$ &  &  & \\
+40,56 & 24567649 & 7474208 & $-19478223$ &  &  & \\
+40,64 & $-17560840$ & $-3375201$ & 14269435 &  &  & \\
+40,72 & 20988167 & $-8326206$ & $-10968949$ &  &  & \\
+40,80 & $-18819244$ & 7929973 & 13008165 &  &  & \\
+40,88 & 14241553 & $-10355842$ & $-6337157$ &  &  & \\
+40,96 & $-12760643$ & 8470353 & 4338291 &  &  & \\
+40,104 & 2381227 & $-4148164$ & 1027100 &  &  & \\
+44,52 & 0 & $-10124428$ &  &  &  & \\
+48,48 & $-4629908$ & 7391220 & 7096778 &  &  & \\
+48,56 & 13630307 & 2469192 & $-6703782$ &  &  & \\
+48,64 & $-8287722$ & 4496266 & 4856693 &  &  & \\
+48,72 & 17923899 & $-14006427$ & $-3730320$ &  &  & \\
+48,80 & $-12482258$ & 12772604 & 5359554 &  &  & \\
+48,88 & 8601461 & $-7428480$ & $-1613661$ &  &  & \\
+48,96 & $-4821259$ & 6503340 & 86542 &  &  & \\
+56,56 & 6578896 & $-988602$ & $-3439072$ &  &  & \\
+56,64 & $-4385598$ & 7583315 & $-3659058$ &  &  & \\
+56,72 & 6949335 & $-7339399$ & $-377397$ &  &  & \\
+56,80 & 678154 & 1752422 & 2779176 &  &  & \\
+56,88 & 1478156 & $-2254075$ & 33231 &  &  & \\
+64,64 & 2014277 & 727814 & $-3501727$ &  &  & \\
+64,72 & 510311 & $-758993$ & $-1711628$ &  &  & \\
+64,80 & 2827531 & $-2225282$ & 43515 &  &  & \\
+72,72 & $-534099$ & 39559 & $-654864$ &  &  & \\
+\bottomrule\end{longtable}
+}
+
+\section{Formal verification in Lean}\label{app:lean}
+The numerical certificate of \Cref{prop:certificate} has also been proved in the Lean~4 proof assistant \cite{Lean4} with the Mathlib library \cite{Mathlib}. So has \Cref{thm:main}, from GRH, two classical facts and \Cref{thm:correlations} with the empty pattern, which enter as explicit hypotheses. The development uses version~4.29.1 of Lean and the matching release of Mathlib, and is available at \coderepo.
+
+\emph{Statements.} The formal statements define Fourier profiles, restricted cumulants and the model inner products of \Cref{sec:profiles} as real numbers, and the amplitude $F=F_8$ of \Cref{sec:certificate} from its rows. Lean proves, with no hypothesis,
+\[
+ 0.9453419890<\frac{19-\cot\frac14}{16}+\langle G,F_8\rangle-\frac12\langle F_8,F_8\rangle,
+\]
+which is the consequence of \Cref{prop:certificate} and \Cref{lem:cot} used in the proof of \Cref{thm:main}. The formal statements also define fundamental discriminants, the characters $\chi_d$, the six classes \eqref{eq:classes} and $L(s,\chi_d)$ through Mathlib's Dirichlet $L$-functions, and state \Cref{thm:main} for all discriminants and for each class. Lean proves these statements from three hypotheses.
+\begin{itemize}\small
+\item GRH for Dirichlet $L$-functions, as the proposition that every zero of Mathlib's $L(s,\chi)$ with $0<\Re s<1$ has $\Re s=\frac12$. This is the statement proved in the formal project cited in \cite{Alpoge}. That project uses a later version of Lean and Mathlib, so it is not imported here.
+\item The root number of $L(s,\chi_d)$ is $1$ \cite[Chs.~2, 6, 9]{Davenport}, and the number of zeros with $T\le|\gamma|\le T+1$ is $O(\log(|d|(T+2)))$ uniformly in $d$ and $T\ge0$ \cite[Ch.~16]{Davenport}.
+\item \Cref{thm:correlations} with the empty pattern, in each class.
+\end{itemize}
+The formal statements were reviewed against the paper and then kept unchanged. \Cref{thm:local,thm:twomoment} are not formalised.
+
+\emph{Proof.} Every result of \Cref{sec:notation,sec:profiles,sec:principle,sec:wick,sec:exact,sec:certificate} has a Lean counterpart. Lean proves \Cref{lem:mass} with the empty pattern, \Cref{thm:variational}, the Wick-ordered evaluation of \Cref{sec:wick}, the exact spline evaluation of \Cref{sec:exact} and \Cref{lem:central-error,lem:cot}. The rows (R0)--(R9) are imported both from the published programs and from the \TeX{} source of this paper, and Lean checks that the two agree. The eight stages of \Cref{prop:certificate} are then evaluated by checkers written in Lean, each with a proof that an accepted run gives the stated real inequality. Their exact rational results agree with the published programs at every stage.
+
+\emph{Trust.} The checkers are evaluated with Lean's \texttt{native\_decide} tactic, which runs compiled code, so accepting the formal proof means trusting the Lean compiler for these evaluations as well as the Lean kernel. The certificate and \Cref{thm:main} use $41$ such evaluations, which split the eight stages into blocks of Gram entries; the longest takes under five minutes. Apart from these evaluations, the proofs use only the three standard axioms of Lean: propositional extensionality, the axiom of choice and the soundness of quotients. They contain no unproved steps and declare no further axioms.
+
+\begin{thebibliography}{99}\small
+\bibitem{Alpoge} L.~Alp\"oge, \emph{Remark}, 20 November 2026, \url{https://alpo.ge/remark.pdf}. Formal Lean proof of the Riemann hypothesis and of GRH for Dirichlet $L$-functions: \url{https://github.com/leanprover-community/riemann-hypothesis}. Independent verification: A.\,V.~Sutherland, \url{https://math.mit.edu/~drew/grh/}; M.~Rubinstein, \url{https://www.math.uwaterloo.ca/~mrubinst/alpoge_claude_grh/}.
+\bibitem{Davenport} H.~Davenport, \emph{Multiplicative Number Theory}, 3rd ed., Graduate Texts in Mathematics 74, Springer, 2000.
+\bibitem{ERR} A.~Entin, E.~Roditty-Gershon and Z.~Rudnick, \emph{Low-lying zeros of quadratic Dirichlet $L$-functions, hyper-elliptic curves and random matrix theory}, Geom.\ Funct.\ Anal.\ \textbf{23} (2013), 1230--1261.
+\bibitem{Gao} P.~Gao, \emph{$N$-level density of the low-lying zeros of quadratic Dirichlet $L$-functions}, Int.\ Math.\ Res.\ Not.\ IMRN \textbf{2014}, 1699--1728; arXiv:0806.4830.
+\bibitem{Gao2} P.~Gao, \emph{Sharp lower bounds for moments of quadratic Dirichlet $L$-functions}, arXiv:2102.04027.
+\bibitem{IK} H.~Iwaniec and E.~Kowalski, \emph{Analytic Number Theory}, AMS Colloquium Publications 53, 2004.
+\bibitem{ILS} H.~Iwaniec, W.~Luo and P.~Sarnak, \emph{Low lying zeros of families of $L$-functions}, Publ.\ Math.\ IH\'ES \textbf{91} (2000), 55--131.
+\bibitem{Jutila} M.~Jutila, \emph{On the mean value of $L(\frac12,\chi)$ for real characters}, Analysis \textbf{1} (1981), 149--161.
+\bibitem{KaS} N.\,M.~Katz and P.~Sarnak, \emph{Zeroes of zeta functions and symmetry}, Bull.\ Amer.\ Math.\ Soc.\ \textbf{36} (1999), 1--26.
+\bibitem{Lean4} L.~de~Moura and S.~Ullrich, \emph{The Lean~4 theorem prover and programming language}, in: Automated Deduction -- CADE~28, Lecture Notes in Comput.\ Sci.\ \textbf{12699}, Springer, 2021, 625--635.
+\bibitem{LLS} Y.~Lamzouri, X.~Li and K.~Soundararajan, \emph{Conditional bounds for the least quadratic non-residue and related problems}, Math.\ Comp.\ \textbf{84} (2015), 2391--2412.
+\bibitem{Mathlib} The mathlib Community, \emph{The Lean mathematical library}, in: Proceedings of the 9th ACM SIGPLAN International Conference on Certified Programs and Proofs (CPP 2020), ACM, 2020, 367--381.
+\bibitem{Neukirch} J.~Neukirch, \emph{Algebraic Number Theory}, Grundlehren der mathematischen Wissenschaften 322, Springer, 1999.
+\bibitem{OS} A.\,E.~\"Ozl\"uk and C.~Snyder, \emph{On the distribution of the nontrivial zeros of quadratic $L$-functions close to the real axis}, Acta Arith.\ \textbf{91} (1999), 209--228.
+\bibitem{Rub} M.~Rubinstein, \emph{Low-lying zeros of $L$-functions and random matrix theory}, Duke Math.\ J.\ \textbf{109} (2001), 147--181.
+\bibitem{Sound} K.~Soundararajan, \emph{Nonvanishing of quadratic Dirichlet $L$-functions at $s=\frac12$}, Ann.\ of Math.\ \textbf{152} (2000), 447--488.
+\end{thebibliography}
+\end{document}

@@ -1,0 +1,362 @@
+[
+  {
+    "generators": [
+      [
+        6,
+        18
+      ],
+      [
+        1,
+        8
+      ]
+    ],
+    "K_orbits": 16,
+    "K_size": 12,
+    "checks": {
+      "qr": {
+        "kernel_prime": 19,
+        "orbit_size": 6,
+        "minimum": 5
+      },
+      "klein": {
+        "kernel_prime": 19,
+        "orbit_size": 6,
+        "minimum": 5
+      }
+    }
+  },
+  {
+    "generators": [
+      [
+        6,
+        18
+      ],
+      [
+        2,
+        12
+      ]
+    ],
+    "K_orbits": 14,
+    "K_size": 12,
+    "checks": {
+      "qr": {
+        "enumeration": "prime 7, bounded axial rows 206, distinct spectra 206",
+        "join": "206 block spectra, 20260 pair sums, 0 complementary pair sums"
+      },
+      "klein": {
+        "enumeration": "prime 7, bounded axial rows 2418, distinct spectra 2418",
+        "join": "2418 block spectra, 2824487 pair sums, 0 complementary pair sums"
+      }
+    }
+  },
+  {
+    "generators": [
+      [
+        6,
+        18
+      ],
+      [
+        2,
+        8
+      ]
+    ],
+    "K_orbits": 14,
+    "K_size": 12,
+    "checks": {
+      "qr": {
+        "enumeration": "prime 7, bounded axial rows 206, distinct spectra 206",
+        "join": "206 block spectra, 20260 pair sums, 0 complementary pair sums"
+      },
+      "klein": {
+        "enumeration": "prime 7, bounded axial rows 2418, distinct spectra 2418",
+        "join": "2418 block spectra, 2824487 pair sums, 0 complementary pair sums"
+      }
+    }
+  },
+  {
+    "generators": [
+      [
+        1,
+        2
+      ]
+    ],
+    "K_orbits": 14,
+    "K_size": 18,
+    "checks": {
+      "qr": {
+        "kernel_prime": 19,
+        "orbit_size": 18,
+        "minimum": 17
+      },
+      "klein": {
+        "kernel_prime": 19,
+        "orbit_size": 18,
+        "minimum": 17
+      }
+    }
+  },
+  {
+    "generators": [
+      [
+        6,
+        4
+      ]
+    ],
+    "K_orbits": 12,
+    "K_size": 18,
+    "checks": {
+      "qr": {
+        "enumeration": "qr, K orbits 12, K lags 8, within DC bounds 50721900, after inversion 25362732, within integral power bounds 244638",
+        "join": "244638 rows in 93 field classes, 96 field tuples, 240648 usable rows in 87 classes, 1013797809 pair entries before additional screens\n0 fingerprint matches, zero solutions"
+      },
+      "klein": {
+        "enumeration": "464 origin values, 176 nonzero-site values, 19756671 sum-one rows, 545097 rows within energy and DC bounds, 70402 after integral character bounds, 1909 DC classes",
+        "join": "70402 rows, 70402 distinct spectra, 23422 field-DC tuples, 40595632 pair entries, 0 fingerprint matches, zero solutions"
+      }
+    }
+  },
+  {
+    "generators": [
+      [
+        6,
+        2
+      ]
+    ],
+    "K_orbits": 11,
+    "K_size": 18,
+    "checks": {
+      "qr": {
+        "enumeration": "prime 19, bounded axial rows 12, distinct spectra 12",
+        "join": "12 block spectra, 78 pair sums, 0 complementary pair sums"
+      },
+      "klein": {
+        "enumeration": "prime 19, bounded axial rows 122, distinct spectra 122",
+        "join": "122 block spectra, 7349 pair sums, 0 complementary pair sums"
+      }
+    }
+  },
+  {
+    "generators": [
+      [
+        2,
+        18
+      ],
+      [
+        1,
+        7
+      ]
+    ],
+    "K_orbits": 12,
+    "K_size": 18,
+    "checks": {
+      "qr": {
+        "kernel_prime": 19,
+        "orbit_size": 6,
+        "minimum": 5
+      },
+      "klein": {
+        "kernel_prime": 19,
+        "orbit_size": 6,
+        "minimum": 5
+      }
+    }
+  },
+  {
+    "generators": [
+      [
+        2,
+        2
+      ]
+    ],
+    "K_orbits": 10,
+    "K_size": 18,
+    "checks": {
+      "qr": {
+        "kernel_prime": 19,
+        "orbit_size": 6,
+        "minimum": 5
+      },
+      "klein": {
+        "kernel_prime": 19,
+        "orbit_size": 6,
+        "minimum": 5
+      }
+    }
+  },
+  {
+    "generators": [
+      [
+        2,
+        10
+      ]
+    ],
+    "K_orbits": 10,
+    "K_size": 18,
+    "checks": {
+      "qr": {
+        "kernel_prime": 19,
+        "orbit_size": 6,
+        "minimum": 5
+      },
+      "klein": {
+        "kernel_prime": 19,
+        "orbit_size": 6,
+        "minimum": 5
+      }
+    }
+  },
+  {
+    "generators": [
+      [
+        6,
+        7
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "K_orbits": 14,
+    "K_size": 18,
+    "checks": {
+      "qr": {
+        "kernel_prime": 7,
+        "orbit_size": 6,
+        "minimum": 5
+      },
+      "klein": {
+        "kernel_prime": 7,
+        "orbit_size": 6,
+        "minimum": 5
+      }
+    }
+  },
+  {
+    "generators": [
+      [
+        6,
+        8
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "K_orbits": 11,
+    "K_size": 18,
+    "checks": {
+      "qr": {
+        "enumeration": "prime 7, bounded axial rows 64, distinct spectra 64",
+        "join": "64 block spectra, 2062 pair sums, 0 complementary pair sums"
+      },
+      "klein": {
+        "enumeration": "prime 7, bounded axial rows 584, distinct spectra 584",
+        "join": "584 block spectra, 170121 pair sums, 0 complementary pair sums"
+      }
+    }
+  },
+  {
+    "generators": [
+      [
+        3,
+        2
+      ]
+    ],
+    "K_orbits": 9,
+    "K_size": 18,
+    "checks": {
+      "qr": {
+        "enumeration": "prime 7, bounded axial rows 0, distinct spectra 0",
+        "join": "empty single-block pool"
+      },
+      "klein": {
+        "enumeration": "prime 7, bounded axial rows 2, distinct spectra 2",
+        "join": "2 block spectra, 3 pair sums, 0 complementary pair sums"
+      }
+    }
+  },
+  {
+    "generators": [
+      [
+        3,
+        5
+      ]
+    ],
+    "K_orbits": 10,
+    "K_size": 18,
+    "checks": {
+      "qr": {
+        "enumeration": "prime 7, bounded axial rows 23, distinct spectra 23",
+        "join": "23 block spectra, 276 pair sums, 0 complementary pair sums"
+      },
+      "klein": {
+        "enumeration": "prime 7, bounded axial rows 267, distinct spectra 267",
+        "join": "267 block spectra, 35725 pair sums, 0 complementary pair sums"
+      }
+    }
+  },
+  {
+    "generators": [
+      [
+        3,
+        4
+      ]
+    ],
+    "K_orbits": 10,
+    "K_size": 18,
+    "checks": {
+      "qr": {
+        "enumeration": "prime 7, bounded axial rows 23, distinct spectra 23",
+        "join": "23 block spectra, 276 pair sums, 0 complementary pair sums"
+      },
+      "klein": {
+        "enumeration": "prime 7, bounded axial rows 267, distinct spectra 267",
+        "join": "267 block spectra, 35725 pair sums, 0 complementary pair sums"
+      }
+    }
+  },
+  {
+    "generators": [
+      [
+        3,
+        10
+      ]
+    ],
+    "K_orbits": 9,
+    "K_size": 18,
+    "checks": {
+      "qr": {
+        "enumeration": "prime 7, bounded axial rows 0, distinct spectra 0",
+        "join": "empty single-block pool"
+      },
+      "klein": {
+        "enumeration": "prime 7, bounded axial rows 2, distinct spectra 2",
+        "join": "2 block spectra, 3 pair sums, 0 complementary pair sums"
+      }
+    }
+  },
+  {
+    "generators": [
+      [
+        2,
+        11
+      ],
+      [
+        1,
+        4
+      ]
+    ],
+    "K_orbits": 9,
+    "K_size": 27,
+    "checks": {
+      "qr": {
+        "enumeration": "qr, within field DC bounds 115776, after inversion 57888, within all character bounds 2848, DC classes 51",
+        "join": "2848 rows, 2711 distinct spectra, 26 field-DC tuples, 135356 pair entries, 0 fingerprint matches, zero solutions"
+      },
+      "klein": {
+        "enumeration": "klein, within field DC bounds 14620032, after inversion 7310032, within all character bounds 250368, DC classes 535",
+        "join": "250368 rows, 248091 distinct spectra, 452 field-DC tuples, 163055704 pair entries, 0 fingerprint matches, zero solutions"
+      }
+    }
+  }
+]
