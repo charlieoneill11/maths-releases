@@ -1,6 +1,6 @@
 # Twelve papers, November 2026
 
-Charles O'Neill, Max Kirkby, Astra and Fable, 24–25 November 2026.
+Charles O'Neill, Max Kirkby, Astra and Fable, 24–27 November 2026.
 
 Each folder holds one paper: the PDF, its LaTeX source in `paper/`, the programs and data its proofs rely on, and, for seven of the twelve, a Lean 4 formalisation in `lean/`, with replay instructions in the folder's README. Each paper's section "Formal verification in Lean" says what the formalisation covers and which published results it takes as hypotheses. The papers also have pages at https://charlesponeill.com/maths-releases/.
 
