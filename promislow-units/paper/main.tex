@@ -14,7 +14,7 @@
 \maketitle
 
 \begin{abstract}
-Higman asked in 1940 whether the integral group ring of a torsion-free group has only the trivial units $\pm g$, and Kaplansky's unit conjecture asks the same over every field. Gardam disproved the conjecture over the field with two elements, Murray over every field of positive characteristic, and Gardam over the complex numbers, with coefficients in $\Z[\zeta_8]$. The question over the integers, and over $\Q$ and $\R$, remained open. We show that the integral group ring $\Z[P]$ of the Promislow group $P$, the torsion-free group of these examples, has a non-trivial unit. The unit $u$ is an explicit triple commutator of three units of a central localisation of $\Z[P]$, and its inverse is the formal inverse of that commutator, so the only thing to prove is that $u$ and $u^{-1}$ have integer coefficients. Each of the three possible denominator primes $F$ cancels because the commutators involved are congruent to one modulo increasing powers of $F$ after a suitable conjugation. Consequently the unit conjecture fails over every field and over $\Z$. The reduction of $u$ modulo every prime $p$ is a non-trivial unit of $\F_p[P]$, and we also give a non-trivial unit of $\Z[P]$ that is congruent to one modulo two. The identities used about the three letters are proved by hand and confirmed by exact computation, and the integrality of $u$ and of its inverse has been confirmed by two independently written programs.
+Higman asked in 1940 whether the integral group ring of a torsion-free group has only the trivial units $\pm g$, and Kaplansky's unit conjecture asks the same over every field. Gardam disproved the conjecture over the field with two elements, Murray over every field of positive characteristic, and Gardam over the complex numbers, with coefficients in $\Z[\zeta_8]$. The question over the integers, and over $\Q$ and $\R$, remained open. We show that the integral group ring $\Z[P]$ of the Promislow group $P$, the torsion-free group of these examples, has a non-trivial unit. The unit $u$ is an explicit triple commutator of three units of a central localisation of $\Z[P]$, and its inverse is the formal inverse of that commutator, so the only thing to prove is that $u$ and $u^{-1}$ have integer coefficients. Each of the three possible denominator primes $F$ cancels because the commutators involved are congruent to one modulo increasing powers of $F$ after a suitable conjugation. Consequently the unit conjecture fails over every field and over $\Z$. The reduction of $u$ modulo every prime $p$ is a non-trivial unit of $\F_p[P]$, and we also give a non-trivial unit of $\Z[P]$ that is congruent to one modulo two. The identities used about the three letters are proved by hand and confirmed by exact computation, and the integrality of $u$ and of its inverse has been confirmed by two independently written programs. We have also proved in Lean~4 that $u$ and $u^{-1}$ have integer coefficients and that $u$ and the unit congruent to one modulo two are non-trivial, with the finite computations carried out by compiled evaluation.
 \end{abstract}
 \mscandkeywords{16S34; 16U60, 20H15}{group rings, unit conjecture, Kaplansky's conjectures, Higman, Promislow group, Hantzsche--Wendt group}
 
@@ -51,7 +51,7 @@ Since $\Z$ embeds in every field of characteristic zero, and since the reduction
 For every field $K$, the group ring $K[P]$ has a non-trivial unit. For every prime $p$, the reduction of $u$ modulo $p$ is a non-trivial unit of $\F_p[P]$.
 \end{corollary}
 
-The unit is much larger than the earlier examples. Gardam's unit in $\F_2[P]$ has $21$ terms, whereas the coefficient of $x^{-1420}y^{-208}z^{14}a$ in $u$ is $3^7$, in the notation of \Cref{sec:group}. In \Cref{prop:mod2} we also give a non-trivial unit of $\Z[P]$ whose reduction modulo two is the identity.
+The unit is much larger than the earlier examples. Gardam's unit in $\F_2[P]$ has $21$ terms, whereas the coefficient of $x^{-1420}y^{-208}z^{14}a$ in $u$ is $3^7$, in the notation of \Cref{sec:group}. In \Cref{prop:mod2} we also give a non-trivial unit of $\Z[P]$ whose reduction modulo two is the identity. \Cref{sec:lean} describes a proof of \Cref{thm:main,thm:integral,prop:mod2} in the Lean~4 proof assistant.
 
 \section{The group and its group ring}\label{sec:group}
 
@@ -305,7 +305,28 @@ The proofs of \Cref{thm:integral} and \Cref{prop:mod2} are complete as written, 
 
 \paragraph{Software.} The programs are written in Python and use FLINT \cite{FLINT} through its Python bindings.
 
+\section{Formal verification in Lean}\label{sec:lean}
+\Cref{thm:main}, \Cref{thm:integral} and \Cref{prop:mod2} have also been proved in the Lean~4 proof assistant \cite{Lean4} with the Mathlib library \cite{Mathlib}, and so has the fact that the reduction of $u$ modulo $2$ is non-trivial. The development has about $2{,}100$ lines and uses version~4.24.0 of Lean and the matching release of Mathlib. Its model of $P$ and its proof that $P$ is torsion-free are adapted from a Lean development of Donahue \cite{Donahue}. The development is available at \coderepo.
+
+\emph{Statements.} In the formal statements $P$ is the set of normal forms $x^iy^jz^kr$ of \Cref{sec:group}, with the multiplication determined by \eqref{eq:action} and the products of the coset representatives. Lean proves that this is a torsion-free group, isomorphic to the group defined by the presentation in the introduction. The integral group ring is Mathlib's monoid algebra of $P$ over $\Z$. Lean proves the following.
+\begin{itemize}\small
+\item There are $u,v\in\Z[P]$ with $uv=vu=1$, $Du=N_u$ and $Dv=N_v$, such that $u\ne\pm g$ for every $g\in P$. Here $D=F_1^{80}F_2^{64}F_3^{112}$, and $N_u$ and $N_v$ are the products of the integer numerators $N^\pm$ of the $64$ signed letters of the reduced words of $u$ and $v$. Lean also proves that $D$ is not a zero divisor, so these equations determine $u$ and $v$, and $u$ is the unit of \eqref{eq:u}.
+\item The reduction of $u$ modulo $2$ is not a group element.
+\item The element $u\,\chi(v)$ is a unit with inverse $\chi(u)\,v$, its reduction modulo $2$ is $1$, and it is not a signed group element.
+\item The integral group ring of the presented group has a non-trivial unit, and it is false that for every torsion-free group $G$ every unit of $\Z[G]$ has the form $\pm g$.
+\end{itemize}
+The two reduced words, the letter types and the phases are read during the build from the certificate published with the programs. Lean checks that they agree with the definitions of \Cref{sec:letters}, that the word of $u$ is the free reduction of \eqref{eq:u} and the word of $v$ its formal inverse, and that the exponents of $D$ are four times the numbers of occurrences of $A_1$, $A_2$ and $B$.
+
+\emph{Proof.} The formal proof of \Cref{thm:integral} follows \Cref{sec:integral}. The facts about the letters that it uses are verified by exact computation with sparse integer combinations of group elements, whose interpretation in $\Z[P]$ is proved in Lean. These facts are the factorisation $N^+=C_LK_L$ with the four products that show $F^4C_L^{-1},F^4K_L^{-1}\in R$, the corresponding factorisation of $N^-$, and the congruences and commutation relations of \Cref{cor:interact} in the form used in \Cref{lem:W}. Lean then constructs a ring containing $\Z[P]$ in which $F_1$, $F_2$ and $F_3$ are central units, by inverting the central non-zero-divisor $\Delta$, and proves \Cref{lem:commutator,lem:W} and \Cref{thm:integral} as in \Cref{sec:integral}. In place of \Cref{lem:local}, which uses unique factorisation in $S$, Lean argues as follows. If an element lies in $\mathcal O_{F_1}$ and $\mathcal O_{F_2}$, the identity $(F_1-1)F_1-F_2=1$ shows that its product with a power of $F_3$ lies in $\Z[P]$. If it also lies in $\mathcal O_{F_3}$, it lies in $\Z[P]$, because $F_3r\in(F_1F_2)^k\Z[P]$ with $r\in\Z[P]$ implies $r\in(F_1F_2)^k\Z[P]$. Lean proves this last fact by a recurrence along the powers of $y$.
+
+For non-triviality, Lean uses the ring homomorphism from $\Z[P]$ to the $4\times4$ matrices over $\F_{17}$ induced from the character of $T$ that sends $x,y,z$ to $2,3,5$. It sends each group element to a monomial matrix. Lean evaluates the cleared denominator and numerator of $u$ under this homomorphism. The denominator maps to the identity, and the first row of the image of $u$ is $(11,16,1,12)$, the values of \Cref{prop:nontrivial}(b). The first two entries of the first row of the image of $u\,\chi(v)$ are $12$ and $8$. A signed group element has a single non-zero entry in each row. For the reduction modulo $2$, Lean uses the action of $P$ by permutations on the $28$ pairs consisting of a coset of $T$ and a residue modulo $7$, the residue of $x^iy^jz^k$ being $i+2j+3k$. The image of $D$ fixes a chosen basis vector of the corresponding permutation module over $\F_2$, and the image of the numerator of $u$ sends it to a vector with two non-zero entries. The coefficients of \Cref{prop:nontrivial}(a) are not part of the formal proof, and neither is \Cref{cor:fields} for odd $p$.
+
+\emph{Trust.} The finite computations, namely the identities for the letters, the two matrix images and the image modulo $2$, are evaluated with Lean's \texttt{native\_decide} tactic, which runs compiled code. So accepting the formal proof means trusting the Lean compiler for these evaluations as well as the Lean kernel. The checks that the certificate agrees with the definitions are carried out by the kernel. Apart from the compiled evaluations, the proofs use only the three standard axioms of Lean: propositional extensionality, the axiom of choice and the soundness of quotients. The proof that $P$ is torsion-free uses only these three axioms. The development contains no unproved steps and declares no further axioms.
+
 \begin{thebibliography}{99}
+
+\bibitem{Donahue}
+A.~S.~Donahue, \emph{Lean~4 source code for the Promislow group}, 2026, \href{https://github.com/0thernes/promislow-fracton-amoeba}{\nolinkurl{github.com/0thernes/promislow-fracton-amoeba}}.
 
 \bibitem{FLINT}
 The FLINT team, \emph{FLINT: Fast Library for Number Theory}, \url{https://flintlib.org}.
@@ -327,6 +348,12 @@ I.~Kaplansky, \emph{Problems in the theory of rings}, in: Report of a Conference
 
 \bibitem{Kaplansky70}
 I.~Kaplansky, \emph{``Problems in the theory of rings'' revisited}, Amer. Math. Monthly \textbf{77} (1970), 445--454.
+
+\bibitem{Lean4}
+L.~de~Moura and S.~Ullrich, \emph{The Lean~4 theorem prover and programming language}, in: Automated Deduction -- CADE~28, Lecture Notes in Comput.\ Sci.\ \textbf{12699}, Springer, 2021, 625--635.
+
+\bibitem{Mathlib}
+The mathlib Community, \emph{The Lean mathematical library}, in: Proceedings of the 9th ACM SIGPLAN International Conference on Certified Programs and Proofs (CPP 2020), ACM, 2020, 367--381.
 
 \bibitem{Murray}
 A.~G.~Murray, \emph{More counterexamples to the unit conjecture for group rings}, preprint (2021), \href{https://arxiv.org/abs/2106.02147}{arXiv:2106.02147}.

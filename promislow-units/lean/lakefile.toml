@@ -1,0 +1,17 @@
+name = "promislow"
+version = "0.1.0"
+defaultTargets = ["Promislow"]
+
+[[require]]
+name = "mathlib"
+git = "https://github.com/leanprover-community/mathlib4"
+rev = "v4.24.0"
+
+[[input_file]]
+name = "certificate"
+path = "../code/integral-pair.json"
+text = true
+
+[[lean_lib]]
+name = "Promislow"
+needs = ["certificate"]
