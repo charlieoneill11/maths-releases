@@ -1,0 +1,345 @@
+\documentclass[11pt,colorlinks]{charlie}
+\input{preamble}
+\usepackage{amssymb}
+
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\Dinf}{D_\infty}
+\renewcommand{\aiusestatement}{The construction, its proof and the original verification programs were developed and run by Astra (GPT-6.2 Astra, OpenAI) from Charles O'Neill's instructions. The independent verification program and the manuscript were prepared with Claude (Anthropic). The programs are available at \coderepo.}
+
+\title{The unit conjecture fails for integral group rings}
+\author{Charles O'Neill and Astra}
+\date{27 November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Higman asked in 1940 whether the integral group ring of a torsion-free group has only the trivial units $\pm g$, and Kaplansky's unit conjecture asks the same over every field. Gardam disproved the conjecture over the field with two elements, Murray over every field of positive characteristic, and Gardam over the complex numbers, with coefficients in $\Z[\zeta_8]$. The question over the integers, and over $\Q$ and $\R$, remained open. We show that the integral group ring $\Z[P]$ of the Promislow group $P$, the torsion-free group of these examples, has a non-trivial unit. The unit $u$ is an explicit triple commutator of three units of a central localisation of $\Z[P]$, and its inverse is the formal inverse of that commutator, so the only thing to prove is that $u$ and $u^{-1}$ have integer coefficients. Each of the three possible denominator primes $F$ cancels because the commutators involved are congruent to one modulo increasing powers of $F$ after a suitable conjugation. Consequently the unit conjecture fails over every field and over $\Z$. The reduction of $u$ modulo every prime $p$ is a non-trivial unit of $\F_p[P]$, and we also give a non-trivial unit of $\Z[P]$ that is congruent to one modulo two. The identities used about the three letters are proved by hand and confirmed by exact computation, and the integrality of $u$ and of its inverse has been confirmed by two independently written programs.
+\end{abstract}
+\mscandkeywords{16S34; 16U60, 20H15}{group rings, unit conjecture, Kaplansky's conjectures, Higman, Promislow group, Hantzsche--Wendt group}
+
+\section*{AI use and author contributions}
+\aiusestatement
+
+Charles O'Neill chose the problem and directed the work. \responsibilitystatement
+
+\section{Introduction}
+
+Let $G$ be a group and $K$ a ring. The units $kg$ of the group ring $K[G]$, with $k$ a unit of $K$ and $g\in G$, are called trivial. In his thesis Higman \cite{Higman} studied the units of integral group rings. For finite groups non-trivial units are common: Higman showed that the integral group ring of a finite abelian group has only the units $\pm g$ exactly when the exponent of the group divides $4$ or $6$. He asked whether $\Z[G]$ has only the units $\pm g$ when $G$ is torsion-free. Kaplansky included the same question for group rings over fields among his problems in ring theory \cite{Kaplansky57,Kaplansky70}, and it became known as the \emph{unit conjecture}: if $G$ is torsion-free and $K$ is a field, then every unit of $K[G]$ is trivial. It holds for unique product groups, and in particular for ordered groups \cite{Higman,Passman}.
+
+The unit conjecture was disproved by Gardam \cite{Gardam21}, who found a non-trivial unit in $\F_2[P]$ for the torsion-free group
+\[
+  P=\langle a,b\mid b^{-1}a^2b=a^{-2},\ a^{-1}b^2a=b^{-2}\rangle .
+\]
+This is Promislow's group \cite{Promislow}, the fundamental group of the Hantzsche--Wendt manifold \cite{HW}; it is torsion-free but does not have unique products. Murray \cite{Murray} then gave non-trivial units in $\F_p[P]$ for every prime $p$, and Gardam \cite{Gardam24} showed that $\C[P]$ has non-trivial units, with coefficients in $\Z[\zeta_8]$. Gardam remarks there that he had not succeeded in finding a non-trivial unit in $\Z[P]$. As recorded for example in \cite{Tabei}, the conjecture remained open over $\Q$, over $\R$ and, in Higman's original setting, over $\Z$.
+
+We settle these cases.
+
+\begin{theorem}\label{thm:main}
+There are $u,v\in\Z[P]$ with $uv=vu=1$ such that $u\ne\pm g$ for every $g\in P$.
+\end{theorem}
+
+The unit is explicit. In \Cref{sec:letters} we define three units $A_1,A_2,B$ of the localisation of $\Z[P]$ at a product of three central elements $F_1,F_2,F_3$, each an irreducible cyclotomic polynomial in one translation, made central by a monomial factor. With $[X,Y]=XYX^{-1}Y^{-1}$, the unit is
+\begin{equation}\label{eq:u}
+  u=\bigl[\bigl[[W_1,W_2],W_1\bigr],W_1\bigr],\qquad W_1=[A_1,B],\quad W_2=[A_2,B],
+\end{equation}
+and $v=u^{-1}$ is the formal inverse of this word. That $uv=vu=1$ is therefore automatic, and the content of \Cref{thm:main} is that $u$ and $v$ have integer coefficients (\Cref{thm:integral}) and that $u$ is not a signed group element (\Cref{prop:nontrivial}). The integrality is a local statement at each $F_i$. At its own prime, a letter splits into two halves with bounded denominators. The other letters are congruent to their scalar parts modulo the fifth power of the prime, and these scalar parts commute with everything that matters. As a result, after conjugation by a half, each $W_i$ is congruent to one modulo $F_i$, each iterated commutator gains a power of $F_i$, and the four powers gained by $u$ pay for the conjugation.
+
+Since $\Z$ embeds in every field of characteristic zero, and since the reductions of $u$ modulo primes remain non-trivial, we obtain the following.
+
+\begin{corollary}\label{cor:fields}
+For every field $K$, the group ring $K[P]$ has a non-trivial unit. For every prime $p$, the reduction of $u$ modulo $p$ is a non-trivial unit of $\F_p[P]$.
+\end{corollary}
+
+The unit is much larger than the earlier examples. Gardam's unit in $\F_2[P]$ has $21$ terms, whereas the coefficient of $x^{-1420}y^{-208}z^{14}a$ in $u$ is $3^7$, in the notation of \Cref{sec:group}. In \Cref{prop:mod2} we also give a non-trivial unit of $\Z[P]$ whose reduction modulo two is the identity.
+
+\section{The group and its group ring}\label{sec:group}
+
+Put $x=a^2$, $y=b^2$ and $z=(ab)^2$. The following facts are standard; see \cite[Section~3.1]{Gardam21} and \cite{Promislow}. The subgroup $T=\langle x,y,z\rangle$ is normal and free abelian of rank three, $P/T$ is elementary abelian of order four, and $1,a,b,ab$ represent the cosets of $T$. Every element of $P$ can be written uniquely as $x^iy^jz^kr$ with $i,j,k\in\Z$ and $r\in\{1,a,b,ab\}$. Conjugation acts on $T$ by
+\begin{equation}\label{eq:action}
+  \begin{aligned}
+  axa^{-1}&=x, & aya^{-1}&=y^{-1}, & aza^{-1}&=z^{-1},\\
+  bxb^{-1}&=x^{-1}, & byb^{-1}&=y, & bzb^{-1}&=z^{-1}.
+  \end{aligned}
+\end{equation}
+These facts can be checked in the faithful affine action of $P$ on $\R^3$ given by
+\[
+  a(\xi)=\operatorname{diag}(1,-1,-1)\,\xi+(1,1,0),\qquad b(\xi)=\operatorname{diag}(-1,1,-1)\,\xi+(0,1,1).
+\]
+These maps satisfy the defining relations, $x,y,z$ act as translations by $(2,0,0)$, $(0,2,0)$ and $(0,0,-2)$, and the images of $1,a,b,ab$ have distinct linear parts, so distinct normal forms give distinct maps. The group $P$ is torsion-free \cite{Promislow}.
+
+Let $R=\Z[P]$ and let $S=\Z[T]=\Z[x^{\pm1},y^{\pm1},z^{\pm1}]$, a Laurent polynomial ring and so a unique factorisation domain. By the normal form, $R$ is a free left $S$-module with basis $1,a,b,ab$, and every element of $R$ can be written uniquely as
+\[
+  s_1+s_a\,a+s_b\,b+s_{ab}\,ab,\qquad s_r\in S.
+\]
+We call $s_r$ the \emph{coefficient polynomials} of the element. For $g\in P$ and $s\in S$ we have $gs=\sigma_g(s)g$, where $\sigma_g$ is the automorphism of $S$ induced by \eqref{eq:action}. An element of $S$ is central in $R$ if and only if it is fixed by $\sigma_a$ and $\sigma_b$.
+
+\section{Three units of a localisation}\label{sec:letters}
+
+\subsection{Vertex units}
+A \emph{vertex} is one of the triples $(h,t,w)=(a,x,y)$ or $(b,y,x)$. By \eqref{eq:action}, in either case
+\[
+  h^2=t,\qquad ht=th,\qquad tw=wt,\qquad hwh^{-1}=w^{-1}.
+\]
+For $m\in\{3,5\}$ let $d=(m-1)/2$ and
+\[
+  P_m(t)=1+t+\dots+t^{d},\qquad Q_m(t)=1+t+\dots+t^{d-1}.
+\]
+Then $(1-t)^2(P_m^2-tQ_m^2)=(1-t^{d+1})^2-t(1-t^d)^2=(1-t)(1-t^m)$, so
+\begin{equation}\label{eq:pell}
+  P_m(t)^2-tQ_m(t)^2=\Phi_m(t),
+\end{equation}
+the $m$-th cyclotomic polynomial.
+
+\begin{lemma}\label{lem:atom}
+Let $c=\varepsilon w^n$ with $\varepsilon=\pm1$ and $n\in\Z$, and put $E(c)=P_m(t)+Q_m(t)\,c\,h\in R$. Then $E(c)E(-c)=E(-c)E(c)=\Phi_m(t)$, and $\Phi_m(t)$ commutes with $E(c)$.
+\end{lemma}
+
+\begin{proof}
+Since $h$ and $c$ commute with $t$, the cross terms of $E(c)E(-c)$ cancel, and $E(c)E(-c)=P_m^2-Q_m^2\,c\,(hch^{-1})\,h^2=P_m^2-tQ_m^2$, because $hch^{-1}=\varepsilon w^{-n}=c^{-1}$. The same computation applies with $c$ replaced by $-c$. The last assertion holds because $t$ commutes with $h$ and $w$.
+\end{proof}
+
+\subsection{The letters}
+A \emph{letter type} is a vertex together with $m\in\{3,5\}$ and a positive integer $k$. Put $v_0=w^k$ and define the phases
+\[
+  (c_1,\dots,c_8)=\bigl(-1,\ v_0^{-1},\ -v_0^{-2},\ v_0^{-1},\ 1,\ -v_0^{-1},\ v_0^{-2},\ -v_0^{-1}\bigr).
+\]
+Let $F=t^{-d}\Phi_m(t)$ and
+\[
+  N^+=t^{-4d}E(c_1)E(c_2)\cdots E(c_8),\qquad N^-=t^{-4d}E(-c_8)E(-c_7)\cdots E(-c_1).
+\]
+By \Cref{lem:atom}, applied four times from the middle outwards and using that $t$ commutes with every $E(c_j)$,
+\begin{equation}\label{eq:norm}
+  N^+N^-=N^-N^+=t^{-8d}\Phi_m(t)^8=F^8.
+\end{equation}
+We use three letter types:
+\begin{center}
+\begin{tabular}{@{}cccccc@{}}
+\toprule
+letter & vertex & $m$ & $k$ & $v_0$ & $F$ \\
+\midrule
+$A_1$ & $(a,x,y)$ & $3$ & $3$ & $y^3$ & $F_1=x^{-1}+1+x$ \\
+$A_2$ & $(a,x,y)$ & $5$ & $3$ & $y^3$ & $F_2=x^{-2}+x^{-1}+1+x+x^2$ \\
+$B$ & $(b,y,x)$ & $3$ & $15$ & $x^{15}$ & $F_3=y^{-1}+1+y$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+Each $F_i$ is fixed by $\sigma_a$ and $\sigma_b$, because these automorphisms invert or fix $x$ and $y$, so $F_i$ is central in $R$. Each $F_i$ is a monomial times an irreducible cyclotomic polynomial, so it is a prime element of $S$, and the three are pairwise non-associate. Let $\Delta=F_1F_2F_3$. Since $\Delta$ is central and $R$ is free over the domain $S$, we may form the localisation
+\[
+  R_\Delta=R[\Delta^{-1}]=\bigoplus_{r\in\{1,a,b,ab\}}S[\Delta^{-1}]\,r,
+\]
+which contains $R$. For each letter type in the table, with its own $F$, put
+\[
+  L=N^+F^{-4},\qquad L^{-1}=N^-F^{-4}.
+\]
+By \eqref{eq:norm} these are mutually inverse units of $R_\Delta$. This defines $A_1^{\pm1}$, $A_2^{\pm1}$ and $B^{\pm1}$, and with them $u$ and $v=u^{-1}$ by \eqref{eq:u}.
+
+\subsection{Scalar and screw parts}
+Every product of the elements $E(c_j)$ and $t^{\pm1}$ of one vertex lies in $\Z[t^{\pm1},v_0^{\pm1}]\oplus\Z[t^{\pm1},v_0^{\pm1}]\,h$. Accordingly we write each signed letter as $p+q\,h$ with $p,q\in\Z[t^{\pm1},v_0^{\pm1}][F^{-1}]$, and call $p$ its \emph{scalar part} and $q\,h$ its \emph{screw part}.
+
+\begin{lemma}\label{lem:letters}
+For each of the six signed letters $A_1^{\pm1}$, $A_2^{\pm1}$, $B^{\pm1}$, with scalar part $p$, screw part $qh$ and own prime $F$:
+\begin{enumerate}[label=\textup{(\alph*)}]
+\item $p$ is invariant under $t\mapsto t^{-1}$;
+\item $p-1$ is divisible by $v_0-1$ in $\Z[t^{\pm1},v_0^{\pm1}][F^{-1}]$;
+\item $q$ is divisible by $(v_0-1)^5$ in $\Z[t^{\pm1},v_0^{\pm1}][F^{-1}]$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Consider $N^+$; for $N^-$ replace the phases by $(-c_8,\dots,-c_1)$. Write $c_l=\varepsilon_lv_0^{e_l}$. Expanding the product of the eight factors $P_m+Q_mc_lh$, the term that takes the screw part at the positions $l_1<\dots<l_j$ equals
+\[
+  t^{-4d}\,P_m^{8-j}Q_m^{j}\;c_{l_1}h\,c_{l_2}h\cdots c_{l_j}h
+  =\varepsilon\,v_0^{\,e}\,t^{-4d+\lfloor j/2\rfloor}P_m^{8-j}Q_m^{j}\,h^{\,j-2\lfloor j/2\rfloor},
+\]
+where $\varepsilon=\varepsilon_{l_1}\cdots\varepsilon_{l_j}$ and $e=e_{l_1}-e_{l_2}+e_{l_3}-\cdots$, because $h$ inverts $v_0$ and commutes with $t$, and $h^2=t$. Hence
+\begin{equation}\label{eq:layers}
+  N^+=\sum_{j=0}^{8}t^{-4d+\lfloor j/2\rfloor}P_m^{8-j}Q_m^{j}\,G_j(v_0)\,h^{\,j-2\lfloor j/2\rfloor},
+\end{equation}
+where
+\[
+  G_j(v_0)=\sum_{l_1<\dots<l_j}\varepsilon_{l_1}\cdots\varepsilon_{l_j}\,v_0^{\,e_{l_1}-e_{l_2}+e_{l_3}-\cdots}.
+\]
+The scalar part is $F^{-4}$ times the sum over even $j$, and the screw coefficient is $F^{-4}$ times the sum over odd $j$.
+
+(a) The polynomials $P_m$ and $Q_m$ are palindromic of degrees $d$ and $d-1$, so $P_m(t^{-1})=t^{-d}P_m(t)$ and $Q_m(t^{-1})=t^{1-d}Q_m(t)$. Hence for even $j$ the factor $t^{-4d+j/2}P_m^{8-j}Q_m^{j}$ is invariant under $t\mapsto t^{-1}$, and so is $F$.
+
+(b) Every element of the vertex group $\langle h,w\rangle$ can be written uniquely as $h^nw^j$, and $(h^nw^j)(h^{n'}w^{j'})=h^{n+n'}w^{\pm j+j'}$. So $h^nw^j\mapsto h^n$ is a homomorphism onto the infinite cyclic group $\langle h\rangle$, and it induces a ring homomorphism from $\Z[\langle h,w\rangle]$ to the commutative ring $\Z[h^{\pm1}]$, with $t\mapsto h^2$. It sends $v_0$ to $1$ and the phases to $-1,1,-1,1,1,-1,1,-1$. In the image the factors commute, there are four factors $E(1)$ and four factors $E(-1)$, and by \Cref{lem:atom} the image of $N^+$ is $t^{-4d}\Phi_m(t)^4=F^4$. Comparing the parts of even and odd degree in $h$, the scalar part $\tilde p\in\Z[t^{\pm1},v_0^{\pm1}]$ of $N^+$ satisfies $\tilde p(t,1)=F^4$. Hence $\tilde p-F^4$ is divisible by $v_0-1$, and $p-1=(\tilde p-F^4)F^{-4}$.
+
+(c) Direct evaluation of the sums $G_j$, which have $\binom8j$ terms, gives $G_1=G_7=0$ and
+\[
+  G_3=\pm H,\qquad G_5=\mp v_0H,\qquad H=v_0^{-4}(v_0-1)^5(v_0+1),
+\]
+with the upper signs for $N^+$ and the lower signs for $N^-$. Therefore the screw coefficient of $N^\pm$ is
+\[
+  \pm\,t^{1-4d}P_m^3Q_m^3\,H\,\bigl(P_m^2-tQ_m^2v_0\bigr),
+\]
+which is divisible by $(v_0-1)^5$.
+\end{proof}
+
+\begin{corollary}\label{cor:interact}
+\begin{enumerate}[label=\textup{(\roman*)}]
+\item The scalar parts of $A_1^{\pm1}$ and $A_2^{\pm1}$ commute with $b$, $x$ and $y$, and hence with $B^{\pm1}$ and with every factor $E(c)$ and $y^{\pm1}$ of the $B$-vertex. The scalar parts of $B^{\pm1}$ commute with $a$, $x$ and $y$, and hence with $A_1^{\pm1}$, $A_2^{\pm1}$ and every factor $E(c)$ and $x^{\pm1}$ of the $a$-vertex.
+\item In $S[(F_2F_3)^{-1}]$ and in $S[(F_1F_3)^{-1}]$, the scalar part of $B^{\pm1}$ is congruent to $1$ modulo $F_1$, respectively $F_2$, and its screw coefficient is divisible by $F_1^5$, respectively $F_2^5$. In $S[(F_1F_2)^{-1}]$, the scalar parts of $A_1^{\pm1}$ and $A_2^{\pm1}$ are congruent to $1$ modulo $F_3$ and their screw coefficients are divisible by $F_3^5$.
+\end{enumerate}
+\end{corollary}
+
+\begin{proof}
+(i) The scalar part of $A_i^{\pm1}$ lies in $\Z[x^{\pm1},y^{\pm3}][F_i^{-1}]$ and is invariant under $x\mapsto x^{-1}$, which is the action of $b$; it commutes with $x$ and $y$ since $T$ is abelian. The scalar part of $B^{\pm1}$ lies in $\Z[y^{\pm1},x^{\pm15}][F_3^{-1}]$ and is invariant under $y\mapsto y^{-1}$, which is the action of $a$.
+(ii) For $B$ we have $v_0=x^{15}$, and $\Phi_3(x)$ and $\Phi_5(x)$ divide $x^{15}-1$. For $A_i$ we have $v_0=y^3$, and $\Phi_3(y)$ divides $y^3-1$. The denominators $F_3^4$ of $B$, and $F_i^4$ of $A_i$, are units in the rings named. Now apply \Cref{lem:letters}(b),(c).
+\end{proof}
+
+\section{Integrality}\label{sec:integral}
+
+\begin{theorem}\label{thm:integral}
+The elements $u$ and $v=u^{-1}$ of $R_\Delta$ lie in $R=\Z[P]$. Hence $uv=vu=1$ in $\Z[P]$.
+\end{theorem}
+
+For $F\in\{F_1,F_2,F_3\}$ let $\mathcal O_F=R[(\Delta/F)^{-1}]\subseteq R_\Delta$ be the localisation at the other two primes. It is a subring containing $R$, and since $F$ is central, $F^n\mathcal O_F$ is a two-sided ideal. For $X\in R_\Delta$ we write $X\equiv1\pmod{F^n}$ if $X-1\in F^n\mathcal O_F$; in particular $X\in\mathcal O_F$. We write $X^{\pm1}\equiv1$ to mean that $X$ is a unit of $R_\Delta$ and both $X$ and $X^{-1}$ satisfy the congruence.
+
+\begin{lemma}\label{lem:local}
+An element of $R_\Delta$ that lies in $\mathcal O_{F_1}$, $\mathcal O_{F_2}$ and $\mathcal O_{F_3}$ lies in $R$.
+\end{lemma}
+
+\begin{proof}
+Compare coefficient polynomials. An element of $S[\Delta^{-1}]$ can be written as $f/(F_1^{\alpha}F_2^{\beta}F_3^{\gamma})$ with $f\in S$ not divisible by any $F_i$ whose exponent is positive. If it also lies in $S[(F_2F_3)^{-1}]$, then unique factorisation forces $\alpha=0$, and similarly $\beta=\gamma=0$.
+\end{proof}
+
+\begin{lemma}\label{lem:commutator}
+Let $r,s\ge0$. If $X^{\pm1}\equiv1\pmod{F^r}$ and $Y^{\pm1}\equiv1\pmod{F^s}$, then $[X,Y]^{\pm1}\equiv1\pmod{F^{r+s}}$.
+\end{lemma}
+
+\begin{proof}
+We have $XY-YX=(X-1)(Y-1)-(Y-1)(X-1)\in F^{r+s}\mathcal O_F$, and $[X,Y]-1=(XY-YX)X^{-1}Y^{-1}$ with $X^{-1},Y^{-1}\in\mathcal O_F$. Finally $[X,Y]^{-1}=[Y,X]$.
+\end{proof}
+
+For a positive letter $L\in\{A_1,A_2,B\}$, with its own prime $F$, define its \emph{halves}
+\[
+  C_L=E(c_1)E(c_2)E(c_3)E(c_4),\qquad K_L=t^{-4d}E(c_5)E(c_6)E(c_7)E(c_8).
+\]
+Then $L=C_LK_LF^{-4}$, and by \Cref{lem:atom} the four elements $C_L$, $K_L$, $F^4C_L^{-1}=t^{-4d}E(-c_4)\cdots E(-c_1)$ and $F^4K_L^{-1}=E(-c_8)\cdots E(-c_5)$ lie in $R$. Consequently, if $X\in F^n\mathcal O_F$ with $n\ge4$, then $C_L^{\pm1}XC_L^{\mp1}$ and $K_L^{\pm1}XK_L^{\mp1}$ lie in $F^{n-4}\mathcal O_F$.
+
+\begin{lemma}\label{lem:W}
+Let $(F,L)$ be one of $(F_1,A_1)$, $(F_2,A_2)$, $(F_3,B)$, and let $C=C_L$. Then $(C^{-1}W_iC)^{\pm1}\equiv1\pmod F$ for $i=1,2$.
+\end{lemma}
+
+\begin{proof}
+Note that $(C^{-1}W_iC)^{-1}=C^{-1}W_i^{-1}C$. Write $K=K_L$.
+
+\emph{The case $F=F_i$ and $W_i=[A_i,B]$.} Using $A_i=CKF^{-4}$ and $A_i^{-1}=F^4K^{-1}C^{-1}$,
+\[
+  C^{-1}W_iC=(KBK^{-1})(C^{-1}B^{-1}C),\quad C^{-1}W_i^{-1}C=(C^{-1}BC)(KB^{-1}K^{-1}).
+\]
+Write $B^{\pm1}=p+qb$. By \Cref{cor:interact}, $p$ commutes with $C$ and $K$, $p\equiv1\pmod F$ and $qb\in F^5\mathcal O_F$. Hence each of the four conjugates $K^{\pm1}B^{\pm1}K^{\mp1}$ and $C^{\pm1}B^{\pm1}C^{\mp1}$ that occur is $p$ plus an element of $F\mathcal O_F$, and so is congruent to $1$ modulo $F$. So are the products.
+
+\emph{The case $F=F_i$ and $W_j=[A_j,B]$ with $j\ne i$.} Here $A_j^{\pm1}$ and $B^{\pm1}$ lie in $\mathcal O_F$, because their denominators are powers of $F_j$ and $F_3$. Write $B=p+qb$ as before. Since $p$ commutes with $A_j$,
+\[
+  A_jB-BA_j=A_j\,qb-qb\,A_j\in F^5\mathcal O_F .
+\]
+Hence $W_j-1=(A_jB-BA_j)A_j^{-1}B^{-1}$ and $W_j^{-1}-1=(BA_j-A_jB)B^{-1}A_j^{-1}$ lie in $F^5\mathcal O_F$, and conjugation by $C$ costs at most four powers of $F$.
+
+\emph{The case $F=F_3$, $L=B$.} Using $B=CKF^{-4}$ and $B^{-1}=F^4K^{-1}C^{-1}$,
+\[
+  C^{-1}W_iC=(C^{-1}A_iC)(KA_i^{-1}K^{-1}),\quad C^{-1}W_i^{-1}C=(KA_iK^{-1})(C^{-1}A_i^{-1}C).
+\]
+Write $A_i^{\pm1}=p+qa$. By \Cref{cor:interact}, $p$ commutes with $C$ and $K$, $p\equiv1\pmod{F_3}$ and $qa\in F_3^5\mathcal O_{F_3}$, and we conclude as in the first case.
+\end{proof}
+
+\begin{proof}[Proof of \Cref{thm:integral}]
+Fix $(F,L)$ and $C=C_L$ as in \Cref{lem:W}, and write $X'=C^{-1}XC$. Conjugation by $C$ is an automorphism of $R_\Delta$, so $T_2'=[W_1',W_2']$, $T_3'=[T_2',W_1']$ and $u'=[T_3',W_1']$, where $T_2=[W_1,W_2]$ and $T_3=[T_2,W_1]$. By \Cref{lem:W} and three applications of \Cref{lem:commutator},
+\[
+  T_2'^{\pm1}\equiv1\pmod{F^2},\qquad T_3'^{\pm1}\equiv1\pmod{F^3},\qquad u'^{\pm1}\equiv1\pmod{F^4}.
+\]
+Therefore
+\[
+  u^{\pm1}-1=C\,(u'^{\pm1}-1)\,C^{-1}\in C\cdot F^4\mathcal O_F\cdot F^{-4}(F^4C^{-1})\subseteq\mathcal O_F ,
+\]
+so $u$ and $v=u^{-1}$ lie in $\mathcal O_F$. This holds for $F=F_1,F_2,F_3$, and \Cref{lem:local} gives $u,v\in R$. The identity $uv=vu=1$ holds in $R_\Delta$, which contains $R$.
+\end{proof}
+
+\section{Non-triviality}\label{sec:nontrivial}
+
+Expanding the commutators in \eqref{eq:u} and cancelling adjacent inverse letters, $u$ is a product of $64$ signed letters, with $20$, $16$ and $28$ occurrences of $A_1$, $A_2$ and $B$. Grouping consecutive letters of the same vertex, it is a product of $57$ syllables that alternate between the $a$-vertex and the $b$-vertex, beginning and ending with the $a$-vertex.
+
+\begin{proposition}\label{prop:nontrivial}
+\begin{enumerate}[label=\textup{(\alph*)}]
+\item In $u$, the coefficients of $x^{-1420}y^{-208}z^{14}a$ and of $x^{1419}y^{202}z^{14}a$ are $3^7=2187$ and $-3^7$.
+\item The coefficient polynomials of $u$ satisfy $\bigl(s_1,s_a,s_b,s_{ab}\bigr)(2,3,5)\equiv(11,16,1,12)\pmod{17}$.
+\end{enumerate}
+In particular $u\ne\pm g$ for every $g\in P$.
+\end{proposition}
+
+\begin{proof}
+(a) The subgroup $\langle x,y\rangle$ is normal, and $P/\langle x,y\rangle$ is the infinite dihedral group $\Dinf$ generated by the images of $a$ and $b$. This grades $R_\Delta$ by $\Dinf$, the component of degree $\delta$ consisting of the elements supported on the preimage of $\delta$. Each syllable has the form $p+qh$ with $p,q\in\Z[x^{\pm1},y^{\pm1}][\Delta^{-1}]$. The image of $z^{14}a=(ab)^{28}a$ is a reduced word of length $57$ in $\Dinf$, so the component of $u$ in this degree is obtained by taking the screw part of every syllable. Moving the $57$ generators to the right, and using $(ab)^{28}a=z^{14}a$, it equals $Q\,z^{14}a$, where $Q$ is the product of the $57$ screw coefficients, each transformed by the automorphism of \eqref{eq:action} induced by the generators to its left. Since $u\in R$, $Q$ is a Laurent polynomial in $x$ and $y$. In the lexicographic order on exponents, the least and the greatest monomial of a product of Laurent polynomials, and of an exact quotient, are the products and quotients of the least and the greatest monomials of the factors, and the extreme coefficients of $F_1,F_2,F_3$ equal $1$. Computing the extreme terms of the screw coefficients in this way gives the two stated monomials of $Q$, with coefficients $\pm3^7$.
+
+(b) The map $S\to\F_{17}$ sending $x,y,z$ to $2,3,5$ is a ring homomorphism. By \Cref{thm:integral}, $u=N_u/D$, where $N_u\in R$ is the product of the integer numerators $N^\pm$ of the $64$ letters and $D=F_1^{80}F_2^{64}F_3^{112}$ is central; the image of $D$ is non-zero. The values follow by computing the images of the coefficient polynomials of $N_u$.
+
+A signed group element $\pm x^iy^jz^kr$ has exactly one non-zero coefficient polynomial, namely $\pm x^iy^jz^k$ at $r$. Either (a) or (b) excludes this.
+\end{proof}
+
+\begin{proof}[Proof of \Cref{cor:fields}]
+If $K$ has characteristic zero, $\Z\subseteq K$ and $u$ is a unit of $K[P]$ with at least two non-zero coefficients by \Cref{prop:nontrivial}(a). If $K$ has characteristic $p$, the reduction $\bar u$ of $u$ is a unit of $\F_p[P]\subseteq K[P]$ with inverse $\bar v$. For $p\ne3$, the two coefficients $\pm3^7$ remain non-zero. For $p=3$, let $\F_{27}=\F_3[s]/(s^3-s-1)$. Evaluating at $(x,y,z)=(s,s^2,s+1)$, where the image of $D$ is non-zero, the coefficient polynomials of $\bar u$ take the values $2s^2$, $s^2+2s+2$, $s$ and $2s$, so $\bar u$ is not a multiple of a group element.
+\end{proof}
+
+Let $\chi\colon P\to\{\pm1\}$ be the homomorphism with $\chi(a)=-1$ and $\chi(b)=1$; it is well defined because both relators have even exponent sum in $a$. It induces the ring automorphism $\sum n_gg\mapsto\sum\chi(g)n_gg$ of $\Z[P]$, also denoted $\chi$, which is the identity modulo $2$.
+
+\begin{proposition}\label{prop:mod2}
+The element $u_\chi=u\,\chi(v)$ is a non-trivial unit of $\Z[P]$, with inverse $\chi(u)\,v$, and $u_\chi\equiv1\pmod{2\Z[P]}$.
+\end{proposition}
+
+\begin{proof}
+Clearly $u_\chi\cdot\chi(u)v=u\,\chi(vu)\,v=1$ and $\chi(u)v\cdot u_\chi=\chi(u)\,vu\,\chi(v)=1$. Modulo $2$, $u_\chi\equiv uv=1$. Its coefficient polynomials take the values $(12,8,0,14)$ modulo $17$ at $(x,y,z)=(2,3,5)$, so $u_\chi$ is not a signed group element.
+\end{proof}
+
+Thus non-trivial integral units occur both among those that reduce to trivial units modulo two, and among those that reduce to non-trivial units, the two cases distinguished in \cite{Tabei}.
+
+\section{Computations}\label{sec:computations}
+
+The proofs of \Cref{thm:integral} and \Cref{prop:mod2} are complete as written, given \Cref{lem:letters}. Part (c) of that lemma rests on the evaluation of the sums $G_j$, which have at most $70$ terms. The following computations confirm the results.
+
+\paragraph{The letters.} The identities of \Cref{lem:atom}, \eqref{eq:norm} and all three parts of \Cref{lem:letters} were confirmed for all six signed letters by expanding them exactly in $\Z[P]$, in two independently written programs. Each letter is a product of eight factors with at most five terms each.
+
+\paragraph{Integrality, original program.} The common denominator of the reduced word for $u$ is $D=F_1^{80}F_2^{64}F_3^{112}$. The original program checks the twelve congruences of \Cref{lem:W}, one for each prime, each $W_i$ and each sign, by exact polynomial division in the matrices of the right regular representation of $R$ over $S$, after clearing denominators. It also checks that the products of the integer numerators of $u$ and $v$, in both orders, equal $D^2$, and it computes the extreme coefficients of \Cref{prop:nontrivial}(a).
+
+\paragraph{Integrality, independent program.} A second program, written from the definitions of \Cref{sec:letters} and sharing no code with the first, computes the coefficient polynomials of the integer numerator $N_u$ of $u$ modulo $F^e$ for $(F,e)=(F_1,80)$, $(F_2,64)$ and $(F_3,112)$, working in $\F_p[x]/(\Phi(x)^e)$ or $\F_p[y]/(\Phi(y)^e)$ with the other two variables set to random residues, for two primes $p$ close to $2^{61}$ and $2^{62}$. All coefficient polynomials vanish, and they do not all vanish modulo $F^{e+1}$. The same holds for $v$. As a control, inverting one letter of the word makes the test fail. Being a test at specialised points, this confirms \Cref{thm:integral} with an error probability that is negligible but not zero; the proof is the argument of \Cref{sec:integral}. The same program checks $N_uN_v=N_vN_u=D^2$ at a random point and computes the values in \Cref{prop:nontrivial}(b), \Cref{cor:fields} and \Cref{prop:mod2}. It also finds that the reduction of $u$ modulo every prime below $100$ has at least two non-zero coefficient polynomials.
+
+\paragraph{Software.} The programs are written in Python and use FLINT \cite{FLINT} through its Python bindings.
+
+\begin{thebibliography}{99}
+
+\bibitem{FLINT}
+The FLINT team, \emph{FLINT: Fast Library for Number Theory}, \url{https://flintlib.org}.
+
+\bibitem{Gardam21}
+G.~Gardam, \emph{A counterexample to the unit conjecture for group rings}, Ann. of Math. (2) \textbf{194} (2021), 967--979.
+
+\bibitem{Gardam24}
+G.~Gardam, \emph{Non-trivial units of complex group rings}, preprint (2023), \href{https://arxiv.org/abs/2312.05240}{arXiv:2312.05240}.
+
+\bibitem{HW}
+W.~Hantzsche and H.~Wendt, \emph{Dreidimensionale euklidische Raumformen}, Math. Ann. \textbf{110} (1935), 593--611.
+
+\bibitem{Higman}
+G.~Higman, \emph{The units of group-rings}, Proc. London Math. Soc. (2) \textbf{46} (1940), 231--248.
+
+\bibitem{Kaplansky57}
+I.~Kaplansky, \emph{Problems in the theory of rings}, in: Report of a Conference on Linear Algebras, National Academy of Sciences--National Research Council, Publ.~502, Washington, 1957, 1--3.
+
+\bibitem{Kaplansky70}
+I.~Kaplansky, \emph{``Problems in the theory of rings'' revisited}, Amer. Math. Monthly \textbf{77} (1970), 445--454.
+
+\bibitem{Murray}
+A.~G.~Murray, \emph{More counterexamples to the unit conjecture for group rings}, preprint (2021), \href{https://arxiv.org/abs/2106.02147}{arXiv:2106.02147}.
+
+\bibitem{Passman}
+D.~S.~Passman, \emph{The Algebraic Structure of Group Rings}, Wiley-Interscience, New York, 1977.
+
+\bibitem{Promislow}
+S.~D.~Promislow, \emph{A simple example of a torsion-free, nonunique product group}, Bull. London Math. Soc. \textbf{20} (1988), 302--304.
+
+\bibitem{Tabei}
+M.~Tabei, \emph{Higman in balls: the mod-2 dichotomy for integral units of the Promislow group}, preprint (2026), \href{https://arxiv.org/abs/2608.02982}{arXiv:2608.02982}.
+
+\end{thebibliography}
+
+\end{document}
